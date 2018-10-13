@@ -75,14 +75,14 @@ func (c *Client) CreateNamespace(name string, owner string) error {
 		return err
 	}
 
-	ns := models.Namespace{
+	ns := &models.Namespace{
 		Name:  name,
 		Owner: uuid,
 	}
 
 	// Save the namespace in the database
 	// when all other options are successful
-	err = models.DB.Create(&ns)
+	err = models.DB.Create(ns)
 	if err != nil {
 		log.Printf("[Error] %#v", err)
 		return err

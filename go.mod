@@ -12,7 +12,6 @@ require (
 	github.com/gobuffalo/packr v1.13.7
 	github.com/gobuffalo/plush v3.7.20+incompatible // indirect
 	github.com/gobuffalo/pop v4.8.3+incompatible
-	github.com/gobuffalo/release v1.0.39 // indirect
 	github.com/gobuffalo/suite v2.1.6+incompatible
 	github.com/gobuffalo/uuid v2.0.3+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
@@ -25,7 +24,6 @@ require (
 	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/json-iterator/go v1.1.5 // indirect
-	github.com/kr/pty v1.1.3 // indirect
 	github.com/mitchellh/go-homedir v1.0.0
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
@@ -38,12 +36,7 @@ require (
 	golang.org/x/net v0.0.0-20181011144130-49bb7cea24b1 // indirect
 	golang.org/x/sys v0.0.0-20181011152604-fa43e7bc11ba // indirect
 	golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2 // indirect
-	golang.org/x/tools v0.0.0-20181012201414-c0eb142035b5 // indirect
-	gopkg.in/airbrake/gobrake.v2 v2.0.9 // indirect
-	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
-	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	gopkg.in/russross/blackfriday.v1 v1.5.1 // indirect
 	k8s.io/api v0.0.0-20180913155108-f456898a08e4
 	k8s.io/apimachinery v0.0.0-20180619225948-e386b2658ed2
 	k8s.io/client-go v7.0.0+incompatible

@@ -89,24 +89,34 @@ func (v NamespacesResource) Create(c buffalo.Context) error {
 	}
 
 	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+	// tx, ok := c.Value("tx").(*pop.Connection)
+	// if !ok {
+	// 	return errors.WithStack(errors.New("no transaction found"))
+	// }
+
+	// // Validate the data from the html form
+	// verrs, err := tx.ValidateAndCreate(namespace)
+	// if err != nil {
+	// 	return errors.WithStack(err)
+	// }
+
+	// if verrs.HasAny() {
+	// 	// Make the errors available inside the html template
+	// 	c.Set("errors", verrs)
+
+	// 	// Render again the new.html template that the user can
+	// 	// correct the input.
+	// 	return c.Render(422, r.Auto(c, namespace))
+	// }
+
+	kubeClient, err := getKubernetesClient()
+	if err != nil {
+		return c.Error(500, err)
 	}
 
-	// Validate the data from the html form
-	verrs, err := tx.ValidateAndCreate(namespace)
+	err = kubeClient.CreateNamespace(namespace.Name, namespace.Owner)
 	if err != nil {
 		return errors.WithStack(err)
-	}
-
-	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the new.html template that the user can
-		// correct the input.
-		return c.Render(422, r.Auto(c, namespace))
 	}
 
 	// If there are no errors set a success message

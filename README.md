@@ -1,3 +1,3 @@
 # Bork
 
-Bosh took Borg and change two letter, so I change one.
+Bosh took Borg and changed two letter, so I changed one.
