@@ -1,0 +1,10 @@
+version: '2'
+services:
+    db:
+        image: postgres:10-alpine
+        volumes:
+          - ./db/pgdata:/pgdata
+        ports:
+          - "5432:5432"
+        environment:
+          - PGDATA=/pgdata

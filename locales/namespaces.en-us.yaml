@@ -1,0 +1,6 @@
+- id: "namespace.created.success"
+  translation: "Namespace was successfully created."
+- id: "namespace.updated.success"
+  translation: "Namespace was successfully updated."
+- id: "namespace.destroyed.success"
+  translation: "Namespace was successfully destroyed."
