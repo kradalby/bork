@@ -12,6 +12,7 @@ import (
 	"github.com/gobuffalo/x/sessions"
 	"github.com/kradalby/bork/kube"
 	"github.com/kradalby/bork/models"
+	"github.com/markbates/goth/gothic"
 	"github.com/rs/cors"
 )
 
@@ -51,7 +52,19 @@ func App(kubeconf string) *buffalo.App {
 
 		app.GET("/", HomeHandler)
 
+		// Authorization section
+		auth := app.Group("/auth")
+		auth.GET("/session", Session)
+		bah := buffalo.WrapHandlerFunc(gothic.BeginAuthHandler)
+		auth.GET("/{provider}", bah)
+		auth.GET("/{provider}/callback", AuthCallback)
+		auth.DELETE("", AuthDestroy)
+		auth.Middleware.Skip(Authorize, bah, AuthCallback, Session)
+
+		// API section
 		apiV1 := app.Group("/api/v1")
+		apiV1.Use(Authorize)
+		apiV1.Use(SetCurrentUser)
 
 		apiV1.Resource("/users", UsersResource{})
 		apiV1.Resource("/namespaces", NamespacesResource{})

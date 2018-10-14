@@ -8,6 +8,8 @@ CREATE TABLE users (
 , email character varying(255) NOT NULL
 , is_active boolean NOT NULL
 , is_admin boolean NOT NULL
+, provider character varying(255) NOT NULL
+, provider_id character varying(255) NOT NULL
 , PRIMARY KEY (id)
 , UNIQUE (id)
 , UNIQUE (username)

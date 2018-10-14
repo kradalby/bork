@@ -38,7 +38,7 @@ func (v NamespacesResource) List(c buffalo.Context) error {
 
 	// Paginate results. Params "page" and "per_page" control pagination.
 	// Default values are "page=1" and "per_page=20".
-	q := tx.PaginateFromParams(c.Params())
+	q := tx.Eager().PaginateFromParams(c.Params())
 
 	// Retrieve all Namespaces from the DB
 	if err := q.All(namespaces); err != nil {
@@ -64,7 +64,7 @@ func (v NamespacesResource) Show(c buffalo.Context) error {
 	namespace := &models.Namespace{}
 
 	// To find the Namespace the parameter namespace_id is used.
-	if err := tx.Find(namespace, c.Param("namespace_id")); err != nil {
+	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
 		return c.Error(404, err)
 	}
 
@@ -114,7 +114,7 @@ func (v NamespacesResource) Create(c buffalo.Context) error {
 		return c.Error(500, err)
 	}
 
-	err = kubeClient.CreateNamespace(namespace.Name, namespace.Owner)
+	err = kubeClient.CreateNamespace(namespace.Name, namespace.Owner.ID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -298,7 +298,7 @@ func NamespaceCertificateB64(c buffalo.Context) error {
 		return c.Error(500, err)
 	}
 
-	return c.Render(200, r.JSON(map[string]string{"certificate": cert}))
+	return c.Render(200, r.JSON(map[string]string{"certificate_b64": cert}))
 }
 
 func NamespaceEndpoint(c buffalo.Context) error {
@@ -352,9 +352,9 @@ func NamespaceAuth(c buffalo.Context) error {
 	endpoint := kubeClient.GetEndpoint()
 
 	return c.Render(200, r.JSON(map[string]string{
-		"token":          token,
-		"certificate":    cert,
-		"certificateb64": cert64,
-		"endpoint":       endpoint,
+		"token":           token,
+		"certificate":     cert,
+		"certificate_b64": cert64,
+		"endpoint":        endpoint,
 	}))
 }

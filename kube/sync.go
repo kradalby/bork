@@ -87,7 +87,7 @@ func (c *Client) DeleteOrphansInCluster(list []corev1.Namespace) error {
 
 func (c *Client) CreateMissingFromDatabase(list []models.Namespace) error {
 	for _, ns := range list {
-		err := c.CreateNamespaceWithServiceAccount(ns.Name, ns.Owner.String())
+		err := c.CreateNamespaceWithServiceAccount(ns.Name, ns.Owner.ID)
 		if err != nil {
 			return err
 		}

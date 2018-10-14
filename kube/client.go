@@ -62,22 +62,16 @@ func NewOutOfClusterClient(kubeconf string) (*Client, error) {
 	return client, nil
 }
 
-func (c *Client) CreateNamespace(name string, owner string) error {
+func (c *Client) CreateNamespace(name string, ownerId uuid.UUID) error {
 
-	err := c.CreateNamespaceWithServiceAccount(name, owner)
+	err := c.CreateNamespaceWithServiceAccount(name, ownerId)
 	if err != nil {
-		return err
-	}
-
-	uuid, err := uuid.FromString(owner)
-	if err != nil {
-		log.Printf("[Error] %#v", err)
 		return err
 	}
 
 	ns := &models.Namespace{
-		Name:  name,
-		Owner: uuid,
+		Name:    name,
+		OwnerID: ownerId,
 	}
 
 	// Save the namespace in the database
@@ -91,7 +85,7 @@ func (c *Client) CreateNamespace(name string, owner string) error {
 	return nil
 }
 
-func (c *Client) CreateNamespaceWithServiceAccount(name string, owner string) error {
+func (c *Client) CreateNamespaceWithServiceAccount(name string, owner uuid.UUID) error {
 
 	// Create the namespace in the kubecluster
 	err := c.createNamespace(name, owner)
@@ -121,12 +115,12 @@ func (c *Client) CreateNamespaceWithServiceAccount(name string, owner string) er
 	return nil
 }
 
-func (c *Client) createNamespace(namespace string, owner string) error {
+func (c *Client) createNamespace(namespace string, owner uuid.UUID) error {
 
 	_, err := c.client.CoreV1().Namespaces().Create(&corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   namespace,
-			Labels: createLabels(owner),
+			Labels: createLabels(owner.String()),
 		},
 	})
 	return err

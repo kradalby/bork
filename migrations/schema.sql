@@ -42,11 +42,23 @@ CREATE TABLE public.namespaces (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     name character varying(255) NOT NULL,
-    owner uuid NOT NULL
+    owner_id uuid NOT NULL
 );
 
 
 ALTER TABLE public.namespaces OWNER TO postgres;
+
+--
+-- Name: namespaces_users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.namespaces_users (
+    namespace_id uuid NOT NULL,
+    user_id uuid NOT NULL
+);
+
+
+ALTER TABLE public.namespaces_users OWNER TO postgres;
 
 --
 -- Name: schema_migration; Type: TABLE; Schema: public; Owner: postgres
@@ -92,6 +104,14 @@ ALTER TABLE ONLY public.namespaces
 
 ALTER TABLE ONLY public.namespaces
     ADD CONSTRAINT namespaces_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: namespaces_users namespaces_users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.namespaces_users
+    ADD CONSTRAINT namespaces_users_pkey PRIMARY KEY (namespace_id, user_id);
 
 
 --

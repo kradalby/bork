@@ -22,7 +22,9 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
+	"github.com/gobuffalo/uuid"
 	"github.com/kradalby/bork/kube"
 	"github.com/kradalby/bork/models"
 	"github.com/spf13/cobra"
@@ -44,12 +46,17 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, err := kube.NewOutOfClusterClient(kubeconf)
 		if err != nil {
-			fmt.Printf("[Error] %#v", err)
+			log.Fatalf("[Error] %#v", err)
 		}
 
-		err = client.CreateNamespace(name, owner)
+		ownerId, err := uuid.FromString(owner)
 		if err != nil {
-			fmt.Printf("[Error] %#v", err)
+			log.Fatalf("Could not parse UUID: %s", err)
+		}
+
+		err = client.CreateNamespace(name, ownerId)
+		if err != nil {
+			log.Fatalf("[Error] %#v", err)
 		}
 	},
 }
