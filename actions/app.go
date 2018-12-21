@@ -2,14 +2,17 @@ package actions
 
 import (
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/buffalo/middleware/csrf"
+	"github.com/gobuffalo/mw-csrf"
 
-	"github.com/gobuffalo/buffalo/middleware"
-	"github.com/gobuffalo/buffalo/middleware/ssl"
+	"github.com/gobuffalo/buffalo-pop/pop/popmw"
+	"github.com/gobuffalo/mw-contenttype"
+	"github.com/gobuffalo/mw-forcessl"
+	"github.com/gobuffalo/mw-paramlogger"
+
 	"github.com/gobuffalo/envy"
 	"github.com/unrolled/secure"
 
-	"github.com/gobuffalo/x/sessions"
+	// "github.com/gobuffalo/x/sessions"
 	"github.com/kradalby/bork/kube"
 	"github.com/kradalby/bork/models"
 	"github.com/markbates/goth/gothic"
@@ -31,8 +34,8 @@ func App(kubeconf string) *buffalo.App {
 		kubernetesConf = kubeconf
 
 		app = buffalo.New(buffalo.Options{
-			Env:          ENV,
-			SessionStore: sessions.Null{},
+			Env: ENV,
+			// SessionStore: sessions.Null{},
 			PreWares: []buffalo.PreWare{
 				cors.Default().Handler,
 			},
@@ -42,12 +45,12 @@ func App(kubeconf string) *buffalo.App {
 		app.Use(forceSSL())
 
 		// Set the request content type to JSON
-		app.Use(middleware.SetContentType("application/json"))
+		app.Use(contenttype.Set("application/json"))
 		app.Use(csrf.New)
-		app.Use(middleware.PopTransaction(models.DB))
+		app.Use(popmw.Transaction(models.DB))
 
 		if ENV == "development" {
-			app.Use(middleware.ParameterLogger)
+			app.Use(paramlogger.ParameterLogger)
 		}
 
 		app.GET("/", HomeHandler)
@@ -84,7 +87,7 @@ func App(kubeconf string) *buffalo.App {
 // we recommend using a proxy: https://gobuffalo.io/en/docs/proxy
 // for more information: https://github.com/unrolled/secure/
 func forceSSL() buffalo.MiddlewareFunc {
-	return ssl.ForceSSL(secure.Options{
+	return forcessl.Middleware(secure.Options{
 		SSLRedirect:     ENV == "production",
 		SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 	})

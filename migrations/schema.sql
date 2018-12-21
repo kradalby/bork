@@ -84,7 +84,9 @@ CREATE TABLE public.users (
     last_name character varying(255) NOT NULL,
     email character varying(255) NOT NULL,
     is_active boolean NOT NULL,
-    is_admin boolean NOT NULL
+    is_admin boolean NOT NULL,
+    provider character varying(255) NOT NULL,
+    provider_id character varying(255) NOT NULL
 );
 
 

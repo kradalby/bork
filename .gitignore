@@ -1,3 +1,5 @@
+frontend/
+spa/
 tmp/
 db/
 # Created by https://www.gitignore.io/api/vim,macos,linux,go,sql
