@@ -48,7 +48,7 @@ func (v NamespacesResource) List(c buffalo.Context) error {
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	return c.Render(200, r.Auto(c, namespaces))
+	return c.Render(200, r.JSON(namespaces))
 }
 
 // Show gets the data for one Namespace. This function is mapped to
@@ -68,13 +68,13 @@ func (v NamespacesResource) Show(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
-	return c.Render(200, r.Auto(c, namespace))
+	return c.Render(200, r.JSON(namespace))
 }
 
 // New renders the form for creating a new Namespace.
 // This function is mapped to the path GET /namespaces/new
 func (v NamespacesResource) New(c buffalo.Context) error {
-	return c.Render(200, r.Auto(c, &models.Namespace{}))
+	return c.Render(200, r.JSON(&models.Namespace{}))
 }
 
 // Create adds a Namespace to the DB. This function is mapped to the
@@ -106,7 +106,7 @@ func (v NamespacesResource) Create(c buffalo.Context) error {
 
 	// 	// Render again the new.html template that the user can
 	// 	// correct the input.
-	// 	return c.Render(422, r.Auto(c, namespace))
+	// 	return c.Render(422, r.JSON(namespace))
 	// }
 
 	kubeClient, err := getKubernetesClient()
@@ -123,7 +123,7 @@ func (v NamespacesResource) Create(c buffalo.Context) error {
 	c.Flash().Add("success", "Namespace was created successfully")
 
 	// and redirect to the namespaces index page
-	return c.Render(201, r.Auto(c, namespace))
+	return c.Render(201, r.JSON(namespace))
 }
 
 // Edit renders a edit form for a Namespace. This function is
@@ -142,7 +142,7 @@ func (v NamespacesResource) Edit(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
-	return c.Render(200, r.Auto(c, namespace))
+	return c.Render(200, r.JSON(namespace))
 }
 
 // Update changes a Namespace in the DB. This function is mapped to
@@ -177,14 +177,14 @@ func (v NamespacesResource) Update(c buffalo.Context) error {
 
 		// Render again the edit.html template that the user can
 		// correct the input.
-		return c.Render(422, r.Auto(c, namespace))
+		return c.Render(422, r.JSON(namespace))
 	}
 
 	// If there are no errors set a success message
 	c.Flash().Add("success", "Namespace was updated successfully")
 
 	// and redirect to the namespaces index page
-	return c.Render(200, r.Auto(c, namespace))
+	return c.Render(200, r.JSON(namespace))
 }
 
 // Destroy deletes a Namespace from the DB. This function is mapped
@@ -212,7 +212,7 @@ func (v NamespacesResource) Destroy(c buffalo.Context) error {
 	c.Flash().Add("success", "Namespace was destroyed successfully")
 
 	// Redirect to the namespaces index page
-	return c.Render(200, r.Auto(c, namespace))
+	return c.Render(200, r.JSON(namespace))
 }
 
 // Custom extension to Resource

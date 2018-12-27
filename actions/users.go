@@ -47,7 +47,7 @@ func (v UsersResource) List(c buffalo.Context) error {
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	return c.Render(200, r.Auto(c, users))
+	return c.Render(200, r.JSON(users))
 }
 
 // Show gets the data for one User. This function is mapped to
@@ -67,13 +67,13 @@ func (v UsersResource) Show(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
-	return c.Render(200, r.Auto(c, user))
+	return c.Render(200, r.JSON(user))
 }
 
 // New renders the form for creating a new User.
 // This function is mapped to the path GET /users/new
 func (v UsersResource) New(c buffalo.Context) error {
-	return c.Render(200, r.Auto(c, &models.User{}))
+	return c.Render(200, r.JSON(&models.User{}))
 }
 
 // Create adds a User to the DB. This function is mapped to the
@@ -105,14 +105,14 @@ func (v UsersResource) Create(c buffalo.Context) error {
 
 		// Render again the new.html template that the user can
 		// correct the input.
-		return c.Render(422, r.Auto(c, user))
+		return c.Render(422, r.JSON(user))
 	}
 
 	// If there are no errors set a success message
 	c.Flash().Add("success", "User was created successfully")
 
 	// and redirect to the users index page
-	return c.Render(201, r.Auto(c, user))
+	return c.Render(201, r.JSON(user))
 }
 
 // Edit renders a edit form for a User. This function is
@@ -131,7 +131,7 @@ func (v UsersResource) Edit(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
-	return c.Render(200, r.Auto(c, user))
+	return c.Render(200, r.JSON(user))
 }
 
 // Update changes a User in the DB. This function is mapped to
@@ -166,14 +166,14 @@ func (v UsersResource) Update(c buffalo.Context) error {
 
 		// Render again the edit.html template that the user can
 		// correct the input.
-		return c.Render(422, r.Auto(c, user))
+		return c.Render(422, r.JSON(user))
 	}
 
 	// If there are no errors set a success message
 	c.Flash().Add("success", "User was updated successfully")
 
 	// and redirect to the users index page
-	return c.Render(200, r.Auto(c, user))
+	return c.Render(200, r.JSON(user))
 }
 
 // Destroy deletes a User from the DB. This function is mapped
@@ -201,5 +201,5 @@ func (v UsersResource) Destroy(c buffalo.Context) error {
 	c.Flash().Add("success", "User was destroyed successfully")
 
 	// Redirect to the users index page
-	return c.Render(200, r.Auto(c, user))
+	return c.Render(200, r.JSON(user))
 }
