@@ -58,6 +58,7 @@ func App(kubeconf string) *buffalo.App {
 		// Authorization section
 		auth := app.Group("/auth")
 		auth.GET("/session", Session)
+		auth.GET("/logout", AuthDestroy)
 		bah := buffalo.WrapHandlerFunc(gothic.BeginAuthHandler)
 		auth.GET("/{provider}", bah)
 		auth.GET("/{provider}/callback", AuthCallback)
