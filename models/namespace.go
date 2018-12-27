@@ -16,7 +16,7 @@ type Namespace struct {
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 	Owner     User      `json:"owner" belongs_to:"owner"`
-	OwnerID   uuid.UUID `json:"-" db:"owner_id"`
+	OwnerID   uuid.UUID `json:"owner_id" db:"owner_id"`
 	CoOwners  Users     `json:"co_owners" many_to_many:"namespaces_users"`
 	Name      string    `json:"name" db:"name"`
 }
