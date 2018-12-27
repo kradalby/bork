@@ -1,0 +1,107 @@
+module User exposing (User, id, username, name, email, isAdmin, decoder, session, fetch)
+
+{-| A user's profile - potentially your own!
+
+Contrast with Cred, which is the currently signed-in user.
+
+-}
+
+import Http
+import Json.Decode as Decode exposing (Decoder)
+import Json.Decode.Pipeline exposing (required)
+import ID exposing (ID)
+import Email exposing (Email)
+import Username exposing (Username)
+import Api.Endpoint as Endpoint
+import Api
+
+
+-- TYPES
+
+
+type User
+    = User Internals
+
+
+type alias Internals =
+    { id : ID
+    , createdAt : String
+    , updatedAt : String
+    , username : Username
+    , firstName : String
+    , lastName : String
+    , email : Email
+    , isAdmin : Bool
+    , isActive : Bool
+    , provider : String
+    , providerId : String
+    }
+
+
+
+-- INFO
+
+
+id : User -> ID
+id (User info) =
+    info.id
+
+
+username : User -> Username
+username (User info) =
+    info.username
+
+
+name : User -> String
+name (User info) =
+    info.firstName ++ " " ++ info.lastName
+
+
+email : User -> Email
+email (User info) =
+    info.email
+
+
+isAdmin : User -> Bool
+isAdmin (User info) =
+    info.isAdmin
+
+
+
+-- SERIALIZATION
+
+
+decoder : Decoder User
+decoder =
+    Decode.succeed Internals
+        |> required "id" ID.decoder
+        |> required "created_at" Decode.string
+        |> required "updated_at" Decode.string
+        |> required "username" Username.decoder
+        |> required "first_name" Decode.string
+        |> required "last_name" Decode.string
+        |> required "email" Email.decoder
+        |> required "is_admin" Decode.bool
+        |> required "is_active" Decode.bool
+        |> required "provider" Decode.string
+        |> required "provider_id" Decode.string
+        |> Decode.map User
+
+
+
+-- SESSION
+
+
+session : Http.Request User
+session =
+    Api.get Endpoint.session decoder
+
+
+
+-- FETCH
+
+
+fetch : ID -> Http.Request User
+fetch ident =
+    decoder
+        |> Api.get (Endpoint.user ident)
