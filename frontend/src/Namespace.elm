@@ -1,4 +1,25 @@
-module Namespace exposing (Namespace, id, name, owner, decoder, fetch, list)
+module Namespace
+    exposing
+        ( Namespace
+        , Auth
+        , id
+        , name
+        , owner
+        , coOwners
+        , created
+        , decoder
+        , fetch
+        , list
+        , listCoOwner
+        , addCoOwner
+        , deleteCoOwner
+        , token
+        , endpoint
+        , certificate
+        , certificateB64
+        , auth
+        , config
+        )
 
 {-| A namespace's profile - potentially your own!
 
@@ -12,6 +33,7 @@ import Json.Decode.Pipeline exposing (required)
 import ID exposing (ID)
 import Email exposing (Email)
 import Api.Endpoint as Endpoint
+import Api.Namespace
 import Api
 import User exposing (User)
 
@@ -53,6 +75,16 @@ owner (Namespace info) =
     info.owner
 
 
+coOwners : Namespace -> List User
+coOwners (Namespace info) =
+    info.coOwners
+
+
+created : Namespace -> String
+created (Namespace info) =
+    info.createdAt
+
+
 
 -- SERIALIZATION
 
@@ -77,10 +109,82 @@ decoder =
 fetch : ID -> Http.Request Namespace
 fetch ident =
     decoder
-        |> Api.get (Endpoint.namespace ident)
+        |> Api.get (Api.Namespace.get ident)
 
 
 list : Http.Request (List Namespace)
 list =
     Decode.list decoder
-        |> Api.get (Endpoint.namespaces)
+        |> Api.get (Api.Namespace.list)
+
+
+listCoOwner : Http.Request (List Namespace)
+listCoOwner =
+    Decode.list decoder
+        |> Api.get (Api.Namespace.listCoOwner)
+
+
+addCoOwner : ID -> User -> Http.Request Namespace
+addCoOwner ident user =
+    let
+        body =
+            User.encode user |> Http.jsonBody
+    in
+        Api.post (Api.Namespace.coOwner ident) body decoder
+
+
+deleteCoOwner : ID -> User -> Http.Request Namespace
+deleteCoOwner ident user =
+    let
+        body =
+            User.encode user |> Http.jsonBody
+    in
+        Api.delete (Api.Namespace.coOwner ident) body decoder
+
+
+token : ID -> Http.Request String
+token ident =
+    Decode.field "token" Decode.string
+        |> Api.get (Api.Namespace.token ident)
+
+
+certificate : ID -> Http.Request String
+certificate ident =
+    Decode.field "certificate" Decode.string
+        |> Api.get (Api.Namespace.certificate ident)
+
+
+certificateB64 : ID -> Http.Request String
+certificateB64 ident =
+    Decode.field "certificate_b64" Decode.string
+        |> Api.get (Api.Namespace.certificateB64 ident)
+
+
+endpoint : ID -> Http.Request String
+endpoint ident =
+    Decode.field "endpoint" Decode.string
+        |> Api.get (Api.Namespace.endpoint ident)
+
+
+config : ID -> Http.Request String
+config ident =
+    Decode.field "config" Decode.string
+        |> Api.get (Api.Namespace.config ident)
+
+
+type alias Auth =
+    { certificate : String
+    , certificateB64 : String
+    , endpoint : String
+    , token : String
+    }
+
+
+auth : ID -> Http.Request Auth
+auth ident =
+    Decode.map4 Auth
+        (Decode.field "certificate" Decode.string)
+        (Decode.field "certificate_b64" Decode.string)
+        (Decode.field "endpoint" Decode.string)
+        (Decode.field "token" Decode.string)
+        |> Api.get (Api.Namespace.auth ident)

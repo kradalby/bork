@@ -1,4 +1,4 @@
-module Api.Endpoint exposing (Endpoint, request, user, users, auth, session, namespace, namespaces, namespaceToken, namespaceCertificate, namespaceCertificateB64, namespaceAuth)
+module Api.Endpoint exposing (Endpoint, request, url, user, users, auth, session)
 
 import ID as ID exposing (ID)
 import Http
@@ -87,37 +87,3 @@ users =
 user : ID -> Endpoint
 user id =
     url [ "users", ID.toString id ] []
-
-
-
--- NAMESPACE ENDPOINTS
-
-
-namespaces : Endpoint
-namespaces =
-    url [ "namespaces" ] []
-
-
-namespace : ID -> Endpoint
-namespace id =
-    url [ "namespaces", ID.toString id ] []
-
-
-namespaceToken : ID -> Endpoint
-namespaceToken id =
-    url [ "namespaces", ID.toString id, "token" ] []
-
-
-namespaceCertificate : ID -> Endpoint
-namespaceCertificate id =
-    url [ "namespaces", ID.toString id, "certificate" ] []
-
-
-namespaceCertificateB64 : ID -> Endpoint
-namespaceCertificateB64 id =
-    url [ "namespaces", ID.toString id, "certificateb64" ] []
-
-
-namespaceAuth : ID -> Endpoint
-namespaceAuth id =
-    url [ "namespaces", ID.toString id, "auth" ] []

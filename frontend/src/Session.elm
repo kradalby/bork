@@ -1,4 +1,4 @@
-module Session exposing (Session, changes, fromUser, navKey, user)
+module Session exposing (Session, changes, fromUser, navKey, user, id)
 
 import Api
 import Browser.Navigation as Nav
@@ -7,6 +7,7 @@ import Json.Decode.Pipeline exposing (custom, required)
 import Json.Encode as Encode exposing (Value)
 import Time
 import User exposing (User)
+import ID exposing (ID)
 
 
 -- TYPES
@@ -26,6 +27,16 @@ user session =
     case session of
         LoggedIn _ val ->
             Just val
+
+        Guest _ ->
+            Nothing
+
+
+id : Session -> Maybe ID
+id session =
+    case session of
+        LoggedIn _ val ->
+            Just (User.id val)
 
         Guest _ ->
             Nothing

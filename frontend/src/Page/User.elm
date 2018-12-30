@@ -17,6 +17,8 @@ import ID exposing (ID)
 import User exposing (User)
 import Username exposing (Username)
 import Email
+import Namespace exposing (Namespace)
+import Page.View as View
 
 
 -- MODEL
@@ -29,14 +31,16 @@ type alias Model =
 
     -- Loaded independently from server
     , user : Status User
+    , namespaces : Status (List Namespace)
+    , namespacesCoOwner : Status (List Namespace)
     }
 
 
 type Status a
-    = Loading ID
-    | LoadingSlowly ID
+    = Loading
+    | LoadingSlowly
     | Loaded a
-    | Failed ID
+    | Failed
 
 
 init : Session -> ID -> ( Model, Cmd Msg )
@@ -44,33 +48,25 @@ init session id =
     ( { session = session
       , timeZone = Time.utc
       , errors = []
-      , user = Loading id
+      , user = Loading
+      , namespaces = Loading
+      , namespacesCoOwner = Loading
       }
     , Cmd.batch
         [ User.fetch id
             |> Http.toTask
             |> Task.mapError (Tuple.pair id)
             |> Task.attempt CompletedUserLoad
+        , Namespace.list
+            |> Http.toTask
+            |> Task.attempt CompletedNamespacesLoad
+        , Namespace.listCoOwner
+            |> Http.toTask
+            |> Task.attempt CompletedNamespacesCoOwnerLoad
         , Task.perform GotTimeZone Time.here
         , Task.perform (\_ -> PassedSlowLoadThreshold) Loading.slowThreshold
         ]
     )
-
-
-currentID : Model -> ID
-currentID model =
-    case model.user of
-        Loading id ->
-            id
-
-        LoadingSlowly id ->
-            id
-
-        Loaded user ->
-            User.id user
-
-        Failed id ->
-            id
 
 
 
@@ -82,38 +78,111 @@ view model =
     let
         title =
             case model.user of
-                Loading id ->
-                    titleForMe (Session.user model.session) id
+                Loading ->
+                    defaultTitle
 
-                LoadingSlowly id ->
-                    titleForMe (Session.user model.session) id
+                LoadingSlowly ->
+                    defaultTitle
 
-                Failed id ->
-                    titleForMe (Session.user model.session) id
+                Failed ->
+                    defaultTitle
 
                 Loaded user ->
                     titleForMe (Session.user model.session) (User.id user)
     in
         { title = title
         , content =
-            case model.user of
-                Loaded user ->
-                    div [ class "user-page" ]
-                        [ Page.viewErrors ClickedDismissErrors model.errors
-                        , text <| User.name user
-                        , text <| Email.toString <| User.email user
-                        , text <| Username.toString <| User.username user
-                        ]
+            div [ class "user-page" ]
+                [ Page.viewErrors ClickedDismissErrors model.errors
+                , case model.user of
+                    Loaded user ->
+                        viewUser model.session user
 
-                Loading _ ->
-                    text ""
+                    Loading ->
+                        -- text ""
+                        Loading.icon
 
-                LoadingSlowly _ ->
-                    Loading.icon
+                    LoadingSlowly ->
+                        Loading.icon
 
-                Failed _ ->
-                    Loading.error "user"
+                    Failed ->
+                        Loading.error "user"
+                , case model.namespaces of
+                    Loaded namespaces ->
+                        viewNamespaces "Namespaces" namespaces
+
+                    Loading ->
+                        -- text ""
+                        Loading.icon
+
+                    LoadingSlowly ->
+                        Loading.icon
+
+                    Failed ->
+                        Loading.error "namespaces"
+                , case model.namespacesCoOwner of
+                    Loaded namespaces ->
+                        viewNamespaces "Co-Owner Namespaces" namespaces
+
+                    Loading ->
+                        -- text ""
+                        Loading.icon
+
+                    LoadingSlowly ->
+                        Loading.icon
+
+                    Failed ->
+                        Loading.error "namespaces coowner"
+                ]
         }
+
+
+viewUser : Session -> User -> Html Msg
+viewUser session user =
+    div [ class "" ]
+        [ div [ class "row" ]
+            [ h2 []
+                [ text <|
+                    titleForMe (Session.user session) (User.id user)
+                ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-4" ] [ text "Name" ]
+            , div [ class "col-8" ]
+                [ h5 []
+                    [ text <| User.name user
+                    ]
+                ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-4" ] [ text "Username" ]
+            , div [ class "col-8" ]
+                [ h5 []
+                    [ text <| Username.toString <| User.username user
+                    ]
+                ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-4" ] [ text "Email" ]
+            , div [ class "col-8" ]
+                [ h5 []
+                    [ text <| Email.toString <| User.email user
+                    ]
+                ]
+            ]
+        ]
+
+
+viewNamespaces : String -> List Namespace -> Html Msg
+viewNamespaces title namespaces =
+    div [ class "" ]
+        [ div [ class "row" ]
+            [ h2 []
+                [ text title
+                ]
+            , View.namespaceTable namespaces
+            ]
+        ]
 
 
 
@@ -155,6 +224,8 @@ defaultTitle =
 type Msg
     = ClickedDismissErrors
     | CompletedUserLoad (Result ( ID, Http.Error ) User)
+    | CompletedNamespacesLoad (Result Http.Error (List Namespace))
+    | CompletedNamespacesCoOwnerLoad (Result Http.Error (List Namespace))
     | GotTimeZone Time.Zone
     | GotSession Session
     | PassedSlowLoadThreshold
@@ -170,7 +241,23 @@ update msg model =
             ( { model | user = Loaded user }, Cmd.none )
 
         CompletedUserLoad (Err ( id, err )) ->
-            ( { model | user = Failed id }
+            ( { model | user = Failed }
+            , Log.error
+            )
+
+        CompletedNamespacesLoad (Ok namespaces) ->
+            ( { model | namespaces = Loaded namespaces }, Cmd.none )
+
+        CompletedNamespacesLoad (Err err) ->
+            ( { model | namespaces = Failed }
+            , Log.error
+            )
+
+        CompletedNamespacesCoOwnerLoad (Ok namespaces) ->
+            ( { model | namespacesCoOwner = Loaded namespaces }, Cmd.none )
+
+        CompletedNamespacesCoOwnerLoad (Err err) ->
+            ( { model | namespacesCoOwner = Failed }
             , Log.error
             )
 

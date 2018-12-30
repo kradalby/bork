@@ -17,6 +17,7 @@ import ID exposing (ID)
 import Namespace exposing (Namespace)
 import User
 import Email
+import Page.View as View
 
 
 -- MODEL
@@ -29,6 +30,7 @@ type alias Model =
 
     -- Loaded independently from server
     , namespaces : Status (List Namespace)
+    , namespacesCoOwner : Status (List Namespace)
     }
 
 
@@ -45,11 +47,15 @@ init session =
       , timeZone = Time.utc
       , errors = []
       , namespaces = Loading
+      , namespacesCoOwner = Loading
       }
     , Cmd.batch
         [ Namespace.list
             |> Http.toTask
             |> Task.attempt CompletedNamespaceListLoad
+        , Namespace.listCoOwner
+            |> Http.toTask
+            |> Task.attempt CompletedNamespacesCoOwnerLoad
         , Task.perform GotTimeZone Time.here
         , Task.perform (\_ -> PassedSlowLoadThreshold) Loading.slowThreshold
         ]
@@ -68,50 +74,47 @@ view model =
     in
         { title = title
         , content =
-            case model.namespaces of
-                Loaded namespaces ->
-                    div [ class "namespaceList-page" ]
-                        [ Page.viewErrors ClickedDismissErrors model.errors
-                        , viewTable namespaces
-                        ]
+            div [ class "namespaces-page" ]
+                [ Page.viewErrors ClickedDismissErrors model.errors
+                , case model.namespaces of
+                    Loaded namespaces ->
+                        viewNamespaces "Namespaces" namespaces
 
-                Loading ->
-                    text ""
+                    Loading ->
+                        -- text ""
+                        Loading.icon
 
-                LoadingSlowly ->
-                    Loading.icon
+                    LoadingSlowly ->
+                        Loading.icon
 
-                Failed ->
-                    Loading.error "namespace list"
+                    Failed ->
+                        Loading.error "namespaces"
+                , case model.namespacesCoOwner of
+                    Loaded namespaces ->
+                        viewNamespaces "Co-Owner Namespaces" namespaces
+
+                    Loading ->
+                        -- text ""
+                        Loading.icon
+
+                    LoadingSlowly ->
+                        Loading.icon
+
+                    Failed ->
+                        Loading.error "namespaces coowner"
+                ]
         }
 
 
-viewTable : List Namespace -> Html Msg
-viewTable namespaces =
-    table [ class "table table-striped" ]
-        [ thead []
-            [ tr []
-                [ th [ scope "col" ]
-                    [ text "Namespace" ]
-                , th [ scope "col" ]
-                    [ text "ID" ]
-                , th [ scope "col" ]
-                    [ text "Owner" ]
+viewNamespaces : String -> List Namespace -> Html Msg
+viewNamespaces title namespaces =
+    div [ class "" ]
+        [ div [ class "row" ]
+            [ h2 []
+                [ text title
                 ]
+            , View.namespaceTable namespaces
             ]
-        , tbody [] <| List.map viewTableRow namespaces
-        ]
-
-
-viewTableRow : Namespace -> Html Msg
-viewTableRow ns =
-    tr []
-        [ th [ scope "row" ]
-            [ a [ Route.href <| Route.Namespace (Namespace.id ns) ] [ text <| Namespace.name ns ] ]
-        , td []
-            [ a [ Route.href <| Route.Namespace (Namespace.id ns) ] [ text <| ID.toString <| Namespace.id ns ] ]
-        , td []
-            [ a [ Route.href <| Route.User <| User.id <| Namespace.owner ns ] [ text <| User.name <| Namespace.owner ns ] ]
         ]
 
 
@@ -122,6 +125,7 @@ viewTableRow ns =
 type Msg
     = ClickedDismissErrors
     | CompletedNamespaceListLoad (Result Http.Error (List Namespace))
+    | CompletedNamespacesCoOwnerLoad (Result Http.Error (List Namespace))
     | GotTimeZone Time.Zone
     | GotSession Session
     | PassedSlowLoadThreshold
@@ -138,6 +142,14 @@ update msg model =
 
         CompletedNamespaceListLoad (Err err) ->
             ( { model | namespaces = Failed }
+            , Log.error
+            )
+
+        CompletedNamespacesCoOwnerLoad (Ok namespaces) ->
+            ( { model | namespacesCoOwner = Loaded namespaces }, Cmd.none )
+
+        CompletedNamespacesCoOwnerLoad (Err err) ->
+            ( { model | namespacesCoOwner = Failed }
             , Log.error
             )
 

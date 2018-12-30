@@ -1,4 +1,4 @@
-module User exposing (User, id, username, name, email, isAdmin, decoder, session, fetch)
+module User exposing (User, id, username, name, email, isAdmin, decoder, encode, session, fetch)
 
 {-| A user's profile - potentially your own!
 
@@ -7,6 +7,7 @@ Contrast with Cred, which is the currently signed-in user.
 -}
 
 import Http
+import Json.Encode as Encode exposing (Value)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (required)
 import ID exposing (ID)
@@ -86,6 +87,19 @@ decoder =
         |> required "provider" Decode.string
         |> required "provider_id" Decode.string
         |> Decode.map User
+
+
+encode : User -> Value
+encode (User info) =
+    Encode.object
+        [ ( "id", ID.encode info.id )
+        , ( "username", Username.encode info.username )
+        , ( "first_name", Encode.string info.firstName )
+        , ( "last_name", Encode.string info.lastName )
+        , ( "email", Email.encode info.email )
+        , ( "is_admin", Encode.bool info.isAdmin )
+        , ( "is_active", Encode.bool info.isActive )
+        ]
 
 
 
