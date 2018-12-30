@@ -1,10 +1,12 @@
 package kube
 
 import (
+	"bytes"
 	b64 "encoding/base64"
 	"errors"
 	"log"
 	"strings"
+	"text/template"
 
 	"github.com/gobuffalo/uuid"
 	"github.com/kradalby/bork/models"
@@ -286,6 +288,63 @@ func (c *Client) GetToken(namespace string) (string, error) {
 	}
 
 	return string(secret.Data["token"]), nil
+}
+
+func (c *Client) CreateConfiguration(namespace string) (string, error) {
+	type Config struct {
+		Namespace   string
+		Endpoint    string
+		Certificate string
+		Token       string
+	}
+
+	config := `apiVersion: v1
+kind: Config
+clusters:
+- cluster:
+    certificate-authority-data: {{.Certificate}}
+    server: {{.Endpoint}}
+  name: cluster
+users:
+- name: {{.Namespace}}-user
+  user:
+    client-key-data: {{.Certificate}}
+    token: {{.Token}}
+contexts:
+- context:
+    cluster: cluster
+    namespace: {{.Namespace}}
+    user: {{.Namespace}}-user
+  name: {{.Namespace}}
+current-context: {{.Namespace}}`
+
+	endpoint := c.GetEndpoint()
+
+	certificate, err := c.GetCertificateB64(namespace)
+	if err != nil {
+		return "", err
+	}
+
+	token, err := c.GetToken(namespace)
+	if err != nil {
+		return "", err
+	}
+
+	data := Config{
+		Namespace:   namespace,
+		Endpoint:    endpoint,
+		Certificate: certificate,
+		Token:       token,
+	}
+
+	tmpl := template.Must(template.New("config").Parse(config))
+
+	var generatedTemplate bytes.Buffer
+	if err := tmpl.Execute(&generatedTemplate, data); err != nil {
+		return "", err
+	}
+
+	return generatedTemplate.String(), nil
 }
 
 func (c *Client) GetEndpoint() string {

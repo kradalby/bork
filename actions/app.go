@@ -29,10 +29,8 @@ var kubernetesConf string
 // should be defined. This is the nerve center of your
 // application.
 func App(kubeconf string) *buffalo.App {
+	kubernetesConf = kubeconf
 	if app == nil {
-
-		kubernetesConf = kubeconf
-
 		app = buffalo.New(buffalo.Options{
 			Env: ENV,
 			// SessionStore: sessions.Null{},
@@ -77,6 +75,8 @@ func App(kubeconf string) *buffalo.App {
 		apiV1.GET("/namespaces/{namespace_id}/certificateb64", NamespaceCertificateB64)
 		apiV1.GET("/namespaces/{namespace_id}/endpoint", NamespaceEndpoint)
 		apiV1.GET("/namespaces/{namespace_id}/auth", NamespaceAuth)
+		apiV1.GET("/namespaces/{namespace_id}/config", NamespaceConfig)
+		apiV1.GET("/coowner/namespaces", NamespaceCoOwner)
 	}
 
 	return app

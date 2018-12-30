@@ -29,6 +29,7 @@ type NamespacesResource struct {
 // GET /namespaces
 func (v NamespacesResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
+	userId := c.Session().Session.Values["current_user_id"]
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
@@ -41,7 +42,7 @@ func (v NamespacesResource) List(c buffalo.Context) error {
 	q := tx.Eager().PaginateFromParams(c.Params())
 
 	// Retrieve all Namespaces from the DB
-	if err := q.All(namespaces); err != nil {
+	if err := q.Where("owner_id = ?", userId).All(namespaces); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -54,6 +55,7 @@ func (v NamespacesResource) List(c buffalo.Context) error {
 // Show gets the data for one Namespace. This function is mapped to
 // the path GET /namespaces/{namespace_id}
 func (v NamespacesResource) Show(c buffalo.Context) error {
+	userId := c.Session().Session.Values["current_user_id"]
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -66,6 +68,10 @@ func (v NamespacesResource) Show(c buffalo.Context) error {
 	// To find the Namespace the parameter namespace_id is used.
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
 		return c.Error(404, err)
+	}
+
+	if namespace.Owner.ID != userId {
+		return c.Error(403, errors.New("permission denied"))
 	}
 
 	return c.Render(200, r.JSON(namespace))
@@ -217,6 +223,36 @@ func (v NamespacesResource) Destroy(c buffalo.Context) error {
 
 // Custom extension to Resource
 
+// Gets all Namespaces where logged in user is coowner. This function is mapped to the path
+// GET /namespaces/coowner
+func NamespaceCoOwner(c buffalo.Context) error {
+	// Get the DB connection from the context
+	userId := c.Session().Session.Values["current_user_id"]
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	namespaces := &models.Namespaces{}
+
+	// Paginate results. Params "page" and "per_page" control pagination.
+	// Default values are "page=1" and "per_page=20".
+	q := tx.Eager().PaginateFromParams(c.Params())
+
+	query := q.RawQuery("select id, created_at, updated_at, name, owner_id from namespaces join namespaces_users on id = namespace_id where user_id = ?", userId)
+
+	// Retrieve all Namespaces from the DB
+	//if err := q.LeftJoin("namespaces", "namespaces.id=namespaces_users.namespace_id").Where("user_id = ?", userId).All(namespaces); err != nil {
+	if err := query.All(namespaces); err != nil {
+		return errors.WithStack(err)
+	}
+
+	// Add the paginator to the context so it can be used in the template.
+	c.Set("pagination", q.Paginator)
+
+	return c.Render(200, r.JSON(namespaces))
+}
+
 func NamespaceToken(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -357,4 +393,32 @@ func NamespaceAuth(c buffalo.Context) error {
 		"certificate_b64": cert64,
 		"endpoint":        endpoint,
 	}))
+}
+
+func NamespaceConfig(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	// Allocate an empty Namespace
+	namespace := &models.Namespace{}
+
+	// To find the Namespace the parameter namespace_id is used.
+	if err := tx.Find(namespace, c.Param("namespace_id")); err != nil {
+		return c.Error(404, err)
+	}
+
+	kubeClient, err := getKubernetesClient()
+	if err != nil {
+		return c.Error(500, err)
+	}
+
+	endpoint, err := kubeClient.CreateConfiguration(namespace.Name)
+	if err != nil {
+		return c.Error(500, err)
+	}
+
+	return c.Render(200, r.JSON(map[string]string{"config": endpoint}))
 }
