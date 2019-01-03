@@ -16,6 +16,7 @@ type Route
     | Root
       -- | Settings
     | Namespace ID
+    | NamespaceNew
     | NamespaceList
     | User ID
 
@@ -30,6 +31,7 @@ parser =
         [ Parser.map Home Parser.top
 
         -- , Parser.map Settings (s "settings")
+        , Parser.map NamespaceNew (s "namespaces" </> s "new")
         , Parser.map Namespace (s "namespaces" </> ID.urlParser)
         , Parser.map NamespaceList (s "namespaces")
         , Parser.map User (s "users" </> ID.urlParser)
@@ -80,6 +82,9 @@ routeToString page =
                 --       [ "settings" ]
                 Namespace id ->
                     [ "namespaces", ID.toString id ]
+
+                NamespaceNew ->
+                    [ "namespaces", "new" ]
 
                 NamespaceList ->
                     [ "namespaces" ]

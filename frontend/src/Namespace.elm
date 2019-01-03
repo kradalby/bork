@@ -6,13 +6,14 @@ module Namespace
         , name
         , owner
         , coOwners
+        , coowned
         , created
         , decoder
-        , fetch
+        , get
         , list
-        , listCoOwner
         , addCoOwner
         , deleteCoOwner
+        , availableUsers
         , token
         , endpoint
         , certificate
@@ -28,12 +29,14 @@ Contrast with Cred, which is the currently signed-in namespace.
 -}
 
 import Http
+import Json.Encode as Encode exposing (Value)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (required)
 import ID exposing (ID)
 import Email exposing (Email)
 import Api.Endpoint as Endpoint
 import Api.Namespace
+import Api.User
 import Api
 import User exposing (User)
 
@@ -106,8 +109,8 @@ decoder =
 -- FETCH
 
 
-fetch : ID -> Http.Request Namespace
-fetch ident =
+get : ID -> Http.Request Namespace
+get ident =
     decoder
         |> Api.get (Api.Namespace.get ident)
 
@@ -118,10 +121,19 @@ list =
         |> Api.get (Api.Namespace.list)
 
 
-listCoOwner : Http.Request (List Namespace)
-listCoOwner =
+create : String -> Http.Request Namespace
+create namespace =
+    let
+        body =
+            Encode.object [ ( "name", Encode.string namespace ) ] |> Http.jsonBody
+    in
+        Api.post Api.Namespace.create body decoder
+
+
+coowned : ID -> Http.Request (List Namespace)
+coowned ident =
     Decode.list decoder
-        |> Api.get (Api.Namespace.listCoOwner)
+        |> Api.get (Api.User.coowned ident)
 
 
 addCoOwner : ID -> User -> Http.Request Namespace
@@ -140,6 +152,12 @@ deleteCoOwner ident user =
             User.encode user |> Http.jsonBody
     in
         Api.delete (Api.Namespace.coOwner ident) body decoder
+
+
+availableUsers : ID -> Http.Request (List User)
+availableUsers ident =
+    Decode.list User.decoder
+        |> Api.get (Api.Namespace.availableUsers ident)
 
 
 token : ID -> Http.Request String

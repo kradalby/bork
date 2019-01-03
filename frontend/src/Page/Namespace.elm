@@ -32,10 +32,14 @@ type alias Model =
     , timeZone : Time.Zone
     , errors : List String
 
+    -- View related
+    , addOwnerModal : Bool
+
     -- Loaded independently from server
     , namespace : Status Namespace
     , auth : Status Namespace.Auth
     , config : Status String
+    , users : Status (List User)
     }
 
 
@@ -51,12 +55,14 @@ init session id =
     ( { session = session
       , timeZone = Time.utc
       , errors = []
+      , addOwnerModal = False
       , namespace = Loading
       , auth = Loading
       , config = Loading
+      , users = Loading
       }
     , Cmd.batch
-        [ Namespace.fetch id
+        [ Namespace.get id
             |> Http.toTask
             |> Task.mapError (Tuple.pair id)
             |> Task.attempt CompletedNamespaceLoad
@@ -103,7 +109,10 @@ view model =
                     ]
                 , case model.namespace of
                     Loaded ns ->
-                        viewOwners model.session ns
+                        div []
+                            [ View.iff model.addOwnerModal (addOwnerModal model.users ns)
+                            , viewOwners model.session ns
+                            ]
 
                     Loading ->
                         text ""
@@ -162,27 +171,36 @@ viewConfig config =
 
 viewOwners : Session -> Namespace -> Html Msg
 viewOwners session ns =
-    div []
-        [ div [ class "row" ]
-            [ h3 []
-                [ text "Users"
+    let
+        user =
+            Namespace.owner ns
+
+        isOwner =
+            Misc.isOwner session (User.id user)
+    in
+        div []
+            [ div [ class "row" ]
+                [ h3 []
+                    [ text "Users"
+                    ]
                 ]
-            ]
-        , div [ class "row" ]
-            [ div [ class "col-6" ] [ text "Created " ]
-            , div [ class "col-6" ]
-                [ h5 []
-                    [ text <| Namespace.created ns
+            , div [ class "row" ]
+                [ div [ class "col-6" ] [ text "Created " ]
+                , div [ class "col-6" ]
+                    [ h5 []
+                        [ text <| Namespace.created ns
+                        ]
+                    ]
+                ]
+            , div [ class "row" ]
+                [ userTable session ns ]
+            , div [ class "row" ]
+                [ div [ class "container" ]
+                    [ View.iff isOwner <|
+                        button [ class "btn btn-success", onClick ToggleAddOwnerModal ] [ text "+" ]
                     ]
                 ]
             ]
-        , div [ class "row" ]
-            [ userTable session ns ]
-        , div [ class "row" ]
-            [ div [ class "container" ]
-                []
-            ]
-        ]
 
 
 userTable : Session -> Namespace -> Html Msg
@@ -235,12 +253,32 @@ userTable session ns =
                         [ text "Email" ]
                     ]
                 ]
-            , tbody [] <| primary ++ List.map (userTableRow isOwner ns) users
+            , tbody [] <| primary ++ List.map (userTableRowDelete isOwner ns) users
             ]
 
 
-userTableRow : Bool -> Namespace -> User -> Html Msg
-userTableRow isOwner ns user =
+userTableRowDelete : Bool -> Namespace -> User -> Html Msg
+userTableRowDelete isOwner ns user =
+    let
+        btn =
+            View.iff isOwner <|
+                button [ class "btn btn-danger", onClick (DeleteCoOwner ns user) ] [ text "-" ]
+    in
+        userTableRow btn user
+
+
+userTableRowAdd : Bool -> Namespace -> User -> Html Msg
+userTableRowAdd isOwner ns user =
+    let
+        btn =
+            View.iff isOwner <|
+                button [ class "btn btn-success", onClick (AddCoOwner ns user) ] [ text "+" ]
+    in
+        userTableRow btn user
+
+
+userTableRow : Html Msg -> User -> Html Msg
+userTableRow modifier user =
     tr []
         [ th [ scope "row" ]
             [ a
@@ -265,7 +303,55 @@ userTableRow isOwner ns user =
                 [ text <| Email.toString <| User.email user ]
             ]
         , td []
-            [ View.iff isOwner (button [ class "btn btn-danger", onClick (DeleteCoOwner ns user) ] [ text "-" ])
+            [ modifier
+            ]
+        ]
+
+
+addOwnerModal : Status (List User) -> Namespace -> Html Msg
+addOwnerModal users ns =
+    div [ style "display" "block", attribute "aria-hidden" "false", attribute "aria-labelledby" "helpModal", class "modal", id "helpModal", attribute "role" "dialog", attribute "tabindex" "-1" ]
+        [ div [ class "modal-dialog modal-dialog-centered", attribute "role" "document" ]
+            [ div [ class "modal-content" ]
+                [ div [ class "modal-header" ]
+                    [ h5 [ class "modal-title", id "helpModalTitle" ]
+                        [ text "Add Co Owner" ]
+                    , button [ onClick ToggleAddOwnerModal, attribute "aria-label" "Close", class "close", attribute "data-dismiss" "modal", type_ "button" ]
+                        [ span [ attribute "aria-hidden" "true" ]
+                            [ text "×" ]
+                        ]
+                    ]
+                , div [ class "modal-body" ]
+                    [ case users of
+                        Loaded u ->
+                            table [ class "table table-striped" ]
+                                [ thead []
+                                    [ tr []
+                                        [ th [ scope "col" ]
+                                            [ text "Name" ]
+                                        , th [ scope "col" ]
+                                            [ text "Username" ]
+                                        , th [ scope "col", colspan 2 ]
+                                            [ text "Email" ]
+                                        ]
+                                    ]
+                                , tbody [] <| List.map (userTableRowAdd True ns) u
+                                ]
+
+                        Loading ->
+                            text ""
+
+                        LoadingSlowly ->
+                            Loading.icon
+
+                        Failed ->
+                            Loading.error "users"
+                    ]
+                , div [ class "modal-footer" ]
+                    [ button [ onClick ToggleAddOwnerModal, class "btn btn-secondary", attribute "data-dismiss" "modal", type_ "button" ]
+                        [ text "Close" ]
+                    ]
+                ]
             ]
         ]
 
@@ -296,6 +382,8 @@ type Msg
     | CompletedAddCoOwner (Result ( ID, Http.Error ) Namespace)
     | DeleteCoOwner Namespace User
     | CompletedDeleteCoOwner (Result ( ID, Http.Error ) Namespace)
+    | ToggleAddOwnerModal
+    | CompletedUsersLoad (Result Http.Error (List User))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -361,7 +449,13 @@ update msg model =
                 )
 
         CompletedAddCoOwner (Ok ns) ->
-            ( { model | namespace = Loaded ns }, Cmd.none )
+            ( { model | namespace = Loaded ns }
+            , Cmd.batch
+                [ Namespace.availableUsers (Namespace.id ns)
+                    |> Http.toTask
+                    |> Task.attempt CompletedUsersLoad
+                ]
+            )
 
         CompletedAddCoOwner (Err ( id, err )) ->
             ( { model | namespace = Failed }
@@ -387,6 +481,28 @@ update msg model =
 
         CompletedDeleteCoOwner (Err ( id, err )) ->
             ( { model | namespace = Failed }
+            , Log.error
+            )
+
+        ToggleAddOwnerModal ->
+            ( { model | addOwnerModal = not model.addOwnerModal }
+            , Cmd.batch
+                [ case model.namespace of
+                    Loaded ns ->
+                        Namespace.availableUsers (Namespace.id ns)
+                            |> Http.toTask
+                            |> Task.attempt CompletedUsersLoad
+
+                    _ ->
+                        Cmd.none
+                ]
+            )
+
+        CompletedUsersLoad (Ok users) ->
+            ( { model | users = Loaded users }, Cmd.none )
+
+        CompletedUsersLoad (Err err) ->
+            ( { model | users = Failed }
             , Log.error
             )
 

@@ -86,6 +86,21 @@ func (v NamespacesResource) New(c buffalo.Context) error {
 // Create adds a Namespace to the DB. This function is mapped to the
 // path POST /namespaces
 func (v NamespacesResource) Create(c buffalo.Context) error {
+	userId := c.Session().Session.Values["current_user_id"]
+
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	user := &models.User{}
+
+	// To find the User the parameter user_id is used.
+	if err := tx.Eager().Find(user, userId); err != nil {
+		return c.Error(404, err)
+	}
+
 	// Allocate an empty Namespace
 	namespace := &models.Namespace{}
 
@@ -94,26 +109,14 @@ func (v NamespacesResource) Create(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
-	// Get the DB connection from the context
-	// tx, ok := c.Value("tx").(*pop.Connection)
-	// if !ok {
-	// 	return errors.WithStack(errors.New("no transaction found"))
-	// }
+	namespace.Owner = *user
+	namespace.OwnerID = user.ID
 
-	// // Validate the data from the html form
-	// verrs, err := tx.ValidateAndCreate(namespace)
-	// if err != nil {
-	// 	return errors.WithStack(err)
-	// }
-
-	// if verrs.HasAny() {
-	// 	// Make the errors available inside the html template
-	// 	c.Set("errors", verrs)
-
-	// 	// Render again the new.html template that the user can
-	// 	// correct the input.
-	// 	return c.Render(422, r.JSON(namespace))
-	// }
+	// Validate the data from the html form
+	_, err := tx.ValidateAndCreate(namespace)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 
 	kubeClient, err := getKubernetesClient()
 	if err != nil {
@@ -124,9 +127,6 @@ func (v NamespacesResource) Create(c buffalo.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-
-	// If there are no errors set a success message
-	c.Flash().Add("success", "Namespace was created successfully")
 
 	// and redirect to the namespaces index page
 	return c.Render(201, r.JSON(namespace))
@@ -227,7 +227,7 @@ func (v NamespacesResource) Destroy(c buffalo.Context) error {
 // GET /namespaces/coowner
 func NamespaceCoOwner(c buffalo.Context) error {
 	// Get the DB connection from the context
-	userId := c.Session().Session.Values["current_user_id"]
+	// userId := c.Session().Session.Values["current_user_id"]
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
@@ -239,7 +239,7 @@ func NamespaceCoOwner(c buffalo.Context) error {
 	// Default values are "page=1" and "per_page=20".
 	q := tx.Eager().PaginateFromParams(c.Params())
 
-	query := q.RawQuery("select id, created_at, updated_at, name, owner_id from namespaces join namespaces_users on id = namespace_id where user_id = ?", userId)
+	query := q.RawQuery("SELECT id, created_at, updated_at, name, owner_id FROM namespaces JOIN namespaces_users ON id = namespace_id WHERE user_id = ?", c.Param("user_id"))
 
 	// Retrieve all Namespaces from the DB
 	//if err := q.LeftJoin("namespaces", "namespaces.id=namespaces_users.namespace_id").Where("user_id = ?", userId).All(namespaces); err != nil {
@@ -251,6 +251,110 @@ func NamespaceCoOwner(c buffalo.Context) error {
 	c.Set("pagination", q.Paginator)
 
 	return c.Render(200, r.JSON(namespaces))
+}
+
+func NamespaceAddCoOwner(c buffalo.Context) error {
+	// Allocate an empty Namespace
+	user := &models.User{}
+
+	// Bind namespace to the html form elements
+	if err := c.Bind(user); err != nil {
+		return errors.WithStack(err)
+	}
+
+	log.Printf("User %#v", user)
+
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	if err := tx.RawQuery("INSERT INTO namespaces_users (namespace_id, user_id) VALUES (?, ?)", c.Param("namespace_id"), user.ID).Exec(); err != nil {
+		return errors.WithStack(err)
+	}
+
+	namespace := &models.Namespace{}
+
+	// To find the Namespace the parameter namespace_id is used.
+	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
+		return c.Error(404, err)
+	}
+	log.Printf("Namespace: %#v", namespace)
+
+	return c.Render(200, r.JSON(namespace))
+}
+
+func NamespaceDeleteCoOwner(c buffalo.Context) error {
+	// Allocate an empty Namespace
+	user := &models.User{}
+
+	// Bind namespace to the html form elements
+	if err := c.Bind(user); err != nil {
+		return errors.WithStack(err)
+	}
+
+	log.Printf("User %#v", user)
+
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	if err := tx.RawQuery("DELETE FROM namespaces_users WHERE namespace_id = ? AND user_id = ?", c.Param("namespace_id"), user.ID).Exec(); err != nil {
+		return errors.WithStack(err)
+	}
+
+	namespace := &models.Namespace{}
+
+	// To find the Namespace the parameter namespace_id is used.
+	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
+		return c.Error(404, err)
+	}
+	log.Printf("Namespace: %#v", namespace)
+
+	return c.Render(200, r.JSON(namespace))
+}
+
+// Gets all Namespaces where logged in user is coowner. This function is mapped to the path
+// GET /namespaces/coowner
+func NamespaceAvailableUsers(c buffalo.Context) error {
+	// Get the DB connection from the context
+	// userId := c.Session().Session.Values["current_user_id"]
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	users := &models.Users{}
+
+	// Retrieve all Users from the DB
+	if err := tx.All(users); err != nil {
+		return errors.WithStack(err)
+	}
+
+	namespace := &models.Namespace{}
+
+	// To find the Namespace the parameter namespace_id is used.
+	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
+		return c.Error(404, err)
+	}
+
+	available := users.Filter(func(u models.User) bool {
+		if u == namespace.Owner {
+			return false
+		}
+
+		for i := range namespace.CoOwners {
+			if u == namespace.CoOwners[i] {
+				return false
+			}
+		}
+		return true
+	})
+
+	return c.Render(200, r.JSON(available))
 }
 
 func NamespaceToken(c buffalo.Context) error {

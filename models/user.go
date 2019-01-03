@@ -33,11 +33,29 @@ func (u User) String() string {
 // Users is not required by pop and may be deleted
 type Users []User
 
-// String is not required by pop and may be deleted
-func (u Users) String() string {
-	ju, _ := json.Marshal(u)
-	return string(ju)
+func (u Users) String(i int) string {
+	return u[i].Username
 }
+
+func (u Users) Len() int {
+	return len(u)
+}
+
+func (u Users) Filter(f func(User) bool) Users {
+	vsf := make(Users, 0)
+	for _, v := range u {
+		if f(v) {
+			vsf = append(vsf, v)
+		}
+	}
+	return vsf
+}
+
+// String is not required by pop and may be deleted
+// func (u Users) String() string {
+// 	ju, _ := json.Marshal(u)
+// 	return string(ju)
+// }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.

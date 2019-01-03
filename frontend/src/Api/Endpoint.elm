@@ -1,4 +1,11 @@
-module Api.Endpoint exposing (Endpoint, request, url, user, users, auth, session)
+module Api.Endpoint
+    exposing
+        ( Endpoint
+        , request
+        , url
+        , auth
+        , session
+        )
 
 import ID as ID exposing (ID)
 import Http
@@ -77,13 +84,3 @@ session =
         [ "auth", "session" ]
         []
         |> Endpoint
-
-
-users : Endpoint
-users =
-    url [ "users" ] []
-
-
-user : ID -> Endpoint
-user id =
-    url [ "users", ID.toString id ] []

@@ -53,14 +53,14 @@ init session id =
       , namespacesCoOwner = Loading
       }
     , Cmd.batch
-        [ User.fetch id
+        [ User.get id
             |> Http.toTask
             |> Task.mapError (Tuple.pair id)
             |> Task.attempt CompletedUserLoad
         , Namespace.list
             |> Http.toTask
             |> Task.attempt CompletedNamespacesLoad
-        , Namespace.listCoOwner
+        , Namespace.coowned id
             |> Http.toTask
             |> Task.attempt CompletedNamespacesCoOwnerLoad
         , Task.perform GotTimeZone Time.here

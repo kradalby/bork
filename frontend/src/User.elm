@@ -1,4 +1,17 @@
-module User exposing (User, id, username, name, email, isAdmin, decoder, encode, session, fetch)
+module User
+    exposing
+        ( User
+        , id
+        , username
+        , name
+        , email
+        , isAdmin
+        , decoder
+        , encode
+        , session
+        , get
+        , list
+        )
 
 {-| A user's profile - potentially your own!
 
@@ -15,6 +28,7 @@ import Email exposing (Email)
 import Username exposing (Username)
 import Api.Endpoint as Endpoint
 import Api
+import Api.User
 
 
 -- TYPES
@@ -115,7 +129,13 @@ session =
 -- FETCH
 
 
-fetch : ID -> Http.Request User
-fetch ident =
+get : ID -> Http.Request User
+get ident =
     decoder
-        |> Api.get (Endpoint.user ident)
+        |> Api.get (Api.User.get ident)
+
+
+list : Http.Request (List User)
+list =
+    Decode.list decoder
+        |> Api.get (Api.User.list)

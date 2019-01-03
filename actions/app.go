@@ -68,15 +68,21 @@ func App(kubeconf string) *buffalo.App {
 		apiV1.Use(Authorize)
 		apiV1.Use(SetCurrentUser)
 
-		apiV1.Resource("/users", UsersResource{})
+		// apiV1.Resource("/users", UsersResource{})
+		apiV1.GET("/users", UserList)
+		// apiV1.GET("/users/search/{query}", UserSearch)
+		apiV1.GET("/users/{user_id}", UserShow)
+		apiV1.GET("/users/{user_id}/coowned", NamespaceCoOwner)
 		apiV1.Resource("/namespaces", NamespacesResource{})
+		apiV1.POST("/namespaces/{namespace_id}/coowners", NamespaceAddCoOwner)
+		apiV1.DELETE("/namespaces/{namespace_id}/coowners", NamespaceDeleteCoOwner)
+		apiV1.GET("/namespaces/{namespace_id}/available_users", NamespaceAvailableUsers)
 		apiV1.GET("/namespaces/{namespace_id}/token", NamespaceToken)
 		apiV1.GET("/namespaces/{namespace_id}/certificate", NamespaceCertificate)
 		apiV1.GET("/namespaces/{namespace_id}/certificateb64", NamespaceCertificateB64)
 		apiV1.GET("/namespaces/{namespace_id}/endpoint", NamespaceEndpoint)
 		apiV1.GET("/namespaces/{namespace_id}/auth", NamespaceAuth)
 		apiV1.GET("/namespaces/{namespace_id}/config", NamespaceConfig)
-		apiV1.GET("/coowner/namespaces", NamespaceCoOwner)
 	}
 
 	return app

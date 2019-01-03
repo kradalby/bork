@@ -17,7 +17,8 @@ import Http
 -- import Page.UserList as UserList
 
 import Page.Namespace as Namespace
-import Page.NamespaceList as NamespaceList
+import Page.Namespace.List as NamespaceList
+import Page.Namespace.New as NamespaceNew
 
 
 -- import Page.Settings as Settings
@@ -46,6 +47,7 @@ type Model
       -- | UserList UserList.Model
     | Namespace ID Namespace.Model
     | NamespaceList NamespaceList.Model
+    | NamespaceNew NamespaceNew.Model
 
 
 
@@ -107,6 +109,9 @@ view model =
             NamespaceList namespaceList ->
                 viewPage (Page.NamespaceList) GotNamespaceListMsg (NamespaceList.view namespaceList)
 
+            NamespaceNew namespaceNew ->
+                viewPage (Page.NamespaceNew) GotNamespaceNewMsg (NamespaceNew.view namespaceNew)
+
 
 
 -- UPDATE
@@ -123,6 +128,7 @@ type Msg
       -- | GotUserListMsg UserList.Msg
     | GotNamespaceMsg Namespace.Msg
     | GotNamespaceListMsg NamespaceList.Msg
+    | GotNamespaceNewMsg NamespaceNew.Msg
     | GotSession Session
     | GetSession Nav.Key (Result Http.Error U.User)
 
@@ -151,6 +157,9 @@ toSession page =
 
         NamespaceList namespace ->
             NamespaceList.toSession namespace
+
+        NamespaceNew namespace ->
+            NamespaceNew.toSession namespace
 
 
 changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -187,6 +196,10 @@ changeRouteTo maybeRoute model =
             Just Route.NamespaceList ->
                 NamespaceList.init session
                     |> updateWith NamespaceList GotNamespaceListMsg model
+
+            Just Route.NamespaceNew ->
+                NamespaceNew.init session
+                    |> updateWith NamespaceNew GotNamespaceNewMsg model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -258,6 +271,10 @@ update msg model =
             NamespaceList.update subMsg namespace
                 |> updateWith NamespaceList GotNamespaceListMsg model
 
+        ( GotNamespaceNewMsg subMsg, NamespaceNew namespace ) ->
+            NamespaceNew.update subMsg namespace
+                |> updateWith NamespaceNew GotNamespaceNewMsg model
+
         ( GotSession session, _ ) ->
             ( Redirect session
             , Route.replaceUrl (Session.navKey session) Route.Home
@@ -322,6 +339,9 @@ subscriptions model =
 
         NamespaceList subMsg ->
             Sub.map GotNamespaceListMsg (NamespaceList.subscriptions subMsg)
+
+        NamespaceNew subMsg ->
+            Sub.map GotNamespaceNewMsg (NamespaceNew.subscriptions subMsg)
 
 
 

@@ -27,6 +27,7 @@ type Page
       --  | UserList
     | Namespace ID
     | NamespaceList
+    | NamespaceNew
 
 
 {-| Take a page's Html and frames it with a header and footer.
