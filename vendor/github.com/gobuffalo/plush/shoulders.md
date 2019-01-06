@@ -9,9 +9,19 @@ Thank you to the following **GIANTS**:
 
 * [github.com/gobuffalo/envy](https://godoc.org/github.com/gobuffalo/envy)
 
+* [github.com/gobuffalo/flect](https://godoc.org/github.com/gobuffalo/flect)
+
 * [github.com/gobuffalo/github_flavored_markdown](https://godoc.org/github.com/gobuffalo/github_flavored_markdown)
 
 * [github.com/gobuffalo/github_flavored_markdown/internal/russross/blackfriday](https://godoc.org/github.com/gobuffalo/github_flavored_markdown/internal/russross/blackfriday)
+
+* [github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/highlight_diff](https://godoc.org/github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/highlight_diff)
+
+* [github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/highlight_go](https://godoc.org/github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/highlight_go)
+
+* [github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/octicon](https://godoc.org/github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/octicon)
+
+* [github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/sanitized_anchor_name](https://godoc.org/github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/sanitized_anchor_name)
 
 * [github.com/gobuffalo/plush](https://godoc.org/github.com/gobuffalo/plush)
 
@@ -35,6 +45,8 @@ Thank you to the following **GIANTS**:
 
 * [github.com/gobuffalo/validate/validators](https://godoc.org/github.com/gobuffalo/validate/validators)
 
+* [github.com/gofrs/uuid](https://godoc.org/github.com/gofrs/uuid)
+
 * [github.com/joho/godotenv](https://godoc.org/github.com/joho/godotenv)
 
 * [github.com/markbates/inflect](https://godoc.org/github.com/markbates/inflect)
@@ -43,17 +55,15 @@ Thank you to the following **GIANTS**:
 
 * [github.com/pkg/errors](https://godoc.org/github.com/pkg/errors)
 
+* [github.com/rogpeppe/go-internal/modfile](https://godoc.org/github.com/rogpeppe/go-internal/modfile)
+
+* [github.com/rogpeppe/go-internal/module](https://godoc.org/github.com/rogpeppe/go-internal/module)
+
+* [github.com/rogpeppe/go-internal/semver](https://godoc.org/github.com/rogpeppe/go-internal/semver)
+
 * [github.com/serenize/snaker](https://godoc.org/github.com/serenize/snaker)
 
 * [github.com/sergi/go-diff/diffmatchpatch](https://godoc.org/github.com/sergi/go-diff/diffmatchpatch)
-
-* [github.com/shurcooL/highlight_diff](https://godoc.org/github.com/shurcooL/highlight_diff)
-
-* [github.com/shurcooL/highlight_go](https://godoc.org/github.com/shurcooL/highlight_go)
-
-* [github.com/shurcooL/octicon](https://godoc.org/github.com/shurcooL/octicon)
-
-* [github.com/shurcooL/sanitized_anchor_name](https://godoc.org/github.com/shurcooL/sanitized_anchor_name)
 
 * [github.com/sourcegraph/annotate](https://godoc.org/github.com/sourcegraph/annotate)
 

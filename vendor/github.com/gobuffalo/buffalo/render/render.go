@@ -28,14 +28,21 @@ func New(opts Options) *Engine {
 	if _, ok := opts.TemplateEngines["text"]; !ok {
 		opts.TemplateEngines["text"] = plush.BuffaloRenderer
 	}
+	if _, ok := opts.TemplateEngines["txt"]; !ok {
+		opts.TemplateEngines["txt"] = plush.BuffaloRenderer
+	}
 	if _, ok := opts.TemplateEngines["js"]; !ok {
-		opts.TemplateEngines["js"] = JSTemplateEngine
+		opts.TemplateEngines["js"] = plush.BuffaloRenderer
 	}
 	if _, ok := opts.TemplateEngines["md"]; !ok {
 		opts.TemplateEngines["md"] = MDTemplateEngine
 	}
 	if _, ok := opts.TemplateEngines["tmpl"]; !ok {
 		opts.TemplateEngines["tmpl"] = GoTemplateEngine
+	}
+
+	if opts.DefaultContentType == "" {
+		opts.DefaultContentType = "text/html; charset=utf-8"
 	}
 
 	e := &Engine{

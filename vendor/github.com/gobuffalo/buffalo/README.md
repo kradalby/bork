@@ -3,19 +3,17 @@
 <p align="center">
 <a href="https://godoc.org/github.com/gobuffalo/buffalo"><img src="https://godoc.org/github.com/gobuffalo/buffalo?status.svg" alt="GoDoc" /></a>
 <a href="https://travis-ci.org/gobuffalo/buffalo"><img src="https://travis-ci.org/gobuffalo/buffalo.svg?branch=master" alt="Build Status" /></a>
-<a href="https://ci.appveyor.com/project/markbates/buffalo/branch/master"><img src="https://ci.appveyor.com/api/projects/status/fjv5u499p78uvbxa/branch/master?svg=true&passingText=Windows%20-%20OK&failingText=Windows%20-%20failed&pendingText=Windows%20-%20pending" alt="Windows Build status" /></a>
-<a href="https://codecov.io/gh/gobuffalo/buffalo"><img src="https://codecov.io/gh/gobuffalo/buffalo/branch/master/graph/badge.svg" alt="Code coverage status" /></a>
 <a href="https://goreportcard.com/report/github.com/gobuffalo/buffalo"><img src="https://goreportcard.com/badge/github.com/gobuffalo/buffalo" alt="Go Report Card" /></a>
 <a href="https://www.codetriage.com/gobuffalo/buffalo"><img src="https://www.codetriage.com/gobuffalo/buffalo/badges/users.svg" alt="Open Source Helpers" /></a>
 </p>
 
 # Buffalo
 
-Buffalo is a Go web development eco-system. Designed to make the life of a Go web developer easier.
+A Go web development eco-system, designed to make your life easier.
 
-Buffalo starts by generating a web project for you that already has everything from front-end (JavaScript, SCSS, etc...) to back-end (database, routing, etc...) already hooked up and ready to run. From there it provides easy APIs to build your web application quickly in Go.
+Buffalo helps you to generate a web project that already has everything from front-end (JavaScript, SCSS, etc.) to back-end (database, routing, etc.) already hooked up and ready to run. From there it provides easy APIs to build your web application quickly in Go.
 
-Buffalo isn't just a framework, it's a holistic web development environment and project structure that lets developers get straight to the business of, well, building their business.
+Buffalo **isn't just a framework**, it's a holistic web development environment and project structure that **lets developers get straight to the business** of, well, building their business.
 
 > I :heart: web dev in go again - Brian Ketelsen
 
@@ -23,55 +21,10 @@ Buffalo isn't just a framework, it's a holistic web development environment and 
 
 Please visit [http://gobuffalo.io](http://gobuffalo.io) for the latest documentation, examples, and more.
 
-## Installation
-
-```bash
-$ go get -u -v github.com/gobuffalo/buffalo/buffalo
-```
-
-_NOTE_: Buffalo has a minimum Go dependency of `1.8.1`.
-
-Buffalo also depends on:
- - gcc for [go-sqlite3](https://github.com/mattn/go-sqlite3) which is a cgo package.
- - node and npm for the asset pipeline.
-
-## Generating a new Project
-
-Buffalo aims to make building new web applications in Go as simple as possible, and what could be more simple than a new application generator?
-
-```text
-$ buffalo new <name>
-```
-
-That will generate a whole new Buffalo application that is ready to go. It'll even run `go get` for you to make sure you have all of the necessary dependencies needed to run your application.
-
-To see a list of available flags for the `new` command, just check out its help.
-
-```text
-$ buffalo help new
-```
-
-## Running your application
-
-Buffalo is Go "standards" compliant. That means you can just build your binary and run it. It's that simple.
-
-### Running your application in Development
-
-One of the downsides to Go development is the lack of code "reloading". This means as you change your code you need to manually stop your application, rebuild it, and then restart it. Buffalo finds this is annoying and wants to make life better for you.
-
-```text
-$ buffalo dev
-```
-
-The `dev` command will watch your `.go` and `.html` files by default, rebuild, and restart your binary for you so you don't have to worry about such things. Just run the `dev` command and start coding.
-
-## Testing your application
-
-Just like running your application, Buffalo doesn't stop you from using the standard Go tools for testing. Buffalo does ship with a `test` command that will run all of your tests while conveniently skipping that pesky old `./vendor` directory!
-
-```text
-$ buffalo test
-```
+### Quick Start
+* [Installation](http://gobuffalo.io/docs/installation)
+* [Create a new project](http://gobuffalo.io/docs/new-project)
+* [Examples](http://gobuffalo.io/docs/examples)
 
 ## Shoulders of Giants
 
@@ -91,7 +44,7 @@ Buffalo would not be possible if not for all of the great projects it depends on
 
 ### Models/ORM (Optional)
 
-[github.com/gobuffalo/pop](https://github.com/gobuffalo/pop) - Accessing databases is nothing new in web applications. Pop, and its command line tool, Soda, were chosen because they strike a nice balance between simplifying common tasks, being idiomatic, and giving you the flexibility you need to built your app. Pop and Soda share the same core philosphies as Buffalo so they were a natural choice.
+[github.com/gobuffalo/pop](https://github.com/gobuffalo/pop) - Accessing databases is nothing new in web applications. Pop, and its command line tool, Soda, were chosen because they strike a nice balance between simplifying common tasks, being idiomatic, and giving you the flexibility you need to built your app. Pop and Soda share the same core philosophies as Buffalo so they were a natural choice.
 
 ### Sessions, Cookies, Websockets, and more...
 
@@ -105,4 +58,4 @@ Oh, yeah, everyone wants benchmarks! What would a web framework be without its b
 
 First, thank you so much for wanting to contribute! It means so much that you care enough to want to contribute. We appreciate every PR from the smallest of typos to the be biggest of features.
 
-To contribute, please read the contribution guidelines: [CONTRIBUTING](CONTRIBUTING.md)
+To contribute, please read the contribution guidelines: [CONTRIBUTING](.github/CONTRIBUTING.md)

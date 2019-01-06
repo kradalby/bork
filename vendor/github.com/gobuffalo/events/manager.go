@@ -5,6 +5,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/markbates/safe"
 	"github.com/pkg/errors"
 )
 
@@ -69,8 +70,8 @@ func (m *manager) Emit(e Event) error {
 		e.Error = errors.New(e.Kind)
 	}
 	go func(e Event) {
-		m.moot.RLock()
-		defer m.moot.RUnlock()
+		m.moot.Lock()
+		defer m.moot.Unlock()
 		for _, l := range m.listeners {
 			ex := Event{
 				Kind:    e.Kind,
@@ -81,7 +82,11 @@ func (m *manager) Emit(e Event) error {
 			for k, v := range e.Payload {
 				ex.Payload[k] = v
 			}
-			go l(ex)
+			go func(e Event, l Listener) {
+				safe.Run(func() {
+					l(e)
+				})
+			}(ex, l)
 		}
 	}(e)
 	return nil
