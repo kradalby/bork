@@ -11,6 +11,7 @@ module Namespace
         , decoder
         , get
         , list
+        , create
         , addCoOwner
         , deleteCoOwner
         , availableUsers

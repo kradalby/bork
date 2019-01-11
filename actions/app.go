@@ -5,7 +5,7 @@ import (
 	"github.com/gobuffalo/mw-csrf"
 
 	"github.com/gobuffalo/buffalo-pop/pop/popmw"
-	"github.com/gobuffalo/mw-contenttype"
+	// "github.com/gobuffalo/mw-contenttype"
 	"github.com/gobuffalo/mw-forcessl"
 	"github.com/gobuffalo/mw-paramlogger"
 
@@ -40,10 +40,10 @@ func App(kubeconf string) *buffalo.App {
 			SessionName: "_bork_session",
 		})
 		// Automatically redirect to SSL
-		app.Use(forceSSL())
+		// app.Use(forceSSL())
 
 		// Set the request content type to JSON
-		app.Use(contenttype.Set("application/json"))
+		// app.Use(contenttype.Set("application/json"))
 		app.Use(csrf.New)
 		app.Use(popmw.Transaction(models.DB))
 
@@ -51,6 +51,7 @@ func App(kubeconf string) *buffalo.App {
 			app.Use(paramlogger.ParameterLogger)
 		}
 
+		app.GET("/{path:.+}", HomeHandler)
 		app.GET("/", HomeHandler)
 
 		// Authorization section

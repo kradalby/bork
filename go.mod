@@ -17,7 +17,6 @@ require (
 	github.com/gobuffalo/suite v2.1.6+incompatible
 	github.com/gobuffalo/uuid v2.0.5+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
-	github.com/gobuffalo/x v0.0.0-20181110221217-14085ca3e1a9
 	github.com/gogo/protobuf v1.1.1 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf // indirect
@@ -27,13 +26,15 @@ require (
 	github.com/jarcoal/httpmock v0.0.0-20181110092731-53def6cd0f87 // indirect
 	github.com/json-iterator/go v1.1.5 // indirect
 	github.com/markbates/goth v1.48.0
+	github.com/markbates/grift v1.0.5
+	github.com/markbates/inflect v1.0.4
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
 	github.com/mitchellh/go-homedir v1.0.0
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pkg/errors v0.8.0
 	github.com/rs/cors v1.6.0
-	github.com/sahilm/fuzzy v0.1.0
+	github.com/sahilm/fuzzy v0.1.0 // indirect
 	github.com/shurcooL/go v0.0.0-20180423040247-9e1955d9fb6e // indirect
 	github.com/shurcooL/go-goon v0.0.0-20170922171312-37c2f522c041 // indirect
 	github.com/shurcooL/highlight_diff v0.0.0-20170515013008-09bb4053de1b // indirect

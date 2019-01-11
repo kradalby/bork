@@ -1,3 +1,13 @@
-node_modules/
+frontend/node_modules/
+frontend/elm-stuff/
+npm-debug.log
+Dockerfile*
+docker-compose*
+.dockerignore
+.git
+.gitignore
+README.md
+LICENSE
+.vscode
 *.log
 bin/

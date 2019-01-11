@@ -293,15 +293,14 @@ update msg model =
             ( model, Cmd.none )
 
         ( a, b ) ->
-            let
-                _ =
-                    Debug.log "msg" a
-
-                _ =
-                    Debug.log "model " b
-            in
-                -- Disregard messages that arrived for the wrong page.
-                ( model, Cmd.none )
+            -- let
+            --     _ =
+            --         Debug.log "msg" a
+            --     _ =
+            --         Debug.log "model " b
+            -- in
+            -- Disregard messages that arrived for the wrong page.
+            ( model, Cmd.none )
 
 
 updateWith : (subModel -> Model) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )

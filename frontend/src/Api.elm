@@ -187,5 +187,6 @@ traceDecoder message decoder =
                         Decode.succeed decoded
 
                     Err err ->
-                        Decode.fail <| Debug.log ("Fail: " ++ message) <| Debug.toString err
+                        -- Decode.fail <| Debug.log ("Fail: " ++ message) <| Debug.toString err
+                        Decode.fail "fail"
             )

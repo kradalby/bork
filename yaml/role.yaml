@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bork-sa
+  namespace: bork
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: bork-crb
+subjects:
+  - kind: ServiceAccount
+    name: bork-sa
+    namespace: bork 
+roleRef:
+  kind: ClusterRole
+  name: bork-cr
+  apiGroup: rbac.authorization.k8s.io
+
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: bork-cr 
+rules:
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["*"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["clusterrolebindings"]
+  verbs: ["list", "get", "create", "delete"]
+
+
+
+
+# ClusterRole for service account inside namespaces
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: bork-namespaced-cr
+rules:
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["*"]
+

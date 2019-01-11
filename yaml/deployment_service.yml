@@ -1,0 +1,67 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  creationTimestamp: null
+  labels:
+    app: bork
+  name: bork-deployment
+  namespace: bork
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bork
+  template:
+    metadata:
+      labels:
+        app: bork
+    spec:
+      serviceAccountName: bork-sa
+      volumes:
+        - name: bork-config
+          configMap:
+            name: bork-config
+      containers:
+      - image: kradalby/bork:latest
+        env: 
+        - name: OPENID_CONNECT_KEY
+          value: "bork"
+        - name: OPENID_CONNECT_SECRET
+          value: ""
+        - name: OPENID_CONNECT_DISCOVERY_URL
+          value: "https://login.kradalby.no/dex/.well-known/openid-configuration"
+        - name: OPENID_CONNECT_CALLBACK
+          value: ""
+        - name: DATABASE_URL
+          value: "postgres://postgres:postgres@127.0.0.1:5432/myapp_production"
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: bork-config
+            mountPath: "/etc/bork/config"
+            subPath: "config"
+            readOnly: true
+        name: bork-container
+        ports:
+        - containerPort: 3000
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  creationTimestamp: null
+  labels:
+    app: bork
+  name: bork-service
+  namespace: bork
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+  selector:
+    app: bork
+
