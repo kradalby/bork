@@ -29,16 +29,14 @@ RUN mkdir -p assets templates
 
 COPY --from=elm /app/dist/index.html ./templates/index.html
 COPY --from=elm /app/dist ./assets
-RUN ls
-RUN ls templates
-RUN ls assets
+RUN packr
 
 
 COPY . .
 # RUN go get $(go list ./... | grep -v /vendor/)
 #
 # This SHOULD be removed
-RUN rm go.sum
+# RUN rm go.sum
 RUN CGO_ENABLED=0 go build -o /bin/app 
 # RUN buffalo build --static -o /bin/app
 
