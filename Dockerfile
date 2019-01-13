@@ -12,7 +12,6 @@ COPY frontend/elm.json .
 
 ENV NODE_ENV "production"
 COPY frontend .
-RUN ls
 RUN npm run prod
 
 
@@ -29,15 +28,16 @@ RUN mkdir -p assets templates
 
 COPY --from=elm /app/dist/index.html ./templates/index.html
 COPY --from=elm /app/dist ./assets
-RUN packr
 
 
 COPY . .
+RUN packr -z
+
 # RUN go get $(go list ./... | grep -v /vendor/)
-#
-# This SHOULD be removed
-# RUN rm go.sum
+
+
 RUN CGO_ENABLED=0 go build -o /bin/app 
+
 # RUN buffalo build --static -o /bin/app
 
 FROM alpine

@@ -51,8 +51,7 @@ func App(kubeconf string) *buffalo.App {
 			app.Use(paramlogger.ParameterLogger)
 		}
 
-		app.GET("/{path:.+}", HomeHandler)
-		app.GET("/", HomeHandler)
+		app.ServeFiles("/assets", assetsBox)
 
 		// Authorization section
 		auth := app.Group("/auth")
@@ -84,6 +83,10 @@ func App(kubeconf string) *buffalo.App {
 		apiV1.GET("/namespaces/{namespace_id}/endpoint", NamespaceEndpoint)
 		apiV1.GET("/namespaces/{namespace_id}/auth", NamespaceAuth)
 		apiV1.GET("/namespaces/{namespace_id}/config", NamespaceConfig)
+
+		app.GET("/{path:.+}", HomeHandler)
+		app.GET("/", HomeHandler)
+
 	}
 
 	return app

@@ -11,3 +11,6 @@ LICENSE
 .vscode
 *.log
 bin/
+
+assets/
+templates/
