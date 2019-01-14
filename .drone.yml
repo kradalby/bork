@@ -1,6 +1,5 @@
 workspace:
-  base: /
-  path: /go/src/github.com/octocat/hello-world
+  base: /go/src/github.com/kradalby/bork
 
 pipeline:
   lint:
