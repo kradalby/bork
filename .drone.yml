@@ -1,8 +1,6 @@
-
 pipeline:
   lint:
     image: golangci/golangci-lint 
-    path: /go/src/github.com/kradalby/bork
     commands:
         - ls
         - pwd
