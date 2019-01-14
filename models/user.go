@@ -2,8 +2,10 @@ package models
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 
+	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
@@ -76,4 +78,15 @@ func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 // This method is not required and may be deleted.
 func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// TODO: lowercase, remove spaces
+func (u User) NamespacePrefix() string {
+	borkPrefix := envy.Get("BORK_NAMESPACE_PREFIX", "bork")
+
+	username := strings.Split(strings.ToLower(u.Username), " ")
+
+	prefix := append([]string{borkPrefix}, username...)
+
+	return strings.Join(prefix, "-")
 }

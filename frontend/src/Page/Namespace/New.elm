@@ -35,6 +35,7 @@ type alias Model =
 
     -- Loaded independently from server
     , namespace : Status Namespace
+    , prefix : Status String
     }
 
 
@@ -52,9 +53,13 @@ init session =
       , errors = []
       , name = ""
       , namespace = Loading
+      , prefix = Loading
       }
     , Cmd.batch
-        [ Task.perform GotTimeZone Time.here
+        [ Namespace.prefix
+            |> Http.toTask
+            |> Task.attempt CompletedPrefixLoad
+        , Task.perform GotTimeZone Time.here
         , Task.perform (\_ -> PassedSlowLoadThreshold) Loading.slowThreshold
         ]
     )
@@ -72,21 +77,39 @@ view model =
     in
         { title = title
         , content =
-            div [ class "namespace-page" ]
+            div [ class "namespace-page" ] <|
                 [ Page.viewErrors ClickedDismissErrors model.errors
                 , div [ class "row" ]
                     [ h2 []
                         [ text <| "New namespace"
                         ]
                     ]
-                , div [ class "row" ]
-                    [ p [] [ text model.name ]
-                    ]
-                , div [ class "row" ]
-                    [ input [ onInput ChangeName ] [] ]
-                , div [ class "row" ]
-                    [ button [ class "btn btn-success", onClick CreateNamespace ] [ text "Create" ] ]
                 ]
+                    ++ case model.prefix of
+                        Loaded prefix ->
+                            [ div [ class "row" ]
+                                [ p [] [ text <| prefix ++ "-" ++ model.name ]
+                                ]
+                            , div [ class "row" ]
+                                -- TODO: Validate input against kubernetes rules
+                                [ input [ onInput ChangeName ] [] ]
+                            , div [ class "row" ]
+                                [ button
+                                    [ class "btn btn-success"
+                                    , onClick CreateNamespace
+                                    ]
+                                    [ text "Create" ]
+                                ]
+                            ]
+
+                        Loading ->
+                            [ text "" ]
+
+                        LoadingSlowly ->
+                            [ Loading.icon ]
+
+                        Failed ->
+                            [ Loading.error "prefix" ]
         }
 
 
@@ -102,6 +125,7 @@ type Msg
     | ChangeName String
     | CreateNamespace
     | CompletedAddNamespace (Result Http.Error Namespace)
+    | CompletedPrefixLoad (Result Http.Error String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -144,6 +168,16 @@ update msg model =
 
         CompletedAddNamespace (Err err) ->
             ( model
+            , Log.error
+            )
+
+        CompletedPrefixLoad (Ok prefix) ->
+            ( { model | prefix = Loaded prefix }
+            , Cmd.none
+            )
+
+        CompletedPrefixLoad (Err err) ->
+            ( { model | prefix = Failed }
             , Log.error
             )
 

@@ -60,3 +60,8 @@ auth id =
 config : ID -> Endpoint
 config id =
     url [ "namespaces", ID.toString id, "config" ] []
+
+
+prefix : Endpoint
+prefix =
+    url [ "namespaces", "prefix" ] []

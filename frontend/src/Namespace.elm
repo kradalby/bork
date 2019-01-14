@@ -21,6 +21,7 @@ module Namespace
         , certificateB64
         , auth
         , config
+        , prefix
         )
 
 {-| A namespace's profile - potentially your own!
@@ -189,6 +190,12 @@ config : ID -> Http.Request String
 config ident =
     Decode.field "config" Decode.string
         |> Api.get (Api.Namespace.config ident)
+
+
+prefix : Http.Request String
+prefix =
+    Decode.field "prefix" Decode.string
+        |> Api.get Api.Namespace.prefix
 
 
 type alias Auth =

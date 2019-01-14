@@ -2,7 +2,6 @@ package actions
 
 import (
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop"
 	"github.com/kradalby/bork/models"
 	"github.com/pkg/errors"
@@ -109,6 +108,12 @@ func (v NamespacesResource) Create(c buffalo.Context) error {
 	if err := c.Bind(namespace); err != nil {
 		return errors.WithStack(err)
 	}
+
+	// TODO: Validate namespace against kubernetes rules
+	// https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+	// Im not completely sure about this...
+	prefix := user.NamespacePrefix()
+	namespace.Name = prefix + "-" + namespace.Name
 
 	namespace.Owner = *user
 	namespace.OwnerID = user.ID
@@ -528,7 +533,22 @@ func NamespaceConfig(c buffalo.Context) error {
 	return c.Render(200, r.JSON(map[string]string{"config": endpoint}))
 }
 func NamespacePrefix(c buffalo.Context) error {
-	prefix := envy.Get("BORK_NAMESPACE_PREFIX", "")
+	userId := c.Session().Session.Values["current_user_id"]
+
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	user := &models.User{}
+
+	// To find the User the parameter user_id is used.
+	if err := tx.Eager().Find(user, userId); err != nil {
+		return c.Error(404, err)
+	}
+
+	prefix := user.NamespacePrefix()
 
 	return c.Render(200, r.JSON(map[string]string{"prefix": prefix}))
 }
