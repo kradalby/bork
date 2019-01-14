@@ -2,6 +2,7 @@ package actions
 
 import (
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop"
 	"github.com/kradalby/bork/models"
 	"github.com/pkg/errors"
@@ -525,4 +526,9 @@ func NamespaceConfig(c buffalo.Context) error {
 	}
 
 	return c.Render(200, r.JSON(map[string]string{"config": endpoint}))
+}
+func NamespacePrefix(c buffalo.Context) error {
+	prefix := envy.Get("BORK_NAMESPACE_PREFIX", "")
+
+	return c.Render(200, r.JSON(map[string]string{"prefix": prefix}))
 }

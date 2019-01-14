@@ -74,6 +74,7 @@ func App(kubeconf string) *buffalo.App {
 		apiV1.GET("/users/{user_id}", UserShow)
 		apiV1.GET("/users/{user_id}/coowned", NamespaceCoOwner)
 		apiV1.Resource("/namespaces", NamespacesResource{})
+		apiV1.GET("/namespaces/prefix", NamespacePrefix)
 		apiV1.POST("/namespaces/{namespace_id}/coowners", NamespaceAddCoOwner)
 		apiV1.DELETE("/namespaces/{namespace_id}/coowners", NamespaceDeleteCoOwner)
 		apiV1.GET("/namespaces/{namespace_id}/available_users", NamespaceAvailableUsers)
