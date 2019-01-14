@@ -1,0 +1,35 @@
+pipeline:
+  build:
+    image: golangci/golangci-lint 
+    repo: kradalby/bork
+    args:
+        - run
+
+  build:
+    image: plugins/docker
+    repo: kradalby/bork
+    # auto_tag: true
+    secrets: [ docker_username, docker_password ]
+    tags:
+        - ${DRONE_COMMIT_SHA:0:8}
+        - latest
+
+   # deploy:
+   #   image: quay.io/honestbee/drone-kubernetes
+   #   deployment: bork-deployment
+   #   repo: kradalby/bork
+   #   container: bork-container
+   #   namespace: bork
+   #   secrets: [ kubernetes_server, kubernetes_cert, kubernetes_token ]
+   #   tag:
+   #     - ${DRONE_COMMIT_SHA:0:8}
+
+  notify:
+    image: drillster/drone-email
+    host: smtp.fap.no
+    skip_verify: true
+    port: 25
+    from: drone@drone.fap.no
+    recipients: [ kradalby@kradalby.no ]
+    when:
+      status: [ success, changed, failure ]
