@@ -5,11 +5,6 @@ pipeline:
   lint:
     image: golangci/golangci-lint 
     commands:
-        - ls
-        - pwd
-        - ls /go/src/github.com/kradalby/bork
-        - ls /go/bin
-        - /go/bin/golangci-lint run
         - golangci-lint run
 
   build:
