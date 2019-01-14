@@ -1,11 +1,8 @@
-workspace:
-  base: /go
-  path: src/github.com/kradalby/bork
-
 
 pipeline:
   lint:
     image: golangci/golangci-lint 
+    path: /go/src/github.com/kradalby/bork
     commands:
         - ls
         - pwd
