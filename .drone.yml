@@ -6,7 +6,6 @@ workspace:
 pipeline:
   lint:
     image: golangci/golangci-lint 
-    repo: kradalby/bork
     commands:
         - golangci-lint run
 
