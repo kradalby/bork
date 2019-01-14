@@ -10,6 +10,7 @@ pipeline:
         - ls
         - pwd
         - ls /go/src/github.com/kradalby/bork
+        - ls /go/bin
         - /go/bin/golangci-lint run
         - golangci-lint run
 
