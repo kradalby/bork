@@ -1,9 +1,14 @@
+workspace:
+  base: /go
+  path: src/github.com/kradalby/bork
+
+
 pipeline:
-  build:
+  lint:
     image: golangci/golangci-lint 
     repo: kradalby/bork
-    args:
-        - run
+    commands:
+        - golangci-lint run
 
   build:
     image: plugins/docker
