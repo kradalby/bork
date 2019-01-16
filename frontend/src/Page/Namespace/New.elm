@@ -96,6 +96,17 @@ view model =
                                             ]
                                         , input [ onInput ChangeName, attribute "aria-describedby" "inputGroup-sizing-sm", attribute "aria-label" "Large", class "form-control", type_ "text" ]
                                             []
+                                        , div [ class "input-group-append" ]
+                                            [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
+                                                [ text <|
+                                                    String.fromInt <|
+                                                        (-) 253 <|
+                                                            String.length <|
+                                                                prefix
+                                                                    ++ "-"
+                                                                    ++ model.name
+                                                ]
+                                            ]
                                         ]
                                     ]
                                 ]
