@@ -65,7 +65,7 @@ init url navKey =
         session =
             U.session
                 |> Http.toTask
-                |> Task.attempt (GetSession navKey)
+                |> Task.attempt (GetSession url navKey)
     in
         ( model, Cmd.batch [ session, cmds ] )
 
@@ -130,7 +130,7 @@ type Msg
     | GotNamespaceListMsg NamespaceList.Msg
     | GotNamespaceNewMsg NamespaceNew.Msg
     | GotSession Session
-    | GetSession Nav.Key (Result Http.Error U.User)
+    | GetSession Url Nav.Key (Result Http.Error U.User)
 
 
 toSession : Model -> Session
@@ -280,16 +280,21 @@ update msg model =
             , Route.replaceUrl (Session.navKey session) Route.Home
             )
 
-        ( GetSession navKey (Ok user), _ ) ->
-            let
-                session =
-                    Session.fromUser navKey (Just user)
-            in
-                ( Redirect session
-                , Route.replaceUrl (Session.navKey session) Route.Home
-                )
+        ( GetSession url navKey (Ok user), _ ) ->
+            case (Route.fromUrl url) of
+                Nothing ->
+                    ( model, Cmd.none )
 
-        ( GetSession navKey (Err error), Redirect _ ) ->
+                Just route ->
+                    let
+                        session =
+                            Session.fromUser navKey (Just user)
+                    in
+                        ( Redirect session
+                        , Route.replaceUrl (Session.navKey session) route
+                        )
+
+        ( GetSession url navKey (Err error), Redirect _ ) ->
             ( model, Cmd.none )
 
         ( a, b ) ->
