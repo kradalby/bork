@@ -64,11 +64,11 @@ func NewOutOfClusterClient(kubeconf string) (*Client, error) {
 	return client, nil
 }
 
-func (c *Client) CreateNamespace(name string, ownerId uuid.UUID) error {
+func (c *Client) CreateNamespace(name string, ownerId uuid.UUID) (*uuid.UUID, error) {
 
 	err := c.CreateNamespaceWithServiceAccount(name, ownerId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	ns := &models.Namespace{
@@ -78,13 +78,13 @@ func (c *Client) CreateNamespace(name string, ownerId uuid.UUID) error {
 
 	// Save the namespace in the database
 	// when all other options are successful
-	err = models.DB.Create(ns)
+	_, err = models.DB.ValidateAndCreate(ns)
 	if err != nil {
 		log.Printf("[Error] %#v", err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &ns.ID, nil
 }
 
 func (c *Client) CreateNamespaceWithServiceAccount(name string, owner uuid.UUID) error {

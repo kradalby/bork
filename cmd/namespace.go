@@ -54,7 +54,7 @@ to quickly create a Cobra application.`,
 			log.Fatalf("Could not parse UUID: %s", err)
 		}
 
-		err = client.CreateNamespace(name, ownerId)
+		_, err = client.CreateNamespace(name, ownerId)
 		if err != nil {
 			log.Fatalf("[Error] %#v", err)
 		}

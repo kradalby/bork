@@ -88,17 +88,20 @@ view model =
                     ++ case model.prefix of
                         Loaded prefix ->
                             [ div [ class "row" ]
-                                [ p [] [ text <| prefix ++ "-" ++ model.name ]
+                                [ div [ class "col-12 pt-3 px-0" ]
+                                    [ div [ class "input-group input-group-lg" ]
+                                        [ div [ class "input-group-prepend" ]
+                                            [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
+                                                [ text <| prefix ++ "-" ++ model.name ]
+                                            ]
+                                        , input [ onInput ChangeName, attribute "aria-describedby" "inputGroup-sizing-sm", attribute "aria-label" "Large", class "form-control", type_ "text" ]
+                                            []
+                                        ]
+                                    ]
                                 ]
                             , div [ class "row" ]
-                                -- TODO: Validate input against kubernetes rules
-                                [ input [ onInput ChangeName ] [] ]
-                            , div [ class "row" ]
-                                [ button
-                                    [ class "btn btn-success"
-                                    , onClick CreateNamespace
-                                    ]
-                                    [ text "Create" ]
+                                [ div [ class "col-12 pt-3 px-0" ]
+                                    [ button [ class "btn btn-large btn-success float-right", onClick CreateNamespace ] [ text "Create" ] ]
                                 ]
                             ]
 
@@ -167,9 +170,13 @@ update msg model =
             )
 
         CompletedAddNamespace (Err err) ->
-            ( model
-            , Log.error
-            )
+            let
+                _ =
+                    Debug.log "error: " err
+            in
+                ( model
+                , Log.error
+                )
 
         CompletedPrefixLoad (Ok prefix) ->
             ( { model | prefix = Loaded prefix }

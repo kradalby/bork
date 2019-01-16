@@ -86,7 +86,7 @@ func (v NamespacesResource) New(c buffalo.Context) error {
 // Create adds a Namespace to the DB. This function is mapped to the
 // path POST /namespaces
 func (v NamespacesResource) Create(c buffalo.Context) error {
-	userId := c.Session().Session.Values["current_user_id"]
+	userID := c.Session().Session.Values["current_user_id"]
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -94,12 +94,16 @@ func (v NamespacesResource) Create(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
+	log.Println("1")
+
 	user := &models.User{}
 
 	// To find the User the parameter user_id is used.
-	if err := tx.Eager().Find(user, userId); err != nil {
+	if err := tx.Eager().Find(user, userID); err != nil {
 		return c.Error(404, err)
 	}
+
+	log.Println(user)
 
 	// Allocate an empty Namespace
 	namespace := &models.Namespace{}
@@ -109,33 +113,45 @@ func (v NamespacesResource) Create(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
+	log.Println("3")
+
 	// TODO: Validate namespace against kubernetes rules
 	// https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 	// Im not completely sure about this...
 	prefix := user.NamespacePrefix()
-	namespace.Name = prefix + "-" + namespace.Name
+	namespaceName := prefix + "-" + namespace.Name
 
-	namespace.Owner = *user
-	namespace.OwnerID = user.ID
-
+	log.Println("4")
 	// Validate the data from the html form
-	_, err := tx.ValidateAndCreate(namespace)
+	_, err := namespace.Validate(tx)
 	if err != nil {
 		return errors.WithStack(err)
 	}
+
+	log.Println("5")
 
 	kubeClient, err := getKubernetesClient()
 	if err != nil {
 		return c.Error(500, err)
 	}
 
-	err = kubeClient.CreateNamespace(namespace.Name, namespace.Owner.ID)
+	log.Println("6")
+
+	newNamespaceID, err := kubeClient.CreateNamespace(namespaceName, user.ID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	// and redirect to the namespaces index page
-	return c.Render(201, r.JSON(namespace))
+	newNamespace := &models.Namespace{}
+	// To find the Namespace the parameter namespace_id is used.
+	if err := tx.Eager().Find(newNamespace, newNamespaceID); err != nil {
+		return c.Error(404, err)
+	}
+	log.Println(newNamespace)
+
+	log.Println("8")
+
+	return c.Render(201, r.JSON(newNamespace))
 }
 
 // Edit renders a edit form for a Namespace. This function is
