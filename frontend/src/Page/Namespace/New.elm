@@ -36,6 +36,7 @@ type alias Model =
     -- Loaded independently from server
     , namespace : Status Namespace
     , prefix : Status String
+    , validationErrors : Status (List String)
     }
 
 
@@ -54,11 +55,15 @@ init session =
       , name = ""
       , namespace = Loading
       , prefix = Loading
+      , validationErrors = Loading
       }
     , Cmd.batch
         [ Namespace.prefix
             |> Http.toTask
             |> Task.attempt CompletedPrefixLoad
+        , Namespace.validate ""
+            |> Http.toTask
+            |> Task.attempt CompletedValidateNamespaceName
         , Task.perform GotTimeZone Time.here
         , Task.perform (\_ -> PassedSlowLoadThreshold) Loading.slowThreshold
         ]
@@ -84,46 +89,65 @@ view model =
                         [ text <| "New namespace"
                         ]
                     ]
-                ]
-                    ++ case model.prefix of
-                        Loaded prefix ->
-                            [ div [ class "row" ]
-                                [ div [ class "col-12 pt-3 px-0" ]
-                                    [ div [ class "input-group input-group-lg" ]
-                                        [ div [ class "input-group-prepend" ]
-                                            [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
-                                                [ text <| prefix ++ "-" ++ model.name ]
-                                            ]
-                                        , input [ onInput ChangeName, attribute "aria-describedby" "inputGroup-sizing-sm", attribute "aria-label" "Large", class "form-control", type_ "text" ]
-                                            []
-                                        , div [ class "input-group-append" ]
-                                            [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
-                                                [ text <|
-                                                    String.fromInt <|
-                                                        (-) 253 <|
-                                                            String.length <|
-                                                                prefix
-                                                                    ++ "-"
-                                                                    ++ model.name
-                                                ]
+                , case model.prefix of
+                    Loaded prefix ->
+                        div [ class "row" ]
+                            [ div [ class "col-12 pt-3 px-0" ]
+                                [ div [ class "input-group input-group-lg" ]
+                                    [ div [ class "input-group-prepend" ]
+                                        [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
+                                            [ text <| prefix ++ "-" ++ model.name ]
+                                        ]
+                                    , input [ onInput ChangeName, attribute "aria-describedby" "inputGroup-sizing-sm", attribute "aria-label" "Large", class "form-control", type_ "text" ]
+                                        []
+                                    , div [ class "input-group-append" ]
+                                        [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
+                                            [ text <|
+                                                String.fromInt <|
+                                                    (-) 253 <|
+                                                        String.length <|
+                                                            prefix
+                                                                ++ "-"
+                                                                ++ model.name
                                             ]
                                         ]
                                     ]
                                 ]
-                            , div [ class "row" ]
-                                [ div [ class "col-12 pt-3 px-0" ]
-                                    [ button [ class "btn btn-large btn-success float-right", onClick CreateNamespace ] [ text "Create" ] ]
-                                ]
                             ]
 
-                        Loading ->
-                            [ text "" ]
+                    Loading ->
+                        text ""
 
-                        LoadingSlowly ->
-                            [ Loading.icon ]
+                    LoadingSlowly ->
+                        Loading.icon
 
-                        Failed ->
-                            [ Loading.error "prefix" ]
+                    Failed ->
+                        Loading.error "prefix"
+                , case model.validationErrors of
+                    Loaded errors ->
+                        let
+                            noErrors =
+                                List.length errors /= 0
+                        in
+                            div [ class "row" ]
+                                [ div [ class "col-8" ]
+                                    [ ul [ class "pt-3" ] <|
+                                        List.map (\error -> li [] [ text error ]) errors
+                                    ]
+                                , div [ class "col-4 pt-4 pr-0" ]
+                                    [ button [ class "btn btn-large btn-success float-right", onClick CreateNamespace, disabled noErrors ] [ text "Create" ]
+                                    ]
+                                ]
+
+                    Loading ->
+                        text ""
+
+                    LoadingSlowly ->
+                        Loading.icon
+
+                    Failed ->
+                        Loading.error "validationErrors"
+                ]
         }
 
 
@@ -140,6 +164,7 @@ type Msg
     | CreateNamespace
     | CompletedAddNamespace (Result Http.Error Namespace)
     | CompletedPrefixLoad (Result Http.Error String)
+    | CompletedValidateNamespaceName (Result Http.Error (List String))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -160,7 +185,13 @@ update msg model =
             ( model, Cmd.none )
 
         ChangeName content ->
-            ( { model | name = content }, Cmd.none )
+            ( { model | name = content, validationErrors = Loading }
+            , Cmd.batch
+                [ Namespace.validate content
+                    |> Http.toTask
+                    |> Task.attempt CompletedValidateNamespaceName
+                ]
+            )
 
         CreateNamespace ->
             ( model
@@ -196,6 +227,16 @@ update msg model =
 
         CompletedPrefixLoad (Err err) ->
             ( { model | prefix = Failed }
+            , Log.error
+            )
+
+        CompletedValidateNamespaceName (Ok errors) ->
+            ( { model | validationErrors = Loaded errors }
+            , Cmd.none
+            )
+
+        CompletedValidateNamespaceName (Err err) ->
+            ( { model | validationErrors = Failed }
             , Log.error
             )
 

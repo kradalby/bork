@@ -65,3 +65,8 @@ config id =
 prefix : Endpoint
 prefix =
     url [ "namespaces", "prefix" ] []
+
+
+validate : Endpoint
+validate =
+    url [ "namespaces", "validate" ] []

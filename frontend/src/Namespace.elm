@@ -22,6 +22,7 @@ module Namespace
         , auth
         , config
         , prefix
+        , validate
         )
 
 {-| A namespace's profile - potentially your own!
@@ -196,6 +197,18 @@ prefix : Http.Request String
 prefix =
     Decode.field "prefix" Decode.string
         |> Api.get Api.Namespace.prefix
+
+
+validate : String -> Http.Request (List String)
+validate namespace =
+    let
+        body =
+            Encode.object [ ( "name", Encode.string namespace ) ] |> Http.jsonBody
+
+        resultDecoder =
+            Decode.field "errors" (Decode.list Decode.string)
+    in
+        Api.post Api.Namespace.validate body resultDecoder
 
 
 type alias Auth =
