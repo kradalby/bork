@@ -94,6 +94,16 @@ view model =
 
                     Failed ->
                         Loading.error "namespaces"
+                , div [ class "row" ]
+                    [ div [ class "col-12 pb-5 px-0" ]
+                        [ a [ Route.href Route.NamespaceNew ]
+                            [ button
+                                [ class "btn btn-success btn-large float-right"
+                                ]
+                                [ text "New" ]
+                            ]
+                        ]
+                    ]
                 , case model.namespacesCoOwner of
                     Loaded namespaces ->
                         viewNamespaces "Co-Owner Namespaces" namespaces
