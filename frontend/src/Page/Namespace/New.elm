@@ -212,13 +212,9 @@ update msg model =
             )
 
         CompletedAddNamespace (Err err) ->
-            let
-                _ =
-                    Debug.log "error: " err
-            in
-                ( model
-                , Log.error
-                )
+            ( model
+            , Log.error
+            )
 
         CompletedPrefixLoad (Ok prefix) ->
             ( { model | prefix = Loaded prefix }
