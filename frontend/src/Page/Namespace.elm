@@ -152,20 +152,30 @@ view model =
 
 viewConfig : String -> Html Msg
 viewConfig config =
-    div []
+    div [ class "col-12 px-0" ]
         [ div [ class "row" ]
             [ h3 []
                 [ text "Configuration"
                 ]
             ]
-        , textarea
-            [ class "form-control"
-            , attribute "rows" "15"
-            , value config
-            , readonly True
+        , div [ class "row" ]
+            [ textarea
+                [ class "form-control"
+                , attribute "rows" "15"
+                , value config
+                , readonly True
+                ]
+                []
             ]
-            []
-        , button [ class "btn btn-primary", onClick <| SaveConfig config ] [ text "Download" ]
+        , div [ class "row" ]
+            [ div [ class "col-12 px-0" ]
+                [ button
+                    [ class "btn btn-primary mt-3 mb-3 float-right"
+                    , onClick <| SaveConfig config
+                    ]
+                    [ text "Download" ]
+                ]
+            ]
         ]
 
 
@@ -178,7 +188,7 @@ viewOwners session ns =
         isOwner =
             Misc.isOwner session (User.id user)
     in
-        div []
+        div [ class "col-12 px-0" ]
             [ div [ class "row" ]
                 [ h3 []
                     [ text "Users"
@@ -195,9 +205,9 @@ viewOwners session ns =
             , div [ class "row" ]
                 [ userTable session ns ]
             , div [ class "row" ]
-                [ div [ class "container" ]
+                [ div [ class "col-12 px-0" ]
                     [ View.iff isOwner <|
-                        button [ class "btn btn-success", onClick ToggleAddOwnerModal ] [ text "+" ]
+                        button [ class "btn btn-success float-right", onClick ToggleAddOwnerModal ] [ text "Add" ]
                     ]
                 ]
             ]
@@ -228,7 +238,7 @@ userTable session ns =
                         ]
                         [ text <| Username.toString <| User.username user ]
                     ]
-                , td []
+                , td [ colspan 2 ]
                     [ a
                         [ href <|
                             "mailto:"
@@ -262,7 +272,7 @@ userTableRowDelete isOwner ns user =
     let
         btn =
             View.iff isOwner <|
-                button [ class "btn btn-danger", onClick (DeleteCoOwner ns user) ] [ text "-" ]
+                button [ class "btn btn-danger btn-sm float-right", onClick (DeleteCoOwner ns user) ] [ text "Remove" ]
     in
         userTableRow btn user
 
@@ -302,7 +312,7 @@ userTableRow modifier user =
                 ]
                 [ text <| Email.toString <| User.email user ]
             ]
-        , td []
+        , td [ class "pb-1 pt-2" ]
             [ modifier
             ]
         ]
@@ -331,7 +341,7 @@ addOwnerModal users ns =
                                             [ text "Name" ]
                                         , th [ scope "col" ]
                                             [ text "Username" ]
-                                        , th [ scope "col", colspan 2 ]
+                                        , th [ scope "col" ]
                                             [ text "Email" ]
                                         ]
                                     ]
