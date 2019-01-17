@@ -7,7 +7,6 @@ import (
 	"github.com/kradalby/bork/models"
 	"github.com/pkg/errors"
 	"log"
-	"regexp"
 	"strings"
 )
 
@@ -31,8 +30,11 @@ type NamespacesResource struct {
 // List gets all Namespaces. This function is mapped to the path
 // GET /namespaces
 func (v NamespacesResource) List(c buffalo.Context) error {
-	// Get the DB connection from the context
-	userId := c.Session().Session.Values["current_user_id"]
+	user, err := getLoggedInUser(c)
+	if err != nil {
+		return c.Error(403, errors.New("permission denied"))
+	}
+
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
@@ -42,15 +44,11 @@ func (v NamespacesResource) List(c buffalo.Context) error {
 
 	// Paginate results. Params "page" and "per_page" control pagination.
 	// Default values are "page=1" and "per_page=20".
-	q := tx.Eager().PaginateFromParams(c.Params())
 
 	// Retrieve all Namespaces from the DB
-	if err := q.Where("owner_id = ?", userId).All(namespaces); err != nil {
+	if err := tx.Eager().Where("owner_id = ?", user.ID).All(namespaces); err != nil {
 		return errors.WithStack(err)
 	}
-
-	// Add the paginator to the context so it can be used in the template.
-	c.Set("pagination", q.Paginator)
 
 	return c.Render(200, r.JSON(namespaces))
 }
@@ -58,7 +56,11 @@ func (v NamespacesResource) List(c buffalo.Context) error {
 // Show gets the data for one Namespace. This function is mapped to
 // the path GET /namespaces/{namespace_id}
 func (v NamespacesResource) Show(c buffalo.Context) error {
-	userId := c.Session().Session.Values["current_user_id"]
+	user, err := getLoggedInUser(c)
+	if err != nil {
+		return c.Error(403, errors.New("permission denied"))
+	}
+
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -73,7 +75,7 @@ func (v NamespacesResource) Show(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
-	if namespace.Owner.ID != userId {
+	if !user.IsAdmin && !isOwner(namespace, user) && !isCoOwner(namespace, user) {
 		return c.Error(403, errors.New("permission denied"))
 	}
 
@@ -83,25 +85,21 @@ func (v NamespacesResource) Show(c buffalo.Context) error {
 // New renders the form for creating a new Namespace.
 // This function is mapped to the path GET /namespaces/new
 func (v NamespacesResource) New(c buffalo.Context) error {
-	return c.Render(200, r.JSON(&models.Namespace{}))
+	return c.Error(501, errors.New("Not implemented"))
 }
 
 // Create adds a Namespace to the DB. This function is mapped to the
 // path POST /namespaces
 func (v NamespacesResource) Create(c buffalo.Context) error {
-	userID := c.Session().Session.Values["current_user_id"]
+	user, err := getLoggedInUser(c)
+	if err != nil {
+		return c.Error(403, errors.New("permission denied"))
+	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
-	}
-
-	user := &models.User{}
-
-	// To find the User the parameter user_id is used.
-	if err := tx.Eager().Find(user, userID); err != nil {
-		return c.Error(404, err)
 	}
 
 	// Allocate an empty Namespace
@@ -121,7 +119,7 @@ func (v NamespacesResource) Create(c buffalo.Context) error {
 	}
 
 	// Validate the data from the html form
-	_, err := namespace.Validate(tx)
+	_, err = namespace.Validate(tx)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -148,67 +146,22 @@ func (v NamespacesResource) Create(c buffalo.Context) error {
 // Edit renders a edit form for a Namespace. This function is
 // mapped to the path GET /namespaces/{namespace_id}/edit
 func (v NamespacesResource) Edit(c buffalo.Context) error {
-	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
-	}
-
-	// Allocate an empty Namespace
-	namespace := &models.Namespace{}
-
-	if err := tx.Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
-	}
-
-	return c.Render(200, r.JSON(namespace))
+	return c.Error(501, errors.New("Not implemented"))
 }
 
 // Update changes a Namespace in the DB. This function is mapped to
 // the path PUT /namespaces/{namespace_id}
 func (v NamespacesResource) Update(c buffalo.Context) error {
-	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
-	}
-
-	// Allocate an empty Namespace
-	namespace := &models.Namespace{}
-
-	if err := tx.Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
-	}
-
-	// Bind Namespace to the html form elements
-	if err := c.Bind(namespace); err != nil {
-		return errors.WithStack(err)
-	}
-
-	verrs, err := tx.ValidateAndUpdate(namespace)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
-	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the edit.html template that the user can
-		// correct the input.
-		return c.Render(422, r.JSON(namespace))
-	}
-
-	// If there are no errors set a success message
-	c.Flash().Add("success", "Namespace was updated successfully")
-
-	// and redirect to the namespaces index page
-	return c.Render(200, r.JSON(namespace))
+	return c.Error(501, errors.New("Not implemented"))
 }
 
 // Destroy deletes a Namespace from the DB. This function is mapped
 // to the path DELETE /namespaces/{namespace_id}
 func (v NamespacesResource) Destroy(c buffalo.Context) error {
+	user, err := getLoggedInUser(c)
+	if err != nil {
+		return c.Error(403, errors.New("permission denied"))
+	}
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -219,8 +172,12 @@ func (v NamespacesResource) Destroy(c buffalo.Context) error {
 	namespace := &models.Namespace{}
 
 	// To find the Namespace the parameter namespace_id is used.
-	if err := tx.Find(namespace, c.Param("namespace_id")); err != nil {
+	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
 		return c.Error(404, err)
+	}
+
+	if !user.IsAdmin && !isOwner(namespace, user) {
+		return c.Error(403, errors.New("permission denied"))
 	}
 
 	if err := tx.Destroy(namespace); err != nil {
@@ -250,9 +207,8 @@ func NamespaceCoOwner(c buffalo.Context) error {
 
 	// Paginate results. Params "page" and "per_page" control pagination.
 	// Default values are "page=1" and "per_page=20".
-	q := tx.Eager().PaginateFromParams(c.Params())
 
-	query := q.RawQuery("SELECT id, created_at, updated_at, name, owner_id FROM namespaces JOIN namespaces_users ON id = namespace_id WHERE user_id = ?", c.Param("user_id"))
+	query := tx.Eager().RawQuery("SELECT id, created_at, updated_at, name, owner_id FROM namespaces JOIN namespaces_users ON id = namespace_id WHERE user_id = ?", c.Param("user_id"))
 
 	// Retrieve all Namespaces from the DB
 	//if err := q.LeftJoin("namespaces", "namespaces.id=namespaces_users.namespace_id").Where("user_id = ?", userId).All(namespaces); err != nil {
@@ -260,22 +216,14 @@ func NamespaceCoOwner(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
-	// Add the paginator to the context so it can be used in the template.
-	c.Set("pagination", q.Paginator)
-
 	return c.Render(200, r.JSON(namespaces))
 }
 
 func NamespaceAddCoOwner(c buffalo.Context) error {
-	// Allocate an empty Namespace
-	user := &models.User{}
-
-	// Bind namespace to the html form elements
-	if err := c.Bind(user); err != nil {
-		return errors.WithStack(err)
+	user, err := getLoggedInUser(c)
+	if err != nil {
+		return c.Error(403, errors.New("permission denied"))
 	}
-
-	log.Printf("User %#v", user)
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -283,31 +231,42 @@ func NamespaceAddCoOwner(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	if err := tx.RawQuery("INSERT INTO namespaces_users (namespace_id, user_id) VALUES (?, ?)", c.Param("namespace_id"), user.ID).Exec(); err != nil {
-		return errors.WithStack(err)
-	}
-
 	namespace := &models.Namespace{}
 
-	// To find the Namespace the parameter namespace_id is used.
+	//
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
 		return c.Error(404, err)
 	}
-	log.Printf("Namespace: %#v", namespace)
+
+	if !user.IsAdmin && !isOwner(namespace, user) {
+		return c.Error(403, errors.New("permission denied"))
+	}
+
+	coOwner := &models.User{}
+
+	// Bind namespace to the html form elements
+	if err := c.Bind(coOwner); err != nil {
+		return errors.WithStack(err)
+	}
+
+	// TODO: Rewrite this mess
+	if err := tx.RawQuery("INSERT INTO namespaces_users (namespace_id, user_id) VALUES (?, ?)", c.Param("namespace_id"), coOwner.ID).Exec(); err != nil {
+		return errors.WithStack(err)
+	}
+
+	// Get the updated namespace with the new CoOwner
+	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
+		return c.Error(404, err)
+	}
 
 	return c.Render(200, r.JSON(namespace))
 }
 
 func NamespaceDeleteCoOwner(c buffalo.Context) error {
-	// Allocate an empty Namespace
-	user := &models.User{}
-
-	// Bind namespace to the html form elements
-	if err := c.Bind(user); err != nil {
-		return errors.WithStack(err)
+	user, err := getLoggedInUser(c)
+	if err != nil {
+		return c.Error(403, errors.New("permission denied"))
 	}
-
-	log.Printf("User %#v", user)
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -315,13 +274,31 @@ func NamespaceDeleteCoOwner(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	if err := tx.RawQuery("DELETE FROM namespaces_users WHERE namespace_id = ? AND user_id = ?", c.Param("namespace_id"), user.ID).Exec(); err != nil {
+	namespace := &models.Namespace{}
+
+	//
+	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
+		return c.Error(404, err)
+	}
+
+	if !user.IsAdmin && !isOwner(namespace, user) {
+		return c.Error(403, errors.New("permission denied"))
+	}
+
+	coOwner := &models.User{}
+
+	// Bind namespace to the html form elements
+	if err := c.Bind(coOwner); err != nil {
 		return errors.WithStack(err)
 	}
 
-	namespace := &models.Namespace{}
+	// TODO: Rewrite this mess
+	if err := tx.RawQuery("DELETE FROM namespaces_users WHERE namespace_id = ? AND user_id = ?", c.Param("namespace_id"), coOwner.ID).Exec(); err != nil {
+		return errors.WithStack(err)
+	}
 
-	// To find the Namespace the parameter namespace_id is used.
+	namespace = &models.Namespace{}
+	// Get the updated namespace with the new CoOwner
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
 		return c.Error(404, err)
 	}
@@ -355,15 +332,14 @@ func NamespaceAvailableUsers(c buffalo.Context) error {
 	}
 
 	available := users.Filter(func(u models.User) bool {
-		if u == namespace.Owner {
+		if isOwner(namespace, &u) {
 			return false
 		}
 
-		for i := range namespace.CoOwners {
-			if u == namespace.CoOwners[i] {
-				return false
-			}
+		if isCoOwner(namespace, &u) {
+			return false
 		}
+
 		return true
 	})
 
@@ -371,6 +347,11 @@ func NamespaceAvailableUsers(c buffalo.Context) error {
 }
 
 func NamespaceToken(c buffalo.Context) error {
+	user, err := getLoggedInUser(c)
+	if err != nil {
+		return c.Error(403, errors.New("permission denied"))
+	}
+
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -381,8 +362,13 @@ func NamespaceToken(c buffalo.Context) error {
 	namespace := &models.Namespace{}
 
 	// To find the Namespace the parameter namespace_id is used.
-	if err := tx.Find(namespace, c.Param("namespace_id")); err != nil {
+	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
 		return c.Error(404, err)
+	}
+
+	// Can the user access this data?
+	if !user.IsAdmin && !isOwner(namespace, user) && !isCoOwner(namespace, user) {
+		return c.Error(403, errors.New("permission denied"))
 	}
 
 	kubeClient, err := getKubernetesClient()
@@ -399,6 +385,10 @@ func NamespaceToken(c buffalo.Context) error {
 }
 
 func NamespaceCertificate(c buffalo.Context) error {
+	user, err := getLoggedInUser(c)
+	if err != nil {
+		return c.Error(403, errors.New("permission denied"))
+	}
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -409,8 +399,13 @@ func NamespaceCertificate(c buffalo.Context) error {
 	namespace := &models.Namespace{}
 
 	// To find the Namespace the parameter namespace_id is used.
-	if err := tx.Find(namespace, c.Param("namespace_id")); err != nil {
+	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
 		return c.Error(404, err)
+	}
+
+	// Can the user access this data?
+	if !user.IsAdmin && !isOwner(namespace, user) && !isCoOwner(namespace, user) {
+		return c.Error(403, errors.New("permission denied"))
 	}
 
 	kubeClient, err := getKubernetesClient()
@@ -427,6 +422,11 @@ func NamespaceCertificate(c buffalo.Context) error {
 }
 
 func NamespaceCertificateB64(c buffalo.Context) error {
+	user, err := getLoggedInUser(c)
+	if err != nil {
+		return c.Error(403, errors.New("permission denied"))
+	}
+
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -437,8 +437,13 @@ func NamespaceCertificateB64(c buffalo.Context) error {
 	namespace := &models.Namespace{}
 
 	// To find the Namespace the parameter namespace_id is used.
-	if err := tx.Find(namespace, c.Param("namespace_id")); err != nil {
+	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
 		return c.Error(404, err)
+	}
+
+	// Can the user access this data?
+	if !user.IsAdmin && !isOwner(namespace, user) && !isCoOwner(namespace, user) {
+		return c.Error(403, errors.New("permission denied"))
 	}
 
 	kubeClient, err := getKubernetesClient()
@@ -471,6 +476,11 @@ func NamespaceEndpoint(c buffalo.Context) error {
 }
 
 func NamespaceAuth(c buffalo.Context) error {
+	user, err := getLoggedInUser(c)
+	if err != nil {
+		return c.Error(403, errors.New("permission denied"))
+	}
+
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -481,11 +491,14 @@ func NamespaceAuth(c buffalo.Context) error {
 	namespace := &models.Namespace{}
 
 	// To find the Namespace the parameter namespace_id is used.
-	if err := tx.Find(namespace, c.Param("namespace_id")); err != nil {
+	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
 		return c.Error(404, err)
 	}
 
-	log.Println(namespace.Name)
+	// Can the user access this data?
+	if !user.IsAdmin && !isOwner(namespace, user) && !isCoOwner(namespace, user) {
+		return c.Error(403, errors.New("permission denied"))
+	}
 
 	kubeClient, err := getKubernetesClient()
 	if err != nil {
@@ -523,6 +536,11 @@ func NamespaceAuth(c buffalo.Context) error {
 }
 
 func NamespaceConfig(c buffalo.Context) error {
+	user, err := getLoggedInUser(c)
+	if err != nil {
+		return c.Error(403, errors.New("permission denied"))
+	}
+
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -533,8 +551,13 @@ func NamespaceConfig(c buffalo.Context) error {
 	namespace := &models.Namespace{}
 
 	// To find the Namespace the parameter namespace_id is used.
-	if err := tx.Find(namespace, c.Param("namespace_id")); err != nil {
+	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
 		return c.Error(404, err)
+	}
+
+	// Can the user access this data?
+	if !user.IsAdmin && !isOwner(namespace, user) && !isCoOwner(namespace, user) {
+		return c.Error(403, errors.New("permission denied"))
 	}
 
 	kubeClient, err := getKubernetesClient()
@@ -599,27 +622,4 @@ func NamespaceValidateName(c buffalo.Context) error {
 
 	errors := ValidateNamespaceName(prefix, name)
 	return c.Render(200, r.JSON(map[string][]string{"errors": errors}))
-}
-
-func ValidateNamespaceName(prefix string, name string) []string {
-	errors := []string{}
-
-	fullName := prefix + "-" + name
-
-	if name == "" {
-		errors = append(errors, "Name cannot be empty")
-	}
-
-	if len(fullName) > 253 {
-		errors = append(errors, "Name cannot be longer than 253")
-	}
-
-	var HasValidCharacters = regexp.MustCompile(`^[a-z0-9\.-]+$`).MatchString
-
-	if !HasValidCharacters(fullName) {
-		errors = append(errors, "Name contains invalid characters")
-		errors = append(errors, "Characters must be lowercase alphanumeric, . and -")
-	}
-
-	return errors
 }
