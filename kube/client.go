@@ -111,6 +111,12 @@ func (c *Client) CreateNamespaceWithServiceAccount(name string, owner uuid.UUID)
 		return err
 	}
 
+	err = c.createIfNotExistServiceAccountClusterRoleBinding(name)
+	if err != nil {
+		log.Printf("[Error] %#v", err)
+		return err
+	}
+
 	err = c.createServiceAccountRoleBinding(name)
 	if err != nil {
 		log.Printf("[Error] %#v", err)
@@ -189,15 +195,15 @@ func (c *Client) deleteRole(namespace string) error {
 	return err
 }
 
-func (c *Client) CreateIfNotExistServiceAccountClusterRoleBinding(namespace string) error {
-	err := c.CreateServiceAccountClusterRoleBinding(namespace)
+func (c *Client) createIfNotExistServiceAccountClusterRoleBinding(namespace string) error {
+	err := c.createServiceAccountClusterRoleBinding(namespace)
 	if kubernetesErrors.IsAlreadyExists(err) {
 		return nil
 	}
 	return err
 }
 
-func (c *Client) CreateServiceAccountClusterRoleBinding(namespace string) error {
+func (c *Client) createServiceAccountClusterRoleBinding(namespace string) error {
 	serviceAccountName := getServiceAccountName(namespace)
 	roleBindingName := getClusterRoleBindingName(namespace)
 	roleBinding := rbacv1.ClusterRoleBinding{
