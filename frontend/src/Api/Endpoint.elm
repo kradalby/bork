@@ -41,7 +41,7 @@ request config =
 -- TYPES
 
 
-{-| Get a URL to the Conduit API.
+{-| Get a URL to the
 
 This is not publicly exposed, because we want to make sure the only way to get one of these URLs is from this module.
 
@@ -57,9 +57,6 @@ unwrap (Endpoint str) =
 
 url : List String -> List QueryParameter -> Endpoint
 url paths queryParams =
-    -- NOTE: Url.Builder takes care of percent-encoding special URL characters.
-    -- See https://package.elm-lang.org/packages/elm/url/latest/Url#percentEncode
-    -- Url.Builder.crossOrigin "https://conduit.productionready.io"
     Url.Builder.absolute
         ([ "api", "v1" ] ++ paths)
         queryParams
