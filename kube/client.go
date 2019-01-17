@@ -12,11 +12,14 @@ import (
 	"github.com/kradalby/bork/models"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	kubernetesErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kubernetes "k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
+
+var clusterRoleName string = "bork-namespaced-cr"
 
 type Client struct {
 	client *kubernetes.Clientset
@@ -183,6 +186,36 @@ func (c *Client) createRole(namespace string) error {
 
 func (c *Client) deleteRole(namespace string) error {
 	err := c.client.RbacV1().Roles(namespace).Delete(getRoleName(namespace), &metav1.DeleteOptions{})
+	return err
+}
+
+func (c *Client) CreateIfNotExistServiceAccountClusterRoleBinding(namespace string) error {
+	err := c.CreateServiceAccountClusterRoleBinding(namespace)
+	if kubernetesErrors.IsAlreadyExists(err) {
+		return nil
+	}
+	return err
+}
+
+func (c *Client) CreateServiceAccountClusterRoleBinding(namespace string) error {
+	serviceAccountName := getServiceAccountName(namespace)
+	roleBindingName := getClusterRoleBindingName(namespace)
+	roleBinding := rbacv1.ClusterRoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: roleBindingName,
+			// Labels: getLabels(),
+		},
+		Subjects: []rbacv1.Subject{{
+			Name:      serviceAccountName,
+			Kind:      "ServiceAccount",
+			Namespace: namespace,
+		}},
+		RoleRef: rbacv1.RoleRef{
+			Kind:     "ClusterRole",
+			Name:     clusterRoleName,
+			APIGroup: "rbac.authorization.k8s.io",
+		}}
+	_, err := c.client.RbacV1().ClusterRoleBindings().Create(&roleBinding)
 	return err
 }
 
@@ -357,6 +390,10 @@ func getServiceAccountName(namespace string) string {
 
 func getRoleBindingName(namespace string) string {
 	return namespace + "-user-view"
+}
+
+func getClusterRoleBindingName(namespace string) string {
+	return namespace + "-user-clusterrole-binding"
 }
 
 func getRoleName(namespace string) string {
