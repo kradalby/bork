@@ -54,8 +54,9 @@ viewHeader page maybeUser =
                 [ a [ class "navbar-brand", Route.href Route.Home ]
                     [ text "bork" ]
                 , ul [ class "nav navbar-nav pull-xs-right" ] <|
-                    navbarLink page Route.Home [ text "Home" ]
-                        :: viewMenu page maybeUser
+                    -- navbarLink page Route.Home [ text "Home" ]
+                    -- ::
+                    viewMenu page maybeUser
                 ]
             ]
         ]
@@ -76,7 +77,8 @@ viewMenu page maybeUser =
                     username =
                         User.username user
                 in
-                    [ linkTo Route.NamespaceList [ text "Namespaces" ]
+                    [ linkTo Route.NamespaceNew [ text "New" ]
+                    , linkTo Route.NamespaceList [ text "Namespaces" ]
 
                     --                   , linkTo Route.UserList [ text "Users " ]
                     --                   , linkTo Route.Settings [ text "Settings" ]
@@ -120,9 +122,8 @@ navbarLink page route linkContent =
 isActive : Page -> Route -> Bool
 isActive page route =
     case ( page, route ) of
-        ( Home, Route.Home ) ->
-            True
-
+        -- ( Home, Route.Home ) ->
+        --     True
         --        ( Settings, Route.Settings ) ->
         --            True
         ( User id1, Route.User id2 ) ->
@@ -130,6 +131,9 @@ isActive page route =
 
         --        ( UserList, Route.UserList ) ->
         --            True
+        ( NamespaceNew, Route.NamespaceNew ) ->
+            True
+
         ( NamespaceList, Route.NamespaceList ) ->
             True
 
