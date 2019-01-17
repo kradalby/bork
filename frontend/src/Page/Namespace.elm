@@ -34,6 +34,8 @@ type alias Model =
 
     -- View related
     , addOwnerModal : Bool
+    , deleteNamespaceModal : Bool
+    , deleteNamespaceVerificationField : String
 
     -- Loaded independently from server
     , namespace : Status Namespace
@@ -56,6 +58,8 @@ init session id =
       , timeZone = Time.utc
       , errors = []
       , addOwnerModal = False
+      , deleteNamespaceModal = False
+      , deleteNamespaceVerificationField = ""
       , namespace = Loading
       , auth = Loading
       , config = Loading
@@ -146,37 +150,23 @@ view model =
 
                     Failed ->
                         Loading.error "config"
+                , case model.namespace of
+                    Loaded ns ->
+                        div []
+                            [ View.iff model.deleteNamespaceModal (deleteNamespaceModal model.deleteNamespaceVerificationField ns)
+                            , viewDangerZone
+                            ]
+
+                    Loading ->
+                        text ""
+
+                    LoadingSlowly ->
+                        Loading.icon
+
+                    Failed ->
+                        Loading.error "namespace"
                 ]
         }
-
-
-viewConfig : String -> Html Msg
-viewConfig config =
-    div [ class "col-12 px-0" ]
-        [ div [ class "row" ]
-            [ h3 []
-                [ text "Configuration"
-                ]
-            ]
-        , div [ class "row" ]
-            [ textarea
-                [ class "form-control"
-                , attribute "rows" "15"
-                , value config
-                , readonly True
-                ]
-                []
-            ]
-        , div [ class "row" ]
-            [ div [ class "col-12 px-0" ]
-                [ button
-                    [ class "btn btn-primary mt-3 mb-3 float-right"
-                    , onClick <| SaveConfig config
-                    ]
-                    [ text "Download" ]
-                ]
-            ]
-        ]
 
 
 viewOwners : Session -> Namespace -> Html Msg
@@ -211,6 +201,51 @@ viewOwners session ns =
                     ]
                 ]
             ]
+
+
+viewConfig : String -> Html Msg
+viewConfig config =
+    div [ class "col-12 px-0" ]
+        [ div [ class "row" ]
+            [ h3 []
+                [ text "Configuration"
+                ]
+            ]
+        , div [ class "row" ]
+            [ textarea
+                [ class "form-control"
+                , attribute "rows" "15"
+                , value config
+                , readonly True
+                ]
+                []
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-12 px-0" ]
+                [ button
+                    [ class "btn btn-primary mt-3 mb-3 float-right"
+                    , onClick <| SaveConfig config
+                    ]
+                    [ text "Download" ]
+                ]
+            ]
+        ]
+
+
+viewDangerZone : Html Msg
+viewDangerZone =
+    div [ class "col-12 px-0" ]
+        [ div [ class "row" ]
+            [ h3 []
+                [ text "Danger Zone"
+                ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-12 px-0 pb-3" ]
+                [ button [ class "btn btn-large btn-danger", onClick ToggleDeleteNamespaceModal ] [ text "Delete Namespace" ]
+                ]
+            ]
+        ]
 
 
 userTable : Session -> Namespace -> Html Msg
@@ -321,7 +356,7 @@ userTableRow modifier user =
 addOwnerModal : Status (List User) -> Namespace -> Html Msg
 addOwnerModal users ns =
     div [ style "display" "block", attribute "aria-hidden" "false", attribute "aria-labelledby" "helpModal", class "modal", id "helpModal", attribute "role" "dialog", attribute "tabindex" "-1" ]
-        [ div [ class "modal-dialog modal-dialog-centered", attribute "role" "document" ]
+        [ div [ class "modal-dialog modal-dialog-centered modal-lg", attribute "role" "document" ]
             [ div [ class "modal-content" ]
                 [ div [ class "modal-header" ]
                     [ h5 [ class "modal-title", id "helpModalTitle" ]
@@ -366,6 +401,39 @@ addOwnerModal users ns =
         ]
 
 
+deleteNamespaceModal : String -> Namespace -> Html Msg
+deleteNamespaceModal deleteNamespaceVerificationContent ns =
+    let
+        disable =
+            (deleteNamespaceVerificationContent
+                /= (Namespace.name ns)
+            )
+    in
+        div [ style "display" "block", attribute "aria-hidden" "false", attribute "aria-labelledby" "helpModal", class "modal", id "helpModal", attribute "role" "dialog", attribute "tabindex" "-1" ]
+            [ div [ class "modal-dialog modal-dialog-centered modal-lg", attribute "role" "document" ]
+                [ div [ class "modal-content" ]
+                    [ div [ class "modal-header" ]
+                        [ h5 [ class "modal-title", id "helpModalTitle" ]
+                            [ text <| "Delete: " ++ (Namespace.name ns) ]
+                        , button [ onClick ToggleDeleteNamespaceModal, attribute "aria-label" "Close", class "close", attribute "data-dismiss" "modal", type_ "button" ]
+                            [ span [ attribute "aria-hidden" "true" ]
+                                [ text "×" ]
+                            ]
+                        ]
+                    , div [ class "modal-body" ]
+                        [ p [] [ text <| "This action cannot be undone. This will permanently delete the " ++ (Namespace.name ns) ++ " namespace, all resources, content and remove all collaborator associations." ]
+                        , p [] [ text "Please type in the name of the repository to confirm." ]
+                        , View.namespaceNameInput "" deleteNamespaceVerificationContent OnChangeDeleteNamespaceVerificationField
+                        ]
+                    , div [ class "modal-footer" ]
+                        [ button [ onClick ToggleDeleteNamespaceModal, class "btn btn-danger btn-block", attribute "data-dismiss" "modal", type_ "button", disabled disable ]
+                            [ text "Delete" ]
+                        ]
+                    ]
+                ]
+            ]
+
+
 
 -- PAGE TITLE
 
@@ -393,7 +461,9 @@ type Msg
     | DeleteCoOwner Namespace User
     | CompletedDeleteCoOwner (Result ( ID, Http.Error ) Namespace)
     | ToggleAddOwnerModal
+    | ToggleDeleteNamespaceModal
     | CompletedUsersLoad (Result Http.Error (List User))
+    | OnChangeDeleteNamespaceVerificationField String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -508,6 +578,11 @@ update msg model =
                 ]
             )
 
+        ToggleDeleteNamespaceModal ->
+            ( { model | deleteNamespaceModal = not model.deleteNamespaceModal }
+            , Cmd.none
+            )
+
         CompletedUsersLoad (Ok users) ->
             ( { model | users = Loaded users }, Cmd.none )
 
@@ -515,6 +590,9 @@ update msg model =
             ( { model | users = Failed }
             , Log.error
             )
+
+        OnChangeDeleteNamespaceVerificationField content ->
+            ( { model | deleteNamespaceVerificationField = content }, Cmd.none )
 
 
 

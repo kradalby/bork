@@ -4,6 +4,7 @@ module Page.View
         , userTable
         , userTableWithPrimary
         , iff
+        , namespaceNameInput
         )
 
 import Route
@@ -14,6 +15,7 @@ import Username
 import Email
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 
 
 iff : Bool -> Html msg -> Html msg
@@ -104,3 +106,33 @@ userTableRowWithClasses class_ user =
         , td []
             [ a [ href <| "mailto:" ++ (Email.toString <| User.email user) ] [ text <| Email.toString <| User.email user ] ]
         ]
+
+
+namespaceNameInput : String -> String -> (String -> msg) -> Html msg
+namespaceNameInput prefix name onMsg =
+    let
+        prepend =
+            if prefix /= "" then
+                String.join "-" [ prefix, name ]
+            else
+                name
+    in
+        div [ class "input-group input-group-lg" ]
+            [ div [ class "input-group-prepend" ]
+                [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
+                    [ text prepend ]
+                ]
+            , input [ onInput onMsg, attribute "aria-describedby" "inputGroup-sizing-sm", attribute "aria-label" "Large", class "form-control", type_ "text" ]
+                []
+            , div [ class "input-group-append" ]
+                [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
+                    [ text <|
+                        String.fromInt <|
+                            (-) 253 <|
+                                String.length <|
+                                    prefix
+                                        ++ "-"
+                                        ++ name
+                    ]
+                ]
+            ]

@@ -93,26 +93,7 @@ view model =
                     Loaded prefix ->
                         div [ class "row" ]
                             [ div [ class "col-12 pt-3 px-0" ]
-                                [ div [ class "input-group input-group-lg" ]
-                                    [ div [ class "input-group-prepend" ]
-                                        [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
-                                            [ text <| prefix ++ "-" ++ model.name ]
-                                        ]
-                                    , input [ onInput ChangeName, attribute "aria-describedby" "inputGroup-sizing-sm", attribute "aria-label" "Large", class "form-control", type_ "text" ]
-                                        []
-                                    , div [ class "input-group-append" ]
-                                        [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
-                                            [ text <|
-                                                String.fromInt <|
-                                                    (-) 253 <|
-                                                        String.length <|
-                                                            prefix
-                                                                ++ "-"
-                                                                ++ model.name
-                                            ]
-                                        ]
-                                    ]
-                                ]
+                                [ View.namespaceNameInput prefix model.name ChangeName ]
                             ]
 
                     Loading ->

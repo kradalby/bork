@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Ubuntu 10.6-1.pgdg18.04+1)
+-- Dumped from database version 10.5
 -- Dumped by pg_dump version 11.1
 
 SET statement_timeout = 0;
@@ -20,7 +20,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: namespaces; Type: TABLE; Schema: public; Owner: bork
+-- Name: namespaces; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.namespaces (
@@ -32,10 +32,10 @@ CREATE TABLE public.namespaces (
 );
 
 
-ALTER TABLE public.namespaces OWNER TO bork;
+ALTER TABLE public.namespaces OWNER TO postgres;
 
 --
--- Name: namespaces_users; Type: TABLE; Schema: public; Owner: bork
+-- Name: namespaces_users; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.namespaces_users (
@@ -44,10 +44,10 @@ CREATE TABLE public.namespaces_users (
 );
 
 
-ALTER TABLE public.namespaces_users OWNER TO bork;
+ALTER TABLE public.namespaces_users OWNER TO postgres;
 
 --
--- Name: schema_migration; Type: TABLE; Schema: public; Owner: bork
+-- Name: schema_migration; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.schema_migration (
@@ -55,10 +55,10 @@ CREATE TABLE public.schema_migration (
 );
 
 
-ALTER TABLE public.schema_migration OWNER TO bork;
+ALTER TABLE public.schema_migration OWNER TO postgres;
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: bork
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.users (
@@ -76,10 +76,10 @@ CREATE TABLE public.users (
 );
 
 
-ALTER TABLE public.users OWNER TO bork;
+ALTER TABLE public.users OWNER TO postgres;
 
 --
--- Name: namespaces namespaces_name_key; Type: CONSTRAINT; Schema: public; Owner: bork
+-- Name: namespaces namespaces_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.namespaces
@@ -87,7 +87,7 @@ ALTER TABLE ONLY public.namespaces
 
 
 --
--- Name: namespaces namespaces_pkey; Type: CONSTRAINT; Schema: public; Owner: bork
+-- Name: namespaces namespaces_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.namespaces
@@ -95,7 +95,7 @@ ALTER TABLE ONLY public.namespaces
 
 
 --
--- Name: namespaces_users namespaces_users_pkey; Type: CONSTRAINT; Schema: public; Owner: bork
+-- Name: namespaces_users namespaces_users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.namespaces_users
@@ -103,7 +103,7 @@ ALTER TABLE ONLY public.namespaces_users
 
 
 --
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: bork
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.users
@@ -111,7 +111,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: users users_username_key; Type: CONSTRAINT; Schema: public; Owner: bork
+-- Name: users users_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.users
@@ -119,7 +119,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: schema_migration_version_idx; Type: INDEX; Schema: public; Owner: bork
+-- Name: schema_migration_version_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX schema_migration_version_idx ON public.schema_migration USING btree (version);
