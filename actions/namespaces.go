@@ -2,6 +2,7 @@ package actions
 
 import (
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop"
 	"github.com/kradalby/bork/models"
 	"github.com/pkg/errors"
@@ -459,7 +460,12 @@ func NamespaceEndpoint(c buffalo.Context) error {
 		return c.Error(500, err)
 	}
 
-	endpoint := kubeClient.GetEndpoint()
+	var endpoint string
+	if ENV == "development" {
+		endpoint = kubeClient.GetEndpoint()
+	} else {
+		endpoint = envy.Get("BORK_KUBERNETES_ENDPOINT", "")
+	}
 
 	return c.Render(200, r.JSON(map[string]string{"endpoint": endpoint}))
 }
@@ -501,7 +507,12 @@ func NamespaceAuth(c buffalo.Context) error {
 		return c.Error(500, err)
 	}
 
-	endpoint := kubeClient.GetEndpoint()
+	var endpoint string
+	if ENV == "development" {
+		endpoint = kubeClient.GetEndpoint()
+	} else {
+		endpoint = envy.Get("BORK_KUBERNETES_ENDPOINT", "")
+	}
 
 	return c.Render(200, r.JSON(map[string]string{
 		"token":           token,
@@ -531,12 +542,12 @@ func NamespaceConfig(c buffalo.Context) error {
 		return c.Error(500, err)
 	}
 
-	endpoint, err := kubeClient.CreateConfiguration(namespace.Name)
+	config, err := kubeClient.CreateConfiguration(namespace.Name)
 	if err != nil {
 		return c.Error(500, err)
 	}
 
-	return c.Render(200, r.JSON(map[string]string{"config": endpoint}))
+	return c.Render(200, r.JSON(map[string]string{"config": config}))
 }
 func NamespacePrefix(c buffalo.Context) error {
 	userId := c.Session().Session.Values["current_user_id"]

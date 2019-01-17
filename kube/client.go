@@ -8,6 +8,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/uuid"
 	"github.com/kradalby/bork/models"
 	corev1 "k8s.io/api/core/v1"
@@ -20,6 +21,7 @@ import (
 )
 
 var clusterRoleName string = "bork-namespaced-cr"
+var ENV = envy.Get("GO_ENV", "development")
 
 type Client struct {
 	client *kubernetes.Clientset
@@ -357,7 +359,12 @@ contexts:
   name: {{.Namespace}}
 current-context: {{.Namespace}}`
 
-	endpoint := c.GetEndpoint()
+	var endpoint string
+	if ENV == "development" {
+		endpoint = c.GetEndpoint()
+	} else {
+		endpoint = envy.Get("BORK_KUBERNETES_ENDPOINT", "")
+	}
 
 	certificate, err := c.GetCertificateB64(namespace)
 	if err != nil {
