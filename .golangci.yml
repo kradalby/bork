@@ -1,10 +1,11 @@
 linters:
   enable-all: true
-  #   disable:
+  disable:
   #     - maligned
   #     - prealloc
   #     - gosec
-  #     - gochecknoglobals
+       - gochecknoglobals
+       - gochecknoinits
 
 run:
   skip-dirs:

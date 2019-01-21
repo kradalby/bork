@@ -59,7 +59,8 @@ func (u Users) Filter(f func(User) bool) Users {
 // 	return string(ju)
 // }
 
-// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+// Validate gets run every time you call a "pop.Validate*"
+// (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(

@@ -49,12 +49,12 @@ to quickly create a Cobra application.`,
 			log.Fatalf("[Error] %#v", err)
 		}
 
-		ownerId, err := uuid.FromString(owner)
+		ownerID, err := uuid.FromString(owner)
 		if err != nil {
 			log.Fatalf("Could not parse UUID: %s", err)
 		}
 
-		_, err = client.CreateNamespace(name, ownerId)
+		_, err = client.CreateNamespace(name, ownerID)
 		if err != nil {
 			log.Fatalf("[Error] %#v", err)
 		}
@@ -128,6 +128,12 @@ func init() {
 	newNamespaceCmd.Flags().StringVarP(&name, "name", "n", "", "Name of namespace")
 	newNamespaceCmd.Flags().StringVarP(&owner, "owner", "o", "", "Owner UUID")
 
-	newNamespaceCmd.MarkFlagRequired("name")
-	newNamespaceCmd.MarkFlagRequired("owner")
+	err := newNamespaceCmd.MarkFlagRequired("name")
+	if err != nil {
+		log.Fatalf("[Error]: %s", err)
+	}
+	err = newNamespaceCmd.MarkFlagRequired("owner")
+	if err != nil {
+		log.Fatalf("[Error]: %s", err)
+	}
 }

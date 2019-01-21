@@ -93,8 +93,14 @@ func init() {
 	newCoOwnerCmd.Flags().StringVarP(&user, "user", "u", "", "User UUID")
 	newCoOwnerCmd.Flags().StringVarP(&namespace, "namespace", "n", "", "Namespace UUID")
 
-	newCoOwnerCmd.MarkFlagRequired("user")
-	newCoOwnerCmd.MarkFlagRequired("namespace")
+	err := newCoOwnerCmd.MarkFlagRequired("user")
+	if err != nil {
+		log.Fatalf("[Error]: %s", err)
+	}
+	err = newCoOwnerCmd.MarkFlagRequired("namespace")
+	if err != nil {
+		log.Fatalf("[Error]: %s", err)
+	}
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

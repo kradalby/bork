@@ -200,7 +200,7 @@ func (v NamespacesResource) Destroy(c buffalo.Context) error {
 // GET /namespaces/coowner
 func NamespaceCoOwner(c buffalo.Context) error {
 	// Get the DB connection from the context
-	// userId := c.Session().Session.Values["current_user_id"]
+	// userID := c.Session().Session.Values["current_user_id"]
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
@@ -214,7 +214,7 @@ func NamespaceCoOwner(c buffalo.Context) error {
 	query := tx.Eager().RawQuery("SELECT id, created_at, updated_at, name, owner_id FROM namespaces JOIN namespaces_users ON id = namespace_id WHERE user_id = ?", c.Param("user_id"))
 
 	// Retrieve all Namespaces from the DB
-	//if err := q.LeftJoin("namespaces", "namespaces.id=namespaces_users.namespace_id").Where("user_id = ?", userId).All(namespaces); err != nil {
+	//if err := q.LeftJoin("namespaces", "namespaces.id=namespaces_users.namespace_id").Where("user_id = ?", userID).All(namespaces); err != nil {
 	if err := query.All(namespaces); err != nil {
 		return errors.WithStack(err)
 	}
@@ -314,7 +314,7 @@ func NamespaceDeleteCoOwner(c buffalo.Context) error {
 // GET /namespaces/coowner
 func NamespaceAvailableUsers(c buffalo.Context) error {
 	// Get the DB connection from the context
-	// userId := c.Session().Session.Values["current_user_id"]
+	// userID := c.Session().Session.Values["current_user_id"]
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
@@ -576,7 +576,7 @@ func NamespaceConfig(c buffalo.Context) error {
 	return c.Render(200, r.JSON(map[string]string{"config": config}))
 }
 func NamespacePrefix(c buffalo.Context) error {
-	userId := c.Session().Session.Values["current_user_id"]
+	userID := c.Session().Session.Values["current_user_id"]
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -587,7 +587,7 @@ func NamespacePrefix(c buffalo.Context) error {
 	user := &models.User{}
 
 	// To find the User the parameter user_id is used.
-	if err := tx.Eager().Find(user, userId); err != nil {
+	if err := tx.Eager().Find(user, userID); err != nil {
 		return c.Error(404, err)
 	}
 
@@ -597,7 +597,7 @@ func NamespacePrefix(c buffalo.Context) error {
 }
 
 func NamespaceValidateName(c buffalo.Context) error {
-	userId := c.Session().Session.Values["current_user_id"]
+	userID := c.Session().Session.Values["current_user_id"]
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -608,7 +608,7 @@ func NamespaceValidateName(c buffalo.Context) error {
 	user := &models.User{}
 
 	// To find the User the parameter user_id is used.
-	if err := tx.Eager().Find(user, userId); err != nil {
+	if err := tx.Eager().Find(user, userID); err != nil {
 		return c.Error(404, err)
 	}
 

@@ -19,9 +19,9 @@ import (
 	"github.com/rs/cors"
 )
 
-// ENV is used to help switch settings based on where the
-// application is being run. Default is "development".
-var ENV = envy.Get("GO_ENV", "development")
+var DEVELOPMENT = "development"
+var PRODUCTION = "production"
+var ENV = envy.Get("GO", DEVELOPMENT)
 var app *buffalo.App
 var kubernetesConf string
 
@@ -43,12 +43,12 @@ func App(kubeconf string) *buffalo.App {
 		// Set the request content type to JSON
 		// app.Use(contenttype.Set("application/json"))
 
-		if ENV == "production" {
+		if ENV == PRODUCTION {
 			app.Use(forceSSL())
 			app.Use(csrf.New)
 		}
 
-		if ENV == "development" {
+		if ENV == DEVELOPMENT {
 			app.Use(paramlogger.ParameterLogger)
 		}
 
@@ -110,7 +110,7 @@ func forceSSL() buffalo.MiddlewareFunc {
 }
 
 func getKubernetesClient() (*kube.Client, error) {
-	if ENV == "development" {
+	if ENV == DEVELOPMENT {
 		client, err := kube.NewOutOfClusterClient(kubernetesConf)
 		if err != nil {
 			return nil, err

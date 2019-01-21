@@ -20,7 +20,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-var clusterRoleName string = "bork-namespaced-cr"
+var clusterRoleName = "bork-namespaced-cr"
 var ENV = envy.Get("GO_ENV", "development")
 
 type Client struct {
@@ -69,16 +69,16 @@ func NewOutOfClusterClient(kubeconf string) (*Client, error) {
 	return client, nil
 }
 
-func (c *Client) CreateNamespace(name string, ownerId uuid.UUID) (*uuid.UUID, error) {
+func (c *Client) CreateNamespace(name string, ownerID uuid.UUID) (*uuid.UUID, error) {
 
-	err := c.CreateNamespaceWithServiceAccount(name, ownerId)
+	err := c.CreateNamespaceWithServiceAccount(name, ownerID)
 	if err != nil {
 		return nil, err
 	}
 
 	ns := &models.Namespace{
 		Name:    name,
-		OwnerID: ownerId,
+		OwnerID: ownerID,
 	}
 
 	// Save the namespace in the database
@@ -212,7 +212,7 @@ func (c *Client) createServiceAccount(namespace string) error {
 		},
 	}
 
-	serviceAccount, err := c.client.CoreV1().ServiceAccounts(namespace).Create(serviceAccount)
+	_, err := c.client.CoreV1().ServiceAccounts(namespace).Create(serviceAccount)
 
 	return err
 }

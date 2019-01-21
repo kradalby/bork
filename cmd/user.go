@@ -21,7 +21,7 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/kradalby/bork/models"
 	"github.com/spf13/cobra"
@@ -55,11 +55,11 @@ to quickly create a Cobra application.`,
 			IsAdmin:   admin,
 			IsActive:  active,
 		}
-		fmt.Println(user)
+		log.Println(user)
 
 		err := models.DB.Create(&user)
 		if err != nil {
-			fmt.Printf("[Error] %#v", err)
+			log.Printf("[Error] %#v", err)
 		}
 	},
 }
@@ -80,9 +80,9 @@ to quickly create a Cobra application.`,
 
 		err := models.DB.All(&users)
 		if err != nil {
-			fmt.Printf("[Error] %#v", err)
+			log.Printf("[Error] %#v", err)
 		}
-		fmt.Println(users)
+		log.Println(users)
 	},
 }
 
@@ -106,8 +106,20 @@ func init() {
 	newUserCmd.Flags().StringVarP(&firstname, "firstname", "f", "", "First name")
 	newUserCmd.Flags().StringVarP(&lastname, "lastname", "l", "", "Last name")
 
-	newUserCmd.MarkFlagRequired("username")
-	newUserCmd.MarkFlagRequired("email")
-	newUserCmd.MarkFlagRequired("firstname")
-	newUserCmd.MarkFlagRequired("lastname")
+	err := newUserCmd.MarkFlagRequired("username")
+	if err != nil {
+		log.Printf("[Error] %#v", err)
+	}
+	err = newUserCmd.MarkFlagRequired("email")
+	if err != nil {
+		log.Printf("[Error] %#v", err)
+	}
+	err = newUserCmd.MarkFlagRequired("firstname")
+	if err != nil {
+		log.Printf("[Error] %#v", err)
+	}
+	err = newUserCmd.MarkFlagRequired("lastname")
+	if err != nil {
+		log.Printf("[Error] %#v", err)
+	}
 }

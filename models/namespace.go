@@ -36,7 +36,8 @@ func (n Namespaces) String() string {
 	return string(jn)
 }
 
-// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+// Validate gets run every time you call a "pop.Validate*"
+// (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (n *Namespace) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
@@ -61,7 +62,7 @@ func (n *Namespace) Users() Users {
 
 	list[0] = n.Owner
 
-	for i, _ := range n.CoOwners {
+	for i := range n.CoOwners {
 		list[i+1] = n.CoOwners[i]
 	}
 
@@ -78,7 +79,7 @@ func (n *Namespace) AddCoOwner(user User) {
 
 	list := make(Users, len(n.CoOwners)+1)
 
-	for i, _ := range n.CoOwners {
+	for i := range n.CoOwners {
 		list[i] = n.CoOwners[i]
 	}
 

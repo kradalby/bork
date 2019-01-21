@@ -17,8 +17,10 @@ import (
 func init() {
 	gothic.Store = App("").SessionStore
 
-	// OpenID Connect is based on OpenID Connect Auto Discovery URL (https://openid.net/specs/openid-connect-discovery-1_0-17.html)
-	// because the OpenID Connect provider initialize it self in the New(), it can return an error which should be handled or ignored
+	// OpenID Connect is based on OpenID Connect Auto Discovery URL
+	// (https://openid.net/specs/openid-connect-discovery-1_0-17.html)
+	// because the OpenID Connect provider initialize it self in the New(),
+	// it can return an error which should be handled or ignored
 	// ignore the error for now
 	// scopes := []string{"openid", "email", "profile", "offline_access"}
 	scopes := []string{"openid", "email", "groups", "profile", "offline_access"}
