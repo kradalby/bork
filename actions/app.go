@@ -39,17 +39,20 @@ func App(kubeconf string) *buffalo.App {
 			},
 			SessionName: "_bork_session",
 		})
-		// Automatically redirect to SSL
-		// app.Use(forceSSL())
 
 		// Set the request content type to JSON
 		// app.Use(contenttype.Set("application/json"))
-		app.Use(csrf.New)
-		app.Use(popmw.Transaction(models.DB))
+
+		if ENV == "production" {
+			app.Use(forceSSL())
+			app.Use(csrf.New)
+		}
 
 		if ENV == "development" {
 			app.Use(paramlogger.ParameterLogger)
 		}
+
+		app.Use(popmw.Transaction(models.DB))
 
 		app.ServeFiles("/assets", assetsBox)
 
