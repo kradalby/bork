@@ -92,6 +92,63 @@ func (c *Client) CreateNamespace(name string, ownerId uuid.UUID) (*uuid.UUID, er
 	return &ns.ID, nil
 }
 
+func (c *Client) DeleteNamespace(namespaceID uuid.UUID) error {
+
+	namespace := &models.Namespace{}
+
+	// To find the Namespace the parameter namespace_id is used.
+	if err := models.DB.Eager().Find(namespace, namespaceID); err != nil {
+		return err
+	}
+
+	err := c.DeleteNamespaceWithServiceAccount(namespace.Name)
+	if err != nil {
+		return err
+	}
+
+	if err := models.DB.Eager().Destroy(namespace); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) DeleteNamespaceWithServiceAccount(name string) error {
+
+	// delete the namespace in the kubecluster
+	err := c.deleteNamespace(name)
+	if err != nil {
+		log.Printf("[Error] %#v", err)
+		return err
+	}
+
+	err = c.deleteServiceAccount(name)
+	if err != nil {
+		log.Printf("[Error] %#v", err)
+		return err
+	}
+
+	err = c.deleteRole(name)
+	if err != nil {
+		log.Printf("[Error] %#v", err)
+		return err
+	}
+
+	err = c.deleteServiceAccountClusterRoleBinding(name)
+	if err != nil {
+		log.Printf("[Error] %#v", err)
+		return err
+	}
+
+	err = c.deleteServiceAccountRoleBinding(name)
+	if err != nil {
+		log.Printf("[Error] %#v", err)
+		return err
+	}
+
+	return nil
+}
+
 func (c *Client) CreateNamespaceWithServiceAccount(name string, owner uuid.UUID) error {
 
 	// Create the namespace in the kubecluster
@@ -224,6 +281,11 @@ func (c *Client) createServiceAccountClusterRoleBinding(namespace string) error 
 			APIGroup: "rbac.authorization.k8s.io",
 		}}
 	_, err := c.client.RbacV1().ClusterRoleBindings().Create(&roleBinding)
+	return err
+}
+
+func (c *Client) deleteServiceAccountClusterRoleBinding(namespace string) error {
+	err := c.client.RbacV1().ClusterRoleBindings().Delete(getClusterRoleBindingName(namespace), &metav1.DeleteOptions{})
 	return err
 }
 

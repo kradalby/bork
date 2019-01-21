@@ -180,12 +180,15 @@ func (v NamespacesResource) Destroy(c buffalo.Context) error {
 		return c.Error(403, errors.New("permission denied"))
 	}
 
-	if err := tx.Destroy(namespace); err != nil {
-		return errors.WithStack(err)
+	kubeClient, err := getKubernetesClient()
+	if err != nil {
+		return c.Error(500, err)
 	}
 
-	// If there are no errors set a flash message
-	c.Flash().Add("success", "Namespace was destroyed successfully")
+	err = kubeClient.DeleteNamespace(namespace.ID)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 
 	// Redirect to the namespaces index page
 	return c.Render(200, r.JSON(namespace))
