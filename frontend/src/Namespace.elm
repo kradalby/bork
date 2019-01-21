@@ -12,6 +12,7 @@ module Namespace
         , get
         , list
         , create
+        , delete
         , addCoOwner
         , deleteCoOwner
         , availableUsers
@@ -115,7 +116,7 @@ decoder =
 get : ID -> Http.Request Namespace
 get ident =
     decoder
-        |> Api.get (Api.Namespace.get ident)
+        |> Api.get (Api.Namespace.show ident)
 
 
 list : Http.Request (List Namespace)
@@ -131,6 +132,12 @@ create namespace =
             Encode.object [ ( "name", Encode.string namespace ) ] |> Http.jsonBody
     in
         Api.post Api.Namespace.create body decoder
+
+
+delete : ID -> Http.Request Namespace
+delete ident =
+    decoder
+        |> Api.delete (Api.Namespace.show ident) Http.emptyBody
 
 
 coowned : ID -> Http.Request (List Namespace)

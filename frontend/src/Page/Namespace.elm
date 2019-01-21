@@ -426,7 +426,7 @@ deleteNamespaceModal deleteNamespaceVerificationContent ns =
                         , View.namespaceNameInput "" deleteNamespaceVerificationContent OnChangeDeleteNamespaceVerificationField
                         ]
                     , div [ class "modal-footer" ]
-                        [ button [ onClick ToggleDeleteNamespaceModal, class "btn btn-danger btn-block", attribute "data-dismiss" "modal", type_ "button", disabled disable ]
+                        [ button [ onClick (DeleteNamespace ns), class "btn btn-danger btn-block", attribute "data-dismiss" "modal", type_ "button", disabled disable ]
                             [ text "Delete" ]
                         ]
                     ]
@@ -464,6 +464,8 @@ type Msg
     | ToggleDeleteNamespaceModal
     | CompletedUsersLoad (Result Http.Error (List User))
     | OnChangeDeleteNamespaceVerificationField String
+    | DeleteNamespace Namespace
+    | CompletedDeleteNamespace (Result Http.Error Namespace)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -593,6 +595,21 @@ update msg model =
 
         OnChangeDeleteNamespaceVerificationField content ->
             ( { model | deleteNamespaceVerificationField = content }, Cmd.none )
+
+        DeleteNamespace ns ->
+            ( model
+            , Namespace.delete (Namespace.id ns)
+                |> Http.toTask
+                |> Task.attempt CompletedDeleteNamespace
+            )
+
+        CompletedDeleteNamespace (Ok ns) ->
+            ( model, Route.replaceUrl (Session.navKey model.session) Route.NamespaceList )
+
+        CompletedDeleteNamespace (Err err) ->
+            ( model
+            , Log.error
+            )
 
 
 

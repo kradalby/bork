@@ -12,8 +12,8 @@ list =
     url [ "namespaces" ] []
 
 
-get : ID -> Endpoint
-get id =
+show : ID -> Endpoint
+show id =
     url [ "namespaces", ID.toString id ] []
 
 
