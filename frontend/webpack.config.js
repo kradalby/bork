@@ -28,7 +28,11 @@ var common = {
       // Use this template to get basic responsive meta tags
       template: 'src/index.html',
       // inject details of output file at end of body
-      inject: 'body'
+      inject: 'body',
+      meta: {
+        'csrf-param': 'authenticity_token',
+        'csrf-token': '<%= authenticity_token %>'
+      }
     })
   ],
   resolve: {
