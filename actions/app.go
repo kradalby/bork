@@ -21,7 +21,7 @@ import (
 
 var DEVELOPMENT = "development"
 var PRODUCTION = "production"
-var ENV = envy.Get("GO", DEVELOPMENT)
+var ENV = envy.Get("GO_ENV", DEVELOPMENT)
 var app *buffalo.App
 var kubernetesConf string
 
