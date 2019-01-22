@@ -115,13 +115,6 @@ func (c *Client) DeleteNamespace(namespaceID uuid.UUID) error {
 
 func (c *Client) DeleteNamespaceWithServiceAccount(name string) error {
 
-	// delete the namespace in the kubecluster
-	err := c.deleteNamespace(name)
-	if err != nil {
-		log.Printf("[Error] %#v", err)
-		return err
-	}
-
 	err = c.deleteServiceAccount(name)
 	if err != nil {
 		log.Printf("[Error] %#v", err)
@@ -134,13 +127,20 @@ func (c *Client) DeleteNamespaceWithServiceAccount(name string) error {
 		return err
 	}
 
+	err = c.deleteServiceAccountRoleBinding(name)
+	if err != nil {
+		log.Printf("[Error] %#v", err)
+		return err
+	}
+
 	err = c.deleteServiceAccountClusterRoleBinding(name)
 	if err != nil {
 		log.Printf("[Error] %#v", err)
 		return err
 	}
 
-	err = c.deleteServiceAccountRoleBinding(name)
+	// delete the namespace in the kubecluster
+	err := c.deleteNamespace(name)
 	if err != nil {
 		log.Printf("[Error] %#v", err)
 		return err
