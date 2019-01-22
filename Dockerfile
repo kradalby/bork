@@ -36,7 +36,7 @@ RUN packr -z
 # RUN go get $(go list ./... | grep -v /vendor/)
 
 
-RUN CGO_ENABLED=0 go build -o /bin/app 
+RUN CGO_ENABLED=0 go build -mod vendor -o /bin/app 
 
 # RUN buffalo build --static -o /bin/app
 
