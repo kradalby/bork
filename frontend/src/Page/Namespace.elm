@@ -4,7 +4,7 @@ import Api
 import Api.Endpoint as Endpoint
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput)
 import Http
 import Loading
 import Log
@@ -421,9 +421,16 @@ deleteNamespaceModal deleteNamespaceVerificationContent ns =
                             ]
                         ]
                     , div [ class "modal-body" ]
-                        [ p [] [ text <| "This action cannot be undone. This will permanently delete the " ++ (Namespace.name ns) ++ " namespace, all resources, content and remove all collaborator associations." ]
+                        [ p []
+                            [ text "This action cannot be undone. This will permanently delete the "
+                            , b [] [ text (Namespace.name ns) ]
+                            , text " namespace, all resources, content and remove all collaborator associations."
+                            ]
                         , p [] [ text "Please type in the name of the repository to confirm." ]
-                        , View.namespaceNameInput "" deleteNamespaceVerificationContent OnChangeDeleteNamespaceVerificationField
+                        , div [ class "input-group input-group-lg" ]
+                            [ input [ onInput OnChangeDeleteNamespaceVerificationField, attribute "aria-describedby" "inputGroup-sizing-sm", attribute "aria-label" "Large", class "form-control", type_ "text" ]
+                                []
+                            ]
                         ]
                     , div [ class "modal-footer" ]
                         [ button [ onClick (DeleteNamespace ns), class "btn btn-danger btn-block", attribute "data-dismiss" "modal", type_ "button", disabled disable ]

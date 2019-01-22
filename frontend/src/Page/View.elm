@@ -110,29 +110,22 @@ userTableRowWithClasses class_ user =
 
 namespaceNameInput : String -> String -> (String -> msg) -> Html msg
 namespaceNameInput prefix name onMsg =
-    let
-        prepend =
-            if prefix /= "" then
-                String.join "-" [ prefix, name ]
-            else
-                name
-    in
-        div [ class "input-group input-group-lg" ]
-            [ div [ class "input-group-prepend" ]
-                [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
-                    [ text prepend ]
-                ]
-            , input [ onInput onMsg, attribute "aria-describedby" "inputGroup-sizing-sm", attribute "aria-label" "Large", class "form-control", type_ "text" ]
-                []
-            , div [ class "input-group-append" ]
-                [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
-                    [ text <|
-                        String.fromInt <|
-                            (-) 253 <|
-                                String.length <|
-                                    prefix
-                                        ++ "-"
-                                        ++ name
-                    ]
+    div [ class "input-group input-group-lg" ]
+        [ div [ class "input-group-prepend" ]
+            [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
+                [ text <| prefix ++ "-" ]
+            ]
+        , input [ onInput onMsg, attribute "aria-describedby" "inputGroup-sizing-sm", attribute "aria-label" "Large", class "form-control", type_ "text" ]
+            []
+        , div [ class "input-group-append" ]
+            [ span [ class "input-group-text", id "inputGroup-sizing-lg" ]
+                [ text <|
+                    String.fromInt <|
+                        (-) 253 <|
+                            String.length <|
+                                prefix
+                                    ++ "-"
+                                    ++ name
                 ]
             ]
+        ]
