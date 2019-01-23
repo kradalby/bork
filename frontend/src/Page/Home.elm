@@ -57,7 +57,13 @@ view model =
     { title = "bork"
     , content =
         div [ class "home-page" ]
-            [ text "home" ]
+            [ div [ class "row" ] [ h2 [] [ text "Welcome to bork!" ] ]
+            , div [ class "row" ]
+                [ p [] [ text "Create namespaces on demand on a shared cluster for your kubernetes needs!" ]
+                , p [] [ text "bork allowes you to manage your own namespaces on a shared namespace and add colaborators too your namespace." ]
+                , p [] [ b [] [ text "bork is currently in early development (beta) and you might running into problems and errors. " ] ]
+                ]
+            ]
     }
 
 
