@@ -56,12 +56,14 @@ $ go get github.com/markbates/goth
 * Tumblr
 * Twitch
 * Twitter
+* Typetalk
 * Uber
 * VK
 * Wepay
 * Xero
 * Yahoo
 * Yammer
+* Yandex
 
 ## Examples
 

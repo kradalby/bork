@@ -16,8 +16,6 @@ github.com/fatih/color
 github.com/fatih/structs
 # github.com/fsnotify/fsnotify v1.4.7
 github.com/fsnotify/fsnotify
-# github.com/ghodss/yaml v1.0.0
-github.com/ghodss/yaml
 # github.com/go-sql-driver/mysql v1.4.1
 github.com/go-sql-driver/mysql
 # github.com/gobuffalo/buffalo v0.13.12
@@ -26,24 +24,23 @@ github.com/gobuffalo/buffalo/render
 github.com/gobuffalo/buffalo/binding
 github.com/gobuffalo/buffalo/servers
 github.com/gobuffalo/buffalo/worker
-github.com/gobuffalo/buffalo/middleware/csrf
-# github.com/gobuffalo/buffalo-plugins v1.10.0
+# github.com/gobuffalo/buffalo-plugins v1.11.0
 github.com/gobuffalo/buffalo-plugins/plugins
 github.com/gobuffalo/buffalo-plugins/plugins/plugdeps
-# github.com/gobuffalo/buffalo-pop v1.3.0
+# github.com/gobuffalo/buffalo-pop v1.5.0
 github.com/gobuffalo/buffalo-pop/pop/popmw
 github.com/gobuffalo/buffalo-pop/pop
-# github.com/gobuffalo/envy v1.6.11
+# github.com/gobuffalo/envy v1.6.12
 github.com/gobuffalo/envy
 # github.com/gobuffalo/events v1.1.9
 github.com/gobuffalo/events
-# github.com/gobuffalo/fizz v1.4.1
+# github.com/gobuffalo/fizz v1.5.0
 github.com/gobuffalo/fizz
 github.com/gobuffalo/fizz/translators
-# github.com/gobuffalo/flect v0.0.0-20190104225346-d687a3953028
+# github.com/gobuffalo/flect v0.0.0-20190117212819-a62e61d96794
 github.com/gobuffalo/flect
 github.com/gobuffalo/flect/name
-# github.com/gobuffalo/genny v0.0.0-20190107165710-b6af81ece724
+# github.com/gobuffalo/genny v0.0.0-20190112155932-f31a84fcacf5
 github.com/gobuffalo/genny/movinglater/gotools/gomods
 github.com/gobuffalo/genny
 # github.com/gobuffalo/github_flavored_markdown v1.0.7
@@ -53,13 +50,15 @@ github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/highlight_diff
 github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/highlight_go
 github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/octicon
 github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/sanitized_anchor_name
+# github.com/gobuffalo/httptest v1.0.6
+github.com/gobuffalo/httptest
 # github.com/gobuffalo/logger v0.0.0-20181127160119-5b956e21995c
 github.com/gobuffalo/logger
 # github.com/gobuffalo/makr v1.1.5
 github.com/gobuffalo/makr
 # github.com/gobuffalo/mapi v1.0.1
 github.com/gobuffalo/mapi
-# github.com/gobuffalo/meta v0.0.0-20181127070345-0d7e59dd540b
+# github.com/gobuffalo/meta v0.0.0-20190121163014-ecaa953cbfb3
 github.com/gobuffalo/meta
 # github.com/gobuffalo/mw-csrf v0.0.0-20180802151833-446ff26e108b
 github.com/gobuffalo/mw-csrf
@@ -71,20 +70,20 @@ github.com/gobuffalo/mw-paramlogger
 github.com/gobuffalo/packd
 # github.com/gobuffalo/packr v1.21.9
 github.com/gobuffalo/packr
-# github.com/gobuffalo/plush v3.7.32+incompatible
+# github.com/gobuffalo/plush v3.7.33+incompatible
 github.com/gobuffalo/plush
 github.com/gobuffalo/plush/ast
 github.com/gobuffalo/plush/parser
 github.com/gobuffalo/plush/token
 github.com/gobuffalo/plush/lexer
-# github.com/gobuffalo/pop v4.9.3+incompatible
+# github.com/gobuffalo/pop v4.9.5+incompatible
 github.com/gobuffalo/pop
 github.com/gobuffalo/pop/associations
 github.com/gobuffalo/pop/columns
 github.com/gobuffalo/pop/fix
 github.com/gobuffalo/pop/logging
 github.com/gobuffalo/pop/nulls
-# github.com/gobuffalo/suite v2.1.6+incompatible
+# github.com/gobuffalo/suite v2.6.0+incompatible
 github.com/gobuffalo/suite
 github.com/gobuffalo/suite/fix
 # github.com/gobuffalo/syncx v0.0.0-20181120194010-558ac7de985f
@@ -104,17 +103,17 @@ github.com/gobuffalo/x/httpx
 github.com/gobuffalo/x/randx
 # github.com/gofrs/uuid v3.2.0+incompatible
 github.com/gofrs/uuid
-# github.com/gogo/protobuf v1.1.1
+# github.com/gogo/protobuf v1.2.0
 github.com/gogo/protobuf/proto
 github.com/gogo/protobuf/sortkeys
-# github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
-github.com/golang/glog
 # github.com/golang/protobuf v1.2.0
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
+# github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c
+github.com/google/btree
 # github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf
 github.com/google/gofuzz
 # github.com/googleapis/gnostic v0.2.0
@@ -129,6 +128,9 @@ github.com/gorilla/mux
 github.com/gorilla/securecookie
 # github.com/gorilla/sessions v1.1.3
 github.com/gorilla/sessions
+# github.com/gregjones/httpcache v0.0.0-20181110185634-c63ab54fda8f
+github.com/gregjones/httpcache
+github.com/gregjones/httpcache/diskcache
 # github.com/hashicorp/hcl v1.0.0
 github.com/hashicorp/hcl
 github.com/hashicorp/hcl/hcl/printer
@@ -140,8 +142,6 @@ github.com/hashicorp/hcl/hcl/scanner
 github.com/hashicorp/hcl/hcl/strconv
 github.com/hashicorp/hcl/json/scanner
 github.com/hashicorp/hcl/json/token
-# github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c
-github.com/howeyc/gopass
 # github.com/imdario/mergo v0.3.6
 github.com/imdario/mergo
 # github.com/inconshreveable/mousetrap v1.0.0
@@ -174,7 +174,7 @@ github.com/magiconair/properties
 # github.com/markbates/going v1.0.2
 github.com/markbates/going/defaults
 github.com/markbates/going/randx
-# github.com/markbates/goth v1.48.0
+# github.com/markbates/goth v1.49.0
 github.com/markbates/goth
 github.com/markbates/goth/gothic
 github.com/markbates/goth/providers/openidConnect
@@ -193,8 +193,6 @@ github.com/markbates/refresh/refresh
 github.com/markbates/safe
 # github.com/markbates/sigtx v1.0.0
 github.com/markbates/sigtx
-# github.com/markbates/willie v1.0.9
-github.com/markbates/willie
 # github.com/mattn/go-colorable v0.0.9
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.4
@@ -215,11 +213,13 @@ github.com/modern-go/reflect2
 github.com/monoculum/formam
 # github.com/pelletier/go-toml v1.2.0
 github.com/pelletier/go-toml
+# github.com/peterbourgon/diskv v2.0.1+incompatible
+github.com/peterbourgon/diskv
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/rogpeppe/go-internal v1.0.0
+# github.com/rogpeppe/go-internal v1.1.0
 github.com/rogpeppe/go-internal/modfile
 github.com/rogpeppe/go-internal/module
 github.com/rogpeppe/go-internal/semver
@@ -252,13 +252,13 @@ github.com/spf13/viper
 github.com/stretchr/testify/require
 github.com/stretchr/testify/suite
 github.com/stretchr/testify/assert
-# github.com/unrolled/secure v0.0.0-20181022170031-4b6b7cf51606
+# github.com/unrolled/secure v0.0.0-20190103195806-76e6d4e9b90c
 github.com/unrolled/secure
-# golang.org/x/crypto v0.0.0-20190103213133-ff983b9c42bc
+# golang.org/x/crypto v0.0.0-20190122013713-64072686203f
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/ssh/terminal
 golang.org/x/crypto/blowfish
-# golang.org/x/net v0.0.0-20190110200230-915654e7eabc
+# golang.org/x/net v0.0.0-20190119204137-ed066c81e75e
 golang.org/x/net/http2
 golang.org/x/net/html
 golang.org/x/net/html/atom
@@ -267,20 +267,20 @@ golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/context/ctxhttp
 golang.org/x/net/context
-# golang.org/x/oauth2 v0.0.0-20181203162652-d668ce993890
+# golang.org/x/oauth2 v0.0.0-20190115181402-5dab4167f31c
 golang.org/x/oauth2
 golang.org/x/oauth2/internal
 # golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.0.0-20190109145017-48ac38b7c8cb
+# golang.org/x/sys v0.0.0-20190122071731-054c452bb702
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/text v0.3.0
+# golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2
 golang.org/x/text/transform
 golang.org/x/text/unicode/norm
 golang.org/x/text/secure/bidirule
 golang.org/x/text/unicode/bidi
-# golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2
+# golang.org/x/time v0.0.0-20181108054448-85acf8d2951c
 golang.org/x/time/rate
 # google.golang.org/appengine v1.4.0
 google.golang.org/appengine/cloudsql
@@ -295,36 +295,40 @@ google.golang.org/appengine/internal/remote_api
 gopkg.in/inf.v0
 # gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2
-# k8s.io/api v0.0.0-20180913155108-f456898a08e4
+# k8s.io/api v0.0.0-20181221193117-173ce66c1e39
 k8s.io/api/core/v1
 k8s.io/api/rbac/v1
 k8s.io/api/admissionregistration/v1alpha1
 k8s.io/api/admissionregistration/v1beta1
 k8s.io/api/apps/v1
+k8s.io/api/autoscaling/v1
 k8s.io/api/apps/v1beta1
 k8s.io/api/apps/v1beta2
+k8s.io/api/auditregistration/v1alpha1
 k8s.io/api/authentication/v1
 k8s.io/api/authentication/v1beta1
 k8s.io/api/authorization/v1
 k8s.io/api/authorization/v1beta1
-k8s.io/api/autoscaling/v1
 k8s.io/api/autoscaling/v2beta1
+k8s.io/api/autoscaling/v2beta2
 k8s.io/api/batch/v1
 k8s.io/api/batch/v1beta1
 k8s.io/api/batch/v2alpha1
 k8s.io/api/certificates/v1beta1
-k8s.io/api/extensions/v1beta1
+k8s.io/api/coordination/v1beta1
 k8s.io/api/policy/v1beta1
 k8s.io/api/events/v1beta1
+k8s.io/api/extensions/v1beta1
 k8s.io/api/networking/v1
 k8s.io/api/rbac/v1alpha1
 k8s.io/api/rbac/v1beta1
 k8s.io/api/scheduling/v1alpha1
+k8s.io/api/scheduling/v1beta1
 k8s.io/api/settings/v1alpha1
 k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
-# k8s.io/apimachinery v0.0.0-20180619225948-e386b2658ed2
+# k8s.io/apimachinery v0.0.0-20190119020841-d41becfba9ee
 k8s.io/apimachinery/pkg/api/errors
 k8s.io/apimachinery/pkg/apis/meta/v1
 k8s.io/apimachinery/pkg/api/resource
@@ -337,6 +341,7 @@ k8s.io/apimachinery/pkg/conversion
 k8s.io/apimachinery/pkg/fields
 k8s.io/apimachinery/pkg/labels
 k8s.io/apimachinery/pkg/selection
+k8s.io/apimachinery/pkg/util/runtime
 k8s.io/apimachinery/pkg/watch
 k8s.io/apimachinery/pkg/runtime/serializer/streaming
 k8s.io/apimachinery/pkg/util/net
@@ -345,22 +350,21 @@ k8s.io/apimachinery/pkg/util/errors
 k8s.io/apimachinery/pkg/util/validation
 k8s.io/apimachinery/pkg/conversion/queryparams
 k8s.io/apimachinery/pkg/util/json
-k8s.io/apimachinery/pkg/util/runtime
+k8s.io/apimachinery/pkg/util/naming
 k8s.io/apimachinery/third_party/forked/golang/reflect
-k8s.io/apimachinery/pkg/util/wait
-k8s.io/apimachinery/pkg/api/meta
 k8s.io/apimachinery/pkg/runtime/serializer
 k8s.io/apimachinery/pkg/version
 k8s.io/apimachinery/pkg/util/clock
 k8s.io/apimachinery/pkg/runtime/serializer/json
 k8s.io/apimachinery/pkg/runtime/serializer/versioning
-k8s.io/apimachinery/pkg/apis/meta/v1/unstructured
-k8s.io/apimachinery/pkg/apis/meta/v1beta1
 k8s.io/apimachinery/pkg/runtime/serializer/protobuf
 k8s.io/apimachinery/pkg/runtime/serializer/recognizer
+k8s.io/apimachinery/pkg/api/meta
 k8s.io/apimachinery/pkg/util/framer
 k8s.io/apimachinery/pkg/util/yaml
-# k8s.io/client-go v7.0.0+incompatible
+k8s.io/apimachinery/pkg/apis/meta/v1/unstructured
+k8s.io/apimachinery/pkg/apis/meta/v1beta1
+# k8s.io/client-go v10.0.0+incompatible
 k8s.io/client-go/kubernetes
 k8s.io/client-go/rest
 k8s.io/client-go/tools/clientcmd
@@ -370,16 +374,19 @@ k8s.io/client-go/kubernetes/typed/admissionregistration/v1beta1
 k8s.io/client-go/kubernetes/typed/apps/v1
 k8s.io/client-go/kubernetes/typed/apps/v1beta1
 k8s.io/client-go/kubernetes/typed/apps/v1beta2
+k8s.io/client-go/kubernetes/typed/auditregistration/v1alpha1
 k8s.io/client-go/kubernetes/typed/authentication/v1
 k8s.io/client-go/kubernetes/typed/authentication/v1beta1
 k8s.io/client-go/kubernetes/typed/authorization/v1
 k8s.io/client-go/kubernetes/typed/authorization/v1beta1
 k8s.io/client-go/kubernetes/typed/autoscaling/v1
 k8s.io/client-go/kubernetes/typed/autoscaling/v2beta1
+k8s.io/client-go/kubernetes/typed/autoscaling/v2beta2
 k8s.io/client-go/kubernetes/typed/batch/v1
 k8s.io/client-go/kubernetes/typed/batch/v1beta1
 k8s.io/client-go/kubernetes/typed/batch/v2alpha1
 k8s.io/client-go/kubernetes/typed/certificates/v1beta1
+k8s.io/client-go/kubernetes/typed/coordination/v1beta1
 k8s.io/client-go/kubernetes/typed/core/v1
 k8s.io/client-go/kubernetes/typed/events/v1beta1
 k8s.io/client-go/kubernetes/typed/extensions/v1beta1
@@ -389,6 +396,7 @@ k8s.io/client-go/kubernetes/typed/rbac/v1
 k8s.io/client-go/kubernetes/typed/rbac/v1alpha1
 k8s.io/client-go/kubernetes/typed/rbac/v1beta1
 k8s.io/client-go/kubernetes/typed/scheduling/v1alpha1
+k8s.io/client-go/kubernetes/typed/scheduling/v1beta1
 k8s.io/client-go/kubernetes/typed/settings/v1alpha1
 k8s.io/client-go/kubernetes/typed/storage/v1
 k8s.io/client-go/kubernetes/typed/storage/v1alpha1
@@ -409,4 +417,10 @@ k8s.io/client-go/tools/reference
 k8s.io/client-go/util/integer
 k8s.io/client-go/pkg/apis/clientauthentication
 k8s.io/client-go/pkg/apis/clientauthentication/v1alpha1
+k8s.io/client-go/pkg/apis/clientauthentication/v1beta1
+k8s.io/client-go/util/connrotation
 k8s.io/client-go/tools/clientcmd/api/v1
+# k8s.io/klog v0.1.0
+k8s.io/klog
+# sigs.k8s.io/yaml v1.1.0
+sigs.k8s.io/yaml
