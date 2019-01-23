@@ -60,5 +60,15 @@ func ValidateNamespaceName(prefix string, name string) []string {
 		errors = append(errors, "Characters must be lowercase alphanumeric, . and -")
 	}
 
+	namespaces := &models.Namespaces{}
+
+	if err := models.DB.Eager().Where("name = ?", fullName).All(namespaces); err != nil {
+		errors = append(errors, "Database lookup error")
+	}
+
+	if len(*namespaces) != 0 {
+		errors = append(errors, "Namespace already exists")
+	}
+
 	return errors
 }
