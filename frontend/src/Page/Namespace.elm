@@ -36,6 +36,7 @@ type alias Model =
     , addOwnerModal : Bool
     , deleteNamespaceModal : Bool
     , deleteNamespaceVerificationField : String
+    , credentialView : Credentials
 
     -- Loaded independently from server
     , namespace : Status Namespace
@@ -52,6 +53,12 @@ type Status a
     | Failed
 
 
+type Credentials
+    = Configuration
+    | GitLab
+    | Drone
+
+
 init : Session -> ID -> ( Model, Cmd Msg )
 init session id =
     ( { session = session
@@ -60,6 +67,7 @@ init session id =
       , addOwnerModal = False
       , deleteNamespaceModal = False
       , deleteNamespaceVerificationField = ""
+      , credentialView = Configuration
       , namespace = Loading
       , auth = Loading
       , config = Loading
@@ -126,30 +134,7 @@ view model =
 
                     Failed ->
                         Loading.error "namespace"
-                , case model.auth of
-                    Loaded auth ->
-                        text ""
-
-                    Loading ->
-                        text ""
-
-                    LoadingSlowly ->
-                        Loading.icon
-
-                    Failed ->
-                        Loading.error "auth"
-                , case model.config of
-                    Loaded config ->
-                        viewConfig config
-
-                    Loading ->
-                        text ""
-
-                    LoadingSlowly ->
-                        Loading.icon
-
-                    Failed ->
-                        Loading.error "config"
+                , viewCredentials model
                 , case model.namespace of
                     Loaded ns ->
                         div []
@@ -201,35 +186,6 @@ viewOwners session ns =
                     ]
                 ]
             ]
-
-
-viewConfig : String -> Html Msg
-viewConfig config =
-    div [ class "col-12 px-0" ]
-        [ div [ class "row" ]
-            [ h3 []
-                [ text "Configuration"
-                ]
-            ]
-        , div [ class "row" ]
-            [ textarea
-                [ class "form-control"
-                , attribute "rows" "15"
-                , value config
-                , readonly True
-                ]
-                []
-            ]
-        , div [ class "row" ]
-            [ div [ class "col-12 px-0" ]
-                [ button
-                    [ class "btn btn-primary mt-3 mb-3 float-right"
-                    , onClick <| SaveConfig config
-                    ]
-                    [ text "Download" ]
-                ]
-            ]
-        ]
 
 
 viewDangerZone : Html Msg
@@ -441,6 +397,112 @@ deleteNamespaceModal deleteNamespaceVerificationContent ns =
             ]
 
 
+viewCredentials : Model -> Html Msg
+viewCredentials model =
+    let
+        tab name credential =
+            let
+                active =
+                    if model.credentialView == credential then
+                        "nav-link active"
+                    else
+                        "nav-link"
+            in
+                li [ class "nav-item", onClick (SetCredentialView credential) ]
+                    [ p [ class active ]
+                        [ text name ]
+                    ]
+    in
+        div [ class "col-12 px-0" ]
+            [ div
+                [ class "row" ]
+                [ ul [ class "nav nav-tabs" ]
+                    [ tab "Configuration" Configuration
+                    , tab "GitLab" GitLab
+                    , tab "Drone" Drone
+                    ]
+                ]
+            , div [ class "row" ]
+                [ case model.credentialView of
+                    Configuration ->
+                        viewConfig model.config
+
+                    GitLab ->
+                        viewGitLab model.auth
+
+                    Drone ->
+                        viewDrone model.auth
+                ]
+            ]
+
+
+viewConfig : Status String -> Html Msg
+viewConfig config =
+    case config of
+        Loaded content ->
+            div [ class "col-12" ]
+                [ div [ class "row" ]
+                    [ textarea
+                        [ class "form-control"
+                        , attribute "rows" "15"
+                        , value content
+                        , readonly True
+                        ]
+                        []
+                    ]
+                , div [ class "row" ]
+                    [ div [ class "col-12 px-0" ]
+                        [ button
+                            [ class "btn btn-primary mt-3 mb-3 float-right"
+                            , onClick <| SaveConfig content
+                            ]
+                            [ text "Download" ]
+                        ]
+                    ]
+                ]
+
+        Loading ->
+            text ""
+
+        LoadingSlowly ->
+            Loading.icon
+
+        Failed ->
+            Loading.error "config"
+
+
+viewGitLab : Status Namespace.Auth -> Html Msg
+viewGitLab auth =
+    case auth of
+        Loaded content ->
+            text "GitLab instructions"
+
+        Loading ->
+            text ""
+
+        LoadingSlowly ->
+            Loading.icon
+
+        Failed ->
+            Loading.error "auth"
+
+
+viewDrone : Status Namespace.Auth -> Html Msg
+viewDrone auth =
+    case auth of
+        Loaded content ->
+            text "Drone instructions"
+
+        Loading ->
+            text ""
+
+        LoadingSlowly ->
+            Loading.icon
+
+        Failed ->
+            Loading.error "auth"
+
+
 
 -- PAGE TITLE
 
@@ -473,6 +535,7 @@ type Msg
     | OnChangeDeleteNamespaceVerificationField String
     | DeleteNamespace Namespace
     | CompletedDeleteNamespace (Result Http.Error Namespace)
+    | SetCredentialView Credentials
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -617,6 +680,9 @@ update msg model =
             ( model
             , Log.error
             )
+
+        SetCredentialView credView ->
+            ( { model | credentialView = credView }, Cmd.none )
 
 
 
