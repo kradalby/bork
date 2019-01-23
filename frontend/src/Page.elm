@@ -50,7 +50,7 @@ viewHeader : Page -> Maybe User -> Html msg
 viewHeader page maybeUser =
     header []
         [ nav [ class "navbar navbar-expand-md navbar-dark fixed-top bg-dark" ]
-            [ div [ class "container" ]
+            [ div [ class "container pl-0" ]
                 [ a [ class "navbar-brand", Route.href Route.Home ]
                     [ text "bork" ]
                 , ul [ class "nav navbar-nav pull-xs-right" ] <|
@@ -106,7 +106,12 @@ viewFooter =
     footer [ class "footer" ]
         [ div [ class "container" ]
             [ span [ class "attribution" ]
-                [ text "A learning project from "
+                [ a [ href "https://elm-lang.org" ] [ text "elm" ]
+                , text ", "
+                , a [ href "https://golang.org" ] [ text "go" ]
+                , text " and "
+                , a [ href "https://kubernetes.io" ] [ text "kubernetes" ]
+                , text " by "
                 , a [ href "https://kradalby.no" ] [ text "kradalby" ]
                 ]
             ]
