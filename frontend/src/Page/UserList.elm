@@ -17,6 +17,7 @@ import Url.Builder
 import ID exposing (ID)
 import User exposing (User)
 import Username exposing (Username)
+import Page.Misc as Misc
 
 
 -- MODEL
@@ -166,7 +167,7 @@ update msg model =
             ( { model | user = Loaded user }, Cmd.none )
 
         CompletedUserLoad (Err ( username, err )) ->
-            ( { model | user = Failed username }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], user = Failed username }
             , Log.error
             )
 

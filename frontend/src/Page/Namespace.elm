@@ -681,7 +681,7 @@ update msg model =
             ( { model | auth = Loaded auth }, Cmd.none )
 
         CompletedAuthLoad (Err ( id, err )) ->
-            ( { model | auth = Failed }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], auth = Failed }
             , Log.error
             )
 
@@ -689,7 +689,7 @@ update msg model =
             ( { model | config = Loaded config }, Cmd.none )
 
         CompletedConfigLoad (Err ( id, err )) ->
-            ( { model | config = Failed }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], config = Failed }
             , Log.error
             )
 
@@ -735,7 +735,7 @@ update msg model =
             )
 
         CompletedAddCoOwner (Err ( id, err )) ->
-            ( { model | namespace = Failed }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], namespace = Failed }
             , Log.error
             )
 
@@ -757,7 +757,7 @@ update msg model =
             ( { model | namespace = Loaded ns }, Cmd.none )
 
         CompletedDeleteCoOwner (Err ( id, err )) ->
-            ( { model | namespace = Failed }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], namespace = Failed }
             , Log.error
             )
 
@@ -784,7 +784,7 @@ update msg model =
             ( { model | users = Loaded users }, Cmd.none )
 
         CompletedUsersLoad (Err err) ->
-            ( { model | users = Failed }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], users = Failed }
             , Log.error
             )
 
@@ -802,7 +802,7 @@ update msg model =
             ( model, Route.replaceUrl (Session.navKey model.session) Route.NamespaceList )
 
         CompletedDeleteNamespace (Err err) ->
-            ( model
+            ( { model | errors = [ Misc.httpErrorToUserError err ] }
             , Log.error
             )
 

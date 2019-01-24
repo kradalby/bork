@@ -30,7 +30,7 @@ func UserList(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	users := &models.Users{}
@@ -49,7 +49,7 @@ func UserShow(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	// Allocate an empty User
@@ -57,7 +57,7 @@ func UserShow(c buffalo.Context) error {
 
 	// To find the User the parameter user_id is used.
 	if err := tx.Find(user, c.Param("user_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("User not found"))
 	}
 
 	return c.Render(200, r.JSON(user))

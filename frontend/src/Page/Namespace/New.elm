@@ -193,7 +193,7 @@ update msg model =
             )
 
         CompletedAddNamespace (Err err) ->
-            ( model
+            ( { model | errors = [ Misc.httpErrorToUserError err ] }
             , Log.error
             )
 
@@ -203,7 +203,7 @@ update msg model =
             )
 
         CompletedPrefixLoad (Err err) ->
-            ( { model | prefix = Failed }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], prefix = Failed }
             , Log.error
             )
 
@@ -213,7 +213,7 @@ update msg model =
             )
 
         CompletedValidateNamespaceName (Err err) ->
-            ( { model | validationErrors = Failed }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], validationErrors = Failed }
             , Log.error
             )
 

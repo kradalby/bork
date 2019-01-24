@@ -29,7 +29,12 @@ request config =
     Http.request
         { body = config.body
         , expect = config.expect
-        , headers = config.headers
+        , headers =
+            [ Http.header
+                "Content-Type"
+                "application/json"
+            ]
+                ++ config.headers
         , method = config.method
         , timeout = config.timeout
         , url = unwrap config.url

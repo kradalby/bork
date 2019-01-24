@@ -18,6 +18,7 @@ import Namespace exposing (Namespace)
 import User
 import Email
 import Page.View as View
+import Page.Misc as Misc
 
 
 -- MODEL
@@ -156,7 +157,7 @@ update msg model =
             ( { model | namespaces = Loaded namespaces }, Cmd.none )
 
         CompletedNamespaceListLoad (Err err) ->
-            ( { model | namespaces = Failed }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], namespaces = Failed }
             , Log.error
             )
 
@@ -164,7 +165,7 @@ update msg model =
             ( { model | namespacesCoOwner = Loaded namespaces }, Cmd.none )
 
         CompletedNamespacesCoOwnerLoad (Err err) ->
-            ( { model | namespacesCoOwner = Failed }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], namespacesCoOwner = Failed }
             , Log.error
             )
 

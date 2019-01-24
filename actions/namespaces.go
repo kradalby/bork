@@ -32,12 +32,13 @@ type NamespacesResource struct {
 func (v NamespacesResource) List(c buffalo.Context) error {
 	user, err := getLoggedInUser(c)
 	if err != nil {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	namespaces := &models.Namespaces{}
@@ -58,13 +59,14 @@ func (v NamespacesResource) List(c buffalo.Context) error {
 func (v NamespacesResource) Show(c buffalo.Context) error {
 	user, err := getLoggedInUser(c)
 	if err != nil {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	// Allocate an empty Namespace
@@ -72,11 +74,11 @@ func (v NamespacesResource) Show(c buffalo.Context) error {
 
 	// To find the Namespace the parameter namespace_id is used.
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	if !user.IsAdmin && !isOwner(namespace, user) && !isCoOwner(namespace, user) {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	return c.Render(200, r.JSON(namespace))
@@ -93,13 +95,14 @@ func (v NamespacesResource) New(c buffalo.Context) error {
 func (v NamespacesResource) Create(c buffalo.Context) error {
 	user, err := getLoggedInUser(c)
 	if err != nil {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	// Allocate an empty Namespace
@@ -137,7 +140,7 @@ func (v NamespacesResource) Create(c buffalo.Context) error {
 	newNamespace := &models.Namespace{}
 	// To find the Namespace the parameter namespace_id is used.
 	if err := tx.Eager().Find(newNamespace, newNamespaceID); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	return c.Render(201, r.JSON(newNamespace))
@@ -160,12 +163,13 @@ func (v NamespacesResource) Update(c buffalo.Context) error {
 func (v NamespacesResource) Destroy(c buffalo.Context) error {
 	user, err := getLoggedInUser(c)
 	if err != nil {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	// Allocate an empty Namespace
@@ -173,11 +177,11 @@ func (v NamespacesResource) Destroy(c buffalo.Context) error {
 
 	// To find the Namespace the parameter namespace_id is used.
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	if !user.IsAdmin && !isOwner(namespace, user) {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	kubeClient, err := getKubernetesClient()
@@ -204,6 +208,7 @@ func NamespaceCoOwner(c buffalo.Context) error {
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	namespaces := &models.Namespaces{}
@@ -225,24 +230,25 @@ func NamespaceCoOwner(c buffalo.Context) error {
 func NamespaceAddCoOwner(c buffalo.Context) error {
 	user, err := getLoggedInUser(c)
 	if err != nil {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	namespace := &models.Namespace{}
 
 	//
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	if !user.IsAdmin && !isOwner(namespace, user) {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	coOwner := &models.User{}
@@ -259,7 +265,7 @@ func NamespaceAddCoOwner(c buffalo.Context) error {
 
 	// Get the updated namespace with the new CoOwner
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	return c.Render(200, r.JSON(namespace))
@@ -268,24 +274,25 @@ func NamespaceAddCoOwner(c buffalo.Context) error {
 func NamespaceDeleteCoOwner(c buffalo.Context) error {
 	user, err := getLoggedInUser(c)
 	if err != nil {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	namespace := &models.Namespace{}
 
 	//
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	if !user.IsAdmin && !isOwner(namespace, user) {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	coOwner := &models.User{}
@@ -303,7 +310,7 @@ func NamespaceDeleteCoOwner(c buffalo.Context) error {
 	namespace = &models.Namespace{}
 	// Get the updated namespace with the new CoOwner
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 	log.Printf("Namespace: %#v", namespace)
 
@@ -317,7 +324,8 @@ func NamespaceAvailableUsers(c buffalo.Context) error {
 	// userID := c.Session().Session.Values["current_user_id"]
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	users := &models.Users{}
@@ -331,7 +339,7 @@ func NamespaceAvailableUsers(c buffalo.Context) error {
 
 	// To find the Namespace the parameter namespace_id is used.
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	available := users.Filter(func(u models.User) bool {
@@ -352,13 +360,14 @@ func NamespaceAvailableUsers(c buffalo.Context) error {
 func NamespaceToken(c buffalo.Context) error {
 	user, err := getLoggedInUser(c)
 	if err != nil {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	// Allocate an empty Namespace
@@ -366,12 +375,12 @@ func NamespaceToken(c buffalo.Context) error {
 
 	// To find the Namespace the parameter namespace_id is used.
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	// Can the user access this data?
 	if !user.IsAdmin && !isOwner(namespace, user) && !isCoOwner(namespace, user) {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	kubeClient, err := getKubernetesClient()
@@ -390,12 +399,13 @@ func NamespaceToken(c buffalo.Context) error {
 func NamespaceCertificate(c buffalo.Context) error {
 	user, err := getLoggedInUser(c)
 	if err != nil {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	// Allocate an empty Namespace
@@ -403,12 +413,12 @@ func NamespaceCertificate(c buffalo.Context) error {
 
 	// To find the Namespace the parameter namespace_id is used.
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	// Can the user access this data?
 	if !user.IsAdmin && !isOwner(namespace, user) && !isCoOwner(namespace, user) {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	kubeClient, err := getKubernetesClient()
@@ -427,13 +437,14 @@ func NamespaceCertificate(c buffalo.Context) error {
 func NamespaceCertificateB64(c buffalo.Context) error {
 	user, err := getLoggedInUser(c)
 	if err != nil {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	// Allocate an empty Namespace
@@ -441,12 +452,12 @@ func NamespaceCertificateB64(c buffalo.Context) error {
 
 	// To find the Namespace the parameter namespace_id is used.
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	// Can the user access this data?
 	if !user.IsAdmin && !isOwner(namespace, user) && !isCoOwner(namespace, user) {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	kubeClient, err := getKubernetesClient()
@@ -481,13 +492,14 @@ func NamespaceEndpoint(c buffalo.Context) error {
 func NamespaceAuth(c buffalo.Context) error {
 	user, err := getLoggedInUser(c)
 	if err != nil {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	// Allocate an empty Namespace
@@ -495,12 +507,12 @@ func NamespaceAuth(c buffalo.Context) error {
 
 	// To find the Namespace the parameter namespace_id is used.
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	// Can the user access this data?
 	if !user.IsAdmin && !isOwner(namespace, user) && !isCoOwner(namespace, user) {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	kubeClient, err := getKubernetesClient()
@@ -541,13 +553,14 @@ func NamespaceAuth(c buffalo.Context) error {
 func NamespaceConfig(c buffalo.Context) error {
 	user, err := getLoggedInUser(c)
 	if err != nil {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	// Allocate an empty Namespace
@@ -555,12 +568,12 @@ func NamespaceConfig(c buffalo.Context) error {
 
 	// To find the Namespace the parameter namespace_id is used.
 	if err := tx.Eager().Find(namespace, c.Param("namespace_id")); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	// Can the user access this data?
 	if !user.IsAdmin && !isOwner(namespace, user) && !isCoOwner(namespace, user) {
-		return c.Error(403, errors.New("permission denied"))
+		return c.Error(403, errors.New("Permission denied"))
 	}
 
 	kubeClient, err := getKubernetesClient()
@@ -581,14 +594,15 @@ func NamespacePrefix(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	user := &models.User{}
 
 	// To find the User the parameter user_id is used.
 	if err := tx.Eager().Find(user, userID); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	prefix := user.NamespacePrefix()
@@ -602,14 +616,15 @@ func NamespaceValidateName(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		// return errors.WithStack(errors.New("no transaction found"))
+		return c.Error(500, errors.New("Could not establish database connection"))
 	}
 
 	user := &models.User{}
 
 	// To find the User the parameter user_id is used.
 	if err := tx.Eager().Find(user, userID); err != nil {
-		return c.Error(404, err)
+		return c.Error(404, errors.New("Namespace not found"))
 	}
 
 	// Allocate an empty Namespace
