@@ -673,7 +673,7 @@ update msg model =
             ( { model | namespace = Loaded namespace }, Cmd.none )
 
         CompletedNamespaceLoad (Err ( id, err )) ->
-            ( { model | namespace = Failed }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], namespace = Failed }
             , Log.error
             )
 

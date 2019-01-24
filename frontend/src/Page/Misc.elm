@@ -19,16 +19,16 @@ httpErrorToUserError : Http.Error -> String
 httpErrorToUserError error =
     case error of
         BadUrl url ->
-            ""
+            "BadUrl " ++ url
 
         Timeout ->
-            ""
+            "Timeout"
 
         NetworkError ->
-            ""
+            "NetworkError"
 
-        BadStatus code ->
-            ""
+        BadStatus response ->
+            response.body
 
-        BadPayload a b ->
-            ""
+        BadPayload message response ->
+            "BadPayload: " ++ message
