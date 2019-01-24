@@ -16,7 +16,7 @@ pipeline:
         - ${DRONE_COMMIT_SHA:0:8}
         - latest
 
-   deploy:
+  deploy:
      image: quay.io/honestbee/drone-kubernetes
      deployment: bork-deployment
      repo: kradalby/bork
