@@ -37,6 +37,7 @@ type alias Model =
     , deleteNamespaceModal : Bool
     , deleteNamespaceVerificationField : String
     , credentialView : Credentials
+    , droneRepositoryField : String
 
     -- Loaded independently from server
     , namespace : Status Namespace
@@ -68,6 +69,7 @@ init session id =
       , deleteNamespaceModal = False
       , deleteNamespaceVerificationField = ""
       , credentialView = Configuration
+      , droneRepositoryField = ""
       , namespace = Loading
       , auth = Loading
       , config = Loading
@@ -124,21 +126,12 @@ view model =
                         div []
                             [ View.iff model.addOwnerModal (addOwnerModal model.users ns)
                             , viewOwners model.session ns
-                            ]
-
-                    Loading ->
-                        text ""
-
-                    LoadingSlowly ->
-                        Loading.icon
-
-                    Failed ->
-                        Loading.error "namespace"
-                , viewCredentials model
-                , case model.namespace of
-                    Loaded ns ->
-                        div []
-                            [ View.iff model.deleteNamespaceModal (deleteNamespaceModal model.deleteNamespaceVerificationField ns)
+                            , viewCredentials ns
+                                model.credentialView
+                                model.auth
+                                model.config
+                                model.droneRepositoryField
+                            , View.iff model.deleteNamespaceModal (deleteNamespaceModal model.deleteNamespaceVerificationField ns)
                             , viewDangerZone
                             ]
 
@@ -190,7 +183,7 @@ viewOwners session ns =
 
 viewDangerZone : Html Msg
 viewDangerZone =
-    div [ class "col-12 px-0" ]
+    div [ class "col-12 px-0 mt-5" ]
         [ div [ class "row" ]
             [ h3 []
                 [ text "Danger Zone"
@@ -397,16 +390,16 @@ deleteNamespaceModal deleteNamespaceVerificationContent ns =
             ]
 
 
-viewCredentials : Model -> Html Msg
-viewCredentials model =
+viewCredentials : Namespace -> Credentials -> Status Namespace.Auth -> Status String -> String -> Html Msg
+viewCredentials ns credentialView auth config repo =
     let
         tab name credential =
             let
                 active =
-                    if model.credentialView == credential then
-                        "nav-link active"
+                    if credentialView == credential then
+                        "nav-link mb-0 active"
                     else
-                        "nav-link"
+                        "nav-link mb-0"
             in
                 li [ class "nav-item", onClick (SetCredentialView credential) ]
                     [ p [ class active ]
@@ -416,22 +409,24 @@ viewCredentials model =
         div [ class "col-12 px-0" ]
             [ div
                 [ class "row" ]
-                [ ul [ class "nav nav-tabs" ]
-                    [ tab "Configuration" Configuration
-                    , tab "GitLab" GitLab
-                    , tab "Drone" Drone
+                [ div [ class "col-12 px-0" ]
+                    [ ul [ class "nav nav-tabs" ]
+                        [ tab "Configuration" Configuration
+                        , tab "GitLab" GitLab
+                        , tab "Drone" Drone
+                        ]
                     ]
                 ]
             , div [ class "row" ]
-                [ case model.credentialView of
+                [ case credentialView of
                     Configuration ->
-                        viewConfig model.config
+                        viewConfig config
 
                     GitLab ->
-                        viewGitLab model.auth
+                        viewGitLab ns auth
 
                     Drone ->
-                        viewDrone model.auth
+                        viewDrone auth repo
                 ]
             ]
 
@@ -453,7 +448,7 @@ viewConfig config =
                 , div [ class "row" ]
                     [ div [ class "col-12 px-0" ]
                         [ button
-                            [ class "btn btn-primary mt-3 mb-3 float-right"
+                            [ class "btn btn-primary mt-3 float-right"
                             , onClick <| SaveConfig content
                             ]
                             [ text "Download" ]
@@ -471,11 +466,74 @@ viewConfig config =
             Loading.error "config"
 
 
-viewGitLab : Status Namespace.Auth -> Html Msg
-viewGitLab auth =
+viewGitLab : Namespace -> Status Namespace.Auth -> Html Msg
+viewGitLab ns auth =
     case auth of
         Loaded content ->
-            text "GitLab instructions"
+            div [ class "col-12" ]
+                [ div [ class "row mt-3" ]
+                    [ p [] [ text "To add the credentials for your namespace to GitLab, do the following:" ]
+                    , p []
+                        [ text "In your repository, go to "
+                        , b [] [ text "Operations" ]
+                        , text " > "
+                        , b [] [ text "Kubernetes" ]
+                        , text " > "
+                        , b [] [ text "Add Kubernetes cluster" ]
+                        , text " > "
+                        , b [] [ text "Add existing cluster" ]
+                        , text " and fill in the information below."
+                        ]
+                    ]
+                , div [ class "row mt-1" ]
+                    [ h5
+                        []
+                        [ text "API URL" ]
+                    ]
+                , div [ class "row" ]
+                    [ div [ class "input-group" ]
+                        [ input [ readonly True, class "form-control", value content.endpoint ] []
+                        ]
+                    ]
+                , div [ class "row mt-3" ]
+                    [ h5
+                        []
+                        [ text "CA Certificate" ]
+                    ]
+                , div [ class "row" ]
+                    [ textarea
+                        [ class "form-control"
+                        , attribute "rows" "15"
+                        , value content.certificate
+                        , readonly True
+                        ]
+                        []
+                    ]
+                , div [ class "row mt-3" ]
+                    [ h5
+                        []
+                        [ text "Token" ]
+                    ]
+                , div [ class "row" ]
+                    [ textarea
+                        [ class "form-control"
+                        , attribute "rows" "9"
+                        , value content.token
+                        , readonly True
+                        ]
+                        []
+                    ]
+                , div [ class "row mt-3" ]
+                    [ h5
+                        []
+                        [ text "Project namespace (optional, unique)" ]
+                    ]
+                , div [ class "row" ]
+                    [ div [ class "input-group" ]
+                        [ input [ readonly True, class "form-control", value (Namespace.name ns) ] []
+                        ]
+                    ]
+                ]
 
         Loading ->
             text ""
@@ -487,11 +545,77 @@ viewGitLab auth =
             Loading.error "auth"
 
 
-viewDrone : Status Namespace.Auth -> Html Msg
-viewDrone auth =
+viewDrone : Status Namespace.Auth -> String -> Html Msg
+viewDrone auth repo =
     case auth of
         Loaded content ->
-            text "Drone instructions"
+            let
+                endpoint =
+                    String.join " "
+                        [ "drone secret add"
+                        , repo
+                        , "--image=quay.io/honestbee/drone-kubernetes"
+                        , "--name=kubernetes_server"
+                        , "--value="
+                            ++ content.endpoint
+                        , "\n"
+                        ]
+
+                cert =
+                    String.join " "
+                        [ "drone secret add"
+                        , repo
+                        , "--image=quay.io/honestbee/drone-kubernetes"
+                        , "--name=kubernetes_cert"
+                        , "--value="
+                            ++ content.certificateB64
+                        , "\n"
+                        ]
+
+                token =
+                    String.join " "
+                        [ "drone secret add"
+                        , repo
+                        , "--image=quay.io/honestbee/drone-kubernetes"
+                        , "--name=kubernetes_token"
+                        , "--value="
+                            ++ content.token
+                        , "\n"
+                        ]
+
+                commands =
+                    if repo == "" then
+                        "Please enter a repository"
+                    else
+                        String.join "\n"
+                            [ endpoint, cert, token ]
+            in
+                div [ class "col-12" ]
+                    [ div [ class "row mt-3" ]
+                        [ p [] [ text "To add the credential to a Drone build server, enter the repository registered in Drone and execute the commands below." ]
+                        , p []
+                            [ text "Credentials can be added via the web interface by using the value after "
+                            , span [ class "text-monospace" ] [ text "--name=" ]
+                            , text " and "
+                            , span [ class "text-monospace" ] [ text "--value=" ]
+                            , text " in the form for adding secrets."
+                            ]
+                        ]
+                    , div [ class "row mt-1" ] [ h5 [] [ text "Drone repository" ] ]
+                    , div [ class "row" ]
+                        [ div [ class "input-group" ] [ input [ class "form-control", value repo, onInput OnChangeDroneRepositoryField ] [] ]
+                        ]
+                    , div [ class "row mt-3" ] [ h5 [] [ text "Commands" ] ]
+                    , div [ class "row" ]
+                        [ textarea
+                            [ class "form-control"
+                            , attribute "rows" "25"
+                            , value commands
+                            , readonly True
+                            ]
+                            []
+                        ]
+                    ]
 
         Loading ->
             text ""
@@ -536,6 +660,7 @@ type Msg
     | DeleteNamespace Namespace
     | CompletedDeleteNamespace (Result Http.Error Namespace)
     | SetCredentialView Credentials
+    | OnChangeDroneRepositoryField String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -683,6 +808,9 @@ update msg model =
 
         SetCredentialView credView ->
             ( { model | credentialView = credView }, Cmd.none )
+
+        OnChangeDroneRepositoryField content ->
+            ( { model | droneRepositoryField = content }, Cmd.none )
 
 
 
