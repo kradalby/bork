@@ -104,30 +104,35 @@ view model =
 
                     Failed ->
                         Loading.error "prefix"
-                , case model.validationErrors of
-                    Loaded errors ->
-                        let
-                            noErrors =
-                                List.length errors /= 0
-                        in
-                            div [ class "row" ]
-                                [ div [ class "col-8" ]
-                                    [ ul [ class "pt-3" ] <|
-                                        List.map (\error -> li [] [ text error ]) errors
-                                    ]
-                                , div [ class "col-4 pt-4 pr-0" ]
-                                    [ button [ class "btn btn-large btn-success float-right", onClick CreateNamespace, disabled noErrors ] [ text "Create" ]
-                                    ]
-                                ]
+                , div [ class "row" ]
+                    [ div [ class "col-8" ]
+                        [ case model.validationErrors of
+                            Loaded errors ->
+                                ul [ class "pt-3" ] <|
+                                    List.map (\error -> li [] [ text error ]) errors
 
-                    Loading ->
-                        text ""
+                            Loading ->
+                                text ""
 
-                    LoadingSlowly ->
-                        Loading.icon
+                            LoadingSlowly ->
+                                Loading.icon
 
-                    Failed ->
-                        Loading.error "validationErrors"
+                            Failed ->
+                                Loading.error "validationErrors"
+                        ]
+                    , div [ class "col-4 pt-2 pr-0" ]
+                        [ case model.validationErrors of
+                            Loaded errors ->
+                                let
+                                    noErrors =
+                                        List.length errors /= 0
+                                in
+                                    button [ class "btn btn-large btn-success float-right", onClick CreateNamespace, disabled noErrors ] [ text "Create" ]
+
+                            _ ->
+                                button [ class "btn btn-large btn-success float-right" ] [ text "Create" ]
+                        ]
+                    ]
                 ]
         }
 
