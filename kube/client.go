@@ -15,6 +15,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	kubernetesErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/watch"
 	kubernetes "k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -213,8 +214,32 @@ func (c *Client) createServiceAccount(namespace string) error {
 	}
 
 	_, err := c.client.CoreV1().ServiceAccounts(namespace).Create(serviceAccount)
+	if err != nil {
+		return err
+	}
 
-	return err
+	// Attempt to watch for finished create event
+	w, err := c.client.CoreV1().Secrets(namespace).Watch(metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+
+	for event := range w.ResultChan() {
+		switch event.Type {
+		case watch.Added:
+			secret, ok := event.Object.(*corev1.Secret)
+			if !ok {
+				return errors.New("unexpected object type, not Secret")
+			}
+			secret_owner, ok := secret.Annotations["kubernetes.io/service-account.name"]
+			if ok && (secret_owner == serviceAccountName) {
+				w.Stop()
+				return nil
+			}
+		}
+	}
+
+	return nil
 }
 
 func (c *Client) deleteServiceAccount(namespace string) error {
