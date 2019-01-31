@@ -44,6 +44,7 @@ type alias Model =
     , auth : Status Namespace.Auth
     , config : Status String
     , users : Status (List User)
+    , deleteNamespace : Status String
     }
 
 
@@ -74,6 +75,7 @@ init session id =
       , auth = Loading
       , config = Loading
       , users = Loading
+      , deleteNamespace = Loaded ""
       }
     , Cmd.batch
         [ Namespace.get id
@@ -350,8 +352,8 @@ addOwnerModal users ns =
         ]
 
 
-deleteNamespaceModal : String -> Namespace -> Html Msg
-deleteNamespaceModal deleteNamespaceVerificationContent ns =
+deleteNamespaceModal : String -> Namespace -> Status String -> Html Msg
+deleteNamespaceModal deleteNamespaceVerificationContent ns status =
     let
         disable =
             (deleteNamespaceVerificationContent
@@ -792,7 +794,7 @@ update msg model =
             ( { model | deleteNamespaceVerificationField = content }, Cmd.none )
 
         DeleteNamespace ns ->
-            ( model
+            ( { model | deleteNamespace = LoadingSlowly }
             , Namespace.delete (Namespace.id ns)
                 |> Http.toTask
                 |> Task.attempt CompletedDeleteNamespace
@@ -802,7 +804,7 @@ update msg model =
             ( model, Route.replaceUrl (Session.navKey model.session) Route.NamespaceList )
 
         CompletedDeleteNamespace (Err err) ->
-            ( { model | errors = [ Misc.httpErrorToUserError err ] }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], deleteNamespace = Failed }
             , Log.error
             )
 
