@@ -133,8 +133,11 @@ view model =
                                 model.auth
                                 model.config
                                 model.droneRepositoryField
-
-                            -- , View.iff model.deleteNamespaceModal (deleteNamespaceModal model.deleteNamespaceVerificationField ns)
+                            , View.iff model.deleteNamespaceModal
+                                (deleteNamespaceModal model.deleteNamespaceVerificationField
+                                    ns
+                                    model.deleteNamespace
+                                )
                             , viewDangerZone
                             ]
 
