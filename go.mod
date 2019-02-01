@@ -34,14 +34,14 @@ require (
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.3.1
 	github.com/unrolled/secure v0.0.0-20190103195806-76e6d4e9b90c
+	golang.org/dl v0.0.0-20190123220710-eb5f36764f93 // indirect
+	golang.org/x/build v0.0.0-20190201013433-c360502afd1b // indirect
 	golang.org/x/crypto v0.0.0-20190131182504-b8fe1690c613 // indirect
 	golang.org/x/net v0.0.0-20190125091013-d26f9f9a57f3 // indirect
 	golang.org/x/oauth2 v0.0.0-20190130055435-99b60b757ec1 // indirect
 	golang.org/x/sys v0.0.0-20190130150945-aca44879d564 // indirect
-	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2 // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
 	golang.org/x/tools v0.0.0-20190131163942-067a2f313b69 // indirect
-	gopkg.in/inf.v0 v0.9.1 // indirect
 	k8s.io/api v0.0.0-20181221193117-173ce66c1e39
 	k8s.io/apimachinery v0.0.0-20190119020841-d41becfba9ee
 	k8s.io/client-go v10.0.0+incompatible
