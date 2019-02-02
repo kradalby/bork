@@ -42,8 +42,9 @@ RUN CGO_ENABLED=0 go build -o /bin/app
 # RUN buffalo build --static -o /bin/app
 
 FROM alpine
-RUN apk add --no-cache bash
-RUN apk add --no-cache ca-certificates
+# Trying something
+RUN ping dl-cdn.alpinelinux.org -c 1
+RUN apk add --no-cache ca-certificates bash
 
 WORKDIR /bin/
 
