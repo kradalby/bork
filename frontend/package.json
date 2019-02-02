@@ -45,7 +45,8 @@
         "webpack-merge": "^4.2.1"
     },
     "dependencies": {
-        "csrf-xhr": "^1.0.0"
+        "csrf-xhr": "^1.0.0",
+        "prerender-loader": "^1.2.0"
     },
     "prettier": {
         "tabWidth": 4
