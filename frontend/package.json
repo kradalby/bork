@@ -46,7 +46,8 @@
     },
     "dependencies": {
         "csrf-xhr": "^1.0.0",
-        "prerender-loader": "^1.2.0"
+        "prerender-loader": "^1.2.0",
+        "terser": "^3.14.1"
     },
     "prettier": {
         "tabWidth": 4
