@@ -41,10 +41,11 @@ RUN CGO_ENABLED=0 go build -o /bin/app
 
 # RUN buffalo build --static -o /bin/app
 
-FROM alpine
+FROM ubuntu:latest
 # Trying something
-RUN ping dl-cdn.alpinelinux.org -c 1
-RUN apk add --no-cache ca-certificates bash
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /bin/
 
