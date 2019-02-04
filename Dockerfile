@@ -19,6 +19,9 @@ RUN yarn run prod
 FROM golang:latest as buffalo
 
 RUN go get -u github.com/gobuffalo/packr/packr
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 
 ENV GO111MODULE=on
 
