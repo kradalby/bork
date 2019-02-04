@@ -40,8 +40,8 @@ RUN go mod download
 
 RUN packr -z
 
-RUN CGO_ENABLED=0 go build -o /bin/app 
-# RUN CGO_ENABLED=0 go build -mod vendor -o /bin/app 
+# RUN CGO_ENABLED=0 go build -o /bin/app 
+RUN CGO_ENABLED=0 go build -mod vendor -o /bin/app 
 # RUN buffalo build --static -o /bin/app
 
 FROM ubuntu:latest
