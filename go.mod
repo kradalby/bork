@@ -83,7 +83,7 @@ require (
 	honnef.co/go/tools v0.0.0-20190128043916-71123fcbb8fe // indirect
 	k8s.io/api v0.0.0-20190202010724-74b699b93c15
 	k8s.io/apimachinery v0.0.0-20190117220443-572dfc7bdfcb
-	k8s.io/client-go v10.0.0+incompatible
+	k8s.io/client-go v2.0.0-alpha.0.0.20190202011228-6e4752048fde+incompatible
 	k8s.io/klog v0.1.0 // indirect
 	sigs.k8s.io/yaml v1.1.0 // indirect
 	sourcegraph.com/sqs/pbtypes v1.0.0 // indirect
