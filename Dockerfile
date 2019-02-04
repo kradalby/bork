@@ -31,9 +31,10 @@ RUN mkdir -p assets templates
 COPY --from=elm /app/dist/index.html ./templates/index.html
 COPY --from=elm /app/dist ./assets
 
-RUN go mod download
 
 COPY . .
+RUN go mod download
+
 RUN packr -z
 
 RUN CGO_ENABLED=0 go build -o /bin/app 
