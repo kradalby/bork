@@ -1,8 +1,8 @@
 {
-    "author": "Simon Hampton",
-    "name": "elm-webpack-starter",
-    "version": "3.1.1",
-    "description": "Elm 0.19 starter with Webpack 4 hot-reloading",
+    "author": "Kristoffer Dalby",
+    "name": "bork-frontend",
+    "version": "0.0.1",
+    "description": "Frontend for bork",
     "main": "index.js",
     "scripts": {
         "test": "elm-test",
@@ -11,11 +11,8 @@
         "build": "webpack",
         "prod": "webpack -p"
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/simonh1000/elm-webpack-starter.git"
-    },
-    "license": "MIT",
+    "repository": "git+https://github.com/kradalby/bork.git",
+    "license": "None",
     "devDependencies": {
         "@babel/core": "^7.2.2",
         "@babel/preset-env": "^7.3.1",
@@ -42,14 +39,16 @@
         "webpack": "^4.29.0",
         "webpack-cli": "^3.2.1",
         "webpack-dev-server": "^3.1.14",
-        "webpack-merge": "^4.2.1"
-    },
-    "dependencies": {
+        "webpack-merge": "^4.2.1",
         "csrf-xhr": "^1.0.0",
         "prerender-loader": "^1.2.0",
         "terser": "^3.14.1"
     },
+    "resolutions": {
+        "terser": "3.14.*"
+    },
     "prettier": {
         "tabWidth": 4
-    }
+    },
+    "private": true
 }

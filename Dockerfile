@@ -6,13 +6,13 @@ FROM node:10 as elm
 WORKDIR /app
 
 COPY frontend/package.json .
-RUN npm install --silent
+RUN yarn install --silent
 
 COPY frontend/elm.json .
 
 ENV NODE_ENV "production"
 COPY frontend .
-RUN npm run prod
+RUN yarn run prod
 
 
 # Build binary
