@@ -29,6 +29,9 @@ RUN mkdir -p assets templates
 COPY --from=elm /app/dist/index.html ./templates/index.html
 COPY --from=elm /app/dist ./assets
 
+RUN go get -u github.com/gobuffalo/packr/packr
+RUN go mod download
+
 COPY . .
 RUN packr -z
 
