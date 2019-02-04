@@ -16,7 +16,7 @@ RUN yarn run prod
 
 
 # Build binary
-FROM gobuffalo/buffalo:v0.13.12 as buffalo
+FROM gobuffalo/buffalo:v0.13.13 as buffalo
 
 ENV GO111MODULE=on
 
