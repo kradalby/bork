@@ -7,7 +7,7 @@ require (
 	git.apache.org/thrift.git v0.12.0 // indirect
 	github.com/Shopify/sarama v1.20.1 // indirect
 	github.com/coreos/etcd v3.3.11+incompatible // indirect
-	github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142 // indirect
+	github.com/coreos/go-systemd v0.0.0-20190204112023-081494f7ee4f // indirect
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/gobuffalo/buffalo v0.13.13
 	github.com/gobuffalo/buffalo-plugins v1.12.1 // indirect
@@ -52,7 +52,7 @@ require (
 	github.com/shurcooL/gofontwoff v0.0.0-20181114050219-180f79e6909d // indirect
 	github.com/shurcooL/highlight_diff v0.0.0-20181222201841-111da2e7d480 // indirect
 	github.com/shurcooL/highlight_go v0.0.0-20181215221002-9d8641ddf2e1 // indirect
-	github.com/shurcooL/home v0.0.0-20190127175526-fdd6870b8ab8 // indirect
+	github.com/shurcooL/home v0.0.0-20190204141146-5c8ae21d4240 // indirect
 	github.com/shurcooL/htmlg v0.0.0-20190120222857-1e8a37b806f3 // indirect
 	github.com/shurcooL/httpfs v0.0.0-20181222201310-74dc9339e414 // indirect
 	github.com/shurcooL/issues v0.0.0-20190120000219-08d8dadf8acb // indirect
@@ -76,13 +76,13 @@ require (
 	golang.org/x/net v0.0.0-20190125091013-d26f9f9a57f3 // indirect
 	golang.org/x/oauth2 v0.0.0-20190130055435-99b60b757ec1 // indirect
 	golang.org/x/perf v0.0.0-20190124201629-844a5f5b46f4 // indirect
-	golang.org/x/sys v0.0.0-20190203050204-7ae0202eb74c // indirect
-	golang.org/x/tools v0.0.0-20190202235157-7414d4c1f71c // indirect
+	golang.org/x/sys v0.0.0-20190204103248-980327fe3c65 // indirect
+	golang.org/x/tools v0.0.0-20190204173059-021ffbf1e960 // indirect
 	google.golang.org/genproto v0.0.0-20190201180003-4b09977fb922 // indirect
 	google.golang.org/grpc v1.18.0 // indirect
 	honnef.co/go/tools v0.0.0-20190128043916-71123fcbb8fe // indirect
-	k8s.io/api v0.0.0-20181221193117-173ce66c1e39
-	k8s.io/apimachinery v0.0.0-20190204010555-a98ff070d70e
+	k8s.io/api v0.0.0-20190202010724-74b699b93c15
+	k8s.io/apimachinery v0.0.0-20190117220443-572dfc7bdfcb
 	k8s.io/client-go v10.0.0+incompatible
 	k8s.io/klog v0.1.0 // indirect
 	sigs.k8s.io/yaml v1.1.0 // indirect
