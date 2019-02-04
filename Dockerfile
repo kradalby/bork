@@ -18,6 +18,8 @@ RUN yarn run prod
 # Build binary
 FROM golang:latest as buffalo
 
+RUN go get -u github.com/gobuffalo/packr/packr
+
 ENV GO111MODULE=on
 
 RUN mkdir -p $GOPATH/src/github.com/kradalby/bork
@@ -29,7 +31,6 @@ RUN mkdir -p assets templates
 COPY --from=elm /app/dist/index.html ./templates/index.html
 COPY --from=elm /app/dist ./assets
 
-RUN go get -u github.com/gobuffalo/packr/packr
 RUN go mod download
 
 COPY . .
