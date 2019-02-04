@@ -16,7 +16,7 @@ RUN yarn run prod
 
 
 # Build binary
-FROM gobuffalo/buffalo:v0.13.13 as buffalo
+FROM golang:latest as buffalo
 
 ENV GO111MODULE=on
 
@@ -29,16 +29,11 @@ RUN mkdir -p assets templates
 COPY --from=elm /app/dist/index.html ./templates/index.html
 COPY --from=elm /app/dist ./assets
 
-
 COPY . .
 RUN packr -z
 
-# RUN go get $(go list ./... | grep -v /vendor/)
-
-
 RUN CGO_ENABLED=0 go build -o /bin/app 
 # RUN CGO_ENABLED=0 go build -mod vendor -o /bin/app 
-
 # RUN buffalo build --static -o /bin/app
 
 FROM ubuntu:latest

@@ -3,22 +3,20 @@ module github.com/kradalby/bork
 require (
 	cloud.google.com/go v0.35.1 // indirect
 	dmitri.shuralyov.com/app/changes v0.0.0-20181114035150-5af16e21babb // indirect
-	dmitri.shuralyov.com/service/change v0.0.0-20190203025214-430bf650e55a // indirect
+	dmitri.shuralyov.com/service/change v0.0.0-20190203163610-217368fe4577 // indirect
 	git.apache.org/thrift.git v0.12.0 // indirect
 	github.com/Shopify/sarama v1.20.1 // indirect
 	github.com/coreos/etcd v3.3.11+incompatible // indirect
 	github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142 // indirect
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/gobuffalo/buffalo v0.13.13
+	github.com/gobuffalo/buffalo-plugins v1.12.1 // indirect
 	github.com/gobuffalo/buffalo-pop v1.6.0
 	github.com/gobuffalo/envy v1.6.12
-	github.com/gobuffalo/genny v0.0.0-20190131190646-008a76242145 // indirect
-	github.com/gobuffalo/meta v0.0.0-20190126124307-c8fb6f4eb5a9 // indirect
 	github.com/gobuffalo/mw-csrf v0.0.0-20190129204204-25460a055517
 	github.com/gobuffalo/mw-forcessl v0.0.0-20180802152810-73921ae7a130
 	github.com/gobuffalo/mw-paramlogger v0.0.0-20190129202837-395da1998525
 	github.com/gobuffalo/packr v1.22.0
-	github.com/gobuffalo/packr/v2 v2.0.0 // indirect
 	github.com/gobuffalo/pop v4.9.6+incompatible
 	github.com/gobuffalo/suite v2.6.0+incompatible
 	github.com/gobuffalo/uuid v2.0.5+incompatible
@@ -37,6 +35,8 @@ require (
 	github.com/jarcoal/httpmock v0.0.0-20181110092731-53def6cd0f87 // indirect
 	github.com/json-iterator/go v1.1.5 // indirect
 	github.com/markbates/goth v1.49.0
+	github.com/markbates/refresh v1.6.0 // indirect
+	github.com/mattn/go-colorable v0.1.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
@@ -45,7 +45,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90 // indirect
 	github.com/prometheus/common v0.2.0 // indirect
-	github.com/prometheus/procfs v0.0.0-20190129233650-316cf8ccfec5 // indirect
+	github.com/prometheus/procfs v0.0.0-20190203183350-488faf799f86 // indirect
 	github.com/rs/cors v1.6.0
 	github.com/russross/blackfriday v2.0.0+incompatible // indirect
 	github.com/shurcooL/go v0.0.0-20190121191506-3fef8c783dec // indirect
@@ -82,7 +82,7 @@ require (
 	google.golang.org/grpc v1.18.0 // indirect
 	honnef.co/go/tools v0.0.0-20190128043916-71123fcbb8fe // indirect
 	k8s.io/api v0.0.0-20181221193117-173ce66c1e39
-	k8s.io/apimachinery v0.0.0-20190201131811-df262fa1a1ba
+	k8s.io/apimachinery v0.0.0-20190204010555-a98ff070d70e
 	k8s.io/client-go v10.0.0+incompatible
 	k8s.io/klog v0.1.0 // indirect
 	sigs.k8s.io/yaml v1.1.0 // indirect
