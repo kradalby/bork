@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop"
 	"github.com/kradalby/bork/models"
 	"github.com/markbates/goth"
@@ -23,7 +24,11 @@ func init() {
 	// it can return an error which should be handled or ignored
 	// ignore the error for now
 	// scopes := []string{"openid", "email", "profile", "offline_access"}
-	scopes := []string{"openid", "email", "groups", "profile", "offline_access"}
+	// scopes := []string{"openid", "email", "groups", "profile", "offline_access"}
+
+	scopesString := envy.Getenv("OPENID_CONNECT_SCOPES", "openid")
+	scopes := strings.Split(scopesString, " ")
+
 	openidConnect, err := openidConnect.New(
 		os.Getenv("OPENID_CONNECT_KEY"),
 		os.Getenv("OPENID_CONNECT_SECRET"),
