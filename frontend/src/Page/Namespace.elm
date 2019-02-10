@@ -118,15 +118,15 @@ view model =
         , content =
             div [ class "namespace-page" ]
                 [ Page.viewErrors ClickedDismissErrors model.errors
-                , div [ class "row" ]
-                    [ h2 []
-                        [ text <| "Namespace"
-                        ]
-                    ]
                 , case model.namespace of
                     Loaded ns ->
                         div []
-                            [ View.iff model.addOwnerModal (addOwnerModal model.users ns)
+                            [ div [ class "row" ]
+                                [ h2 []
+                                    [ text <| Namespace.name ns
+                                    ]
+                                ]
+                            , View.iff model.addOwnerModal (addOwnerModal model.users ns)
                             , viewOwners model.session ns
                             , viewCredentials ns
                                 model.credentialView
