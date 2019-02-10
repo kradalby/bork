@@ -120,26 +120,33 @@ view model =
                 [ Page.viewErrors ClickedDismissErrors model.errors
                 , case model.namespace of
                     Loaded ns ->
-                        div []
-                            [ div [ class "row" ]
-                                [ h2 []
-                                    [ text <| Namespace.name ns
+                        let
+                            user =
+                                Namespace.owner ns
+
+                            isOwner =
+                                Misc.isOwner session (User.id user)
+                        in
+                            div []
+                                [ div [ class "row" ]
+                                    [ h2 []
+                                        [ text <| Namespace.name ns
+                                        ]
                                     ]
+                                , View.iff model.addOwnerModal (addOwnerModal model.users ns)
+                                , viewOwners model.session ns
+                                , viewCredentials ns
+                                    model.credentialView
+                                    model.auth
+                                    model.config
+                                    model.droneRepositoryField
+                                , View.iff model.deleteNamespaceModal
+                                    (deleteNamespaceModal model.deleteNamespaceVerificationField
+                                        ns
+                                        model.deleteNamespace
+                                    )
+                                , View.iff isOwner viewDangerZone
                                 ]
-                            , View.iff model.addOwnerModal (addOwnerModal model.users ns)
-                            , viewOwners model.session ns
-                            , viewCredentials ns
-                                model.credentialView
-                                model.auth
-                                model.config
-                                model.droneRepositoryField
-                            , View.iff model.deleteNamespaceModal
-                                (deleteNamespaceModal model.deleteNamespaceVerificationField
-                                    ns
-                                    model.deleteNamespace
-                                )
-                            , viewDangerZone
-                            ]
 
                     Loading ->
                         text ""
