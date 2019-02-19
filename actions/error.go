@@ -5,6 +5,7 @@ import (
 	"github.com/gobuffalo/buffalo"
 	"fmt"
 	"encoding/json"
+    //"github.com/davecgh/go-spew/spew"
 )
 
 func setErrorHandler(app *buffalo.App) {
@@ -20,10 +21,8 @@ func customErrorHandler() buffalo.ErrorHandler {
 		c.Logger().Error(err)
 		c.Response().WriteHeader(status)
 
-		msg := fmt.Sprintf("%+v", err)
-
         response := json.NewEncoder(c.Response()).Encode(map[string]interface{}{
-				"error": msg,
+				"error": fmt.Sprintf("%s", err),
 				"code":  status,
 	          })
 
