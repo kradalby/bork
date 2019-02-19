@@ -46,6 +46,7 @@ func App(kubeconf string) *buffalo.App {
 		if ENV == PRODUCTION {
 			app.Use(forceSSL())
 			app.Use(csrf.New)
+            setErrorHandler(app)
 		}
 
 		if ENV == DEVELOPMENT {
