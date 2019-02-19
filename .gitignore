@@ -2,6 +2,7 @@ bork
 spa/
 tmp/
 db/
+elm-stuff/
 # Created by https://www.gitignore.io/api/vim,macos,linux,go,sql
 
 ### Go ###

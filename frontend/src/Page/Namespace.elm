@@ -146,7 +146,9 @@ view model =
                                 ns
                                 model.deleteNamespace
                             )
-                        , View.iff isOwner viewDangerZone
+
+                        --, View.iff isOwner viewDangerZone
+                        , viewDangerZone
                         ]
 
                 Loading ->
