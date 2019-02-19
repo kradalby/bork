@@ -5,7 +5,7 @@ import (
 	"github.com/gobuffalo/mw-csrf"
 
 	"github.com/gobuffalo/buffalo-pop/pop/popmw"
-	"github.com/gobuffalo/mw-contenttype"
+	// "github.com/gobuffalo/mw-contenttype"
 	"github.com/gobuffalo/mw-forcessl"
 	"github.com/gobuffalo/mw-paramlogger"
 
@@ -41,7 +41,7 @@ func App(kubeconf string) *buffalo.App {
 		})
 
 		// Set the request content type to JSON
-		app.Use(contenttype.Set("application/json"))
+		// app.Use(contenttype.Set("application/json"))
 
 		if ENV == PRODUCTION {
 			app.Use(forceSSL())
