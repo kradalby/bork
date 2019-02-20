@@ -70,6 +70,7 @@ view model =
             Loaded users ->
                 div [ class "profile-page" ]
                     [ Page.viewErrors ClickedDismissErrors model.errors
+                    , h2 [] [ text "Admin: Users" ]
                     , table [ class "table table-striped" ]
                         [ thead []
                             [ tr []
