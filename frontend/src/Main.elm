@@ -16,7 +16,7 @@ import Http
 
 -- import Page.UserList as UserList
 
-import Page.Namespace as Namespace
+import Page.Namespace.Show as Namespace
 import Page.Namespace.List as NamespaceList
 import Page.Namespace.New as NamespaceNew
 

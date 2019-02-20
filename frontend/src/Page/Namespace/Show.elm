@@ -1,4 +1,4 @@
-module Page.Namespace exposing (Model, Msg, init, subscriptions, toSession, update, view)
+module Page.Namespace.Show exposing (Model, Msg, init, subscriptions, toSession, update, view)
 
 import Api
 import Api.Endpoint as Endpoint
