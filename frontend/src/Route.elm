@@ -19,6 +19,7 @@ type Route
     | Namespace ID
     | NamespaceNew
     | NamespaceList
+    | AdminDashboard
     | AdminNamespaces
     | AdminUsers
     | User ID
@@ -37,6 +38,7 @@ parser =
         , Parser.map NamespaceNew (s "namespaces" </> s "new")
         , Parser.map Namespace (s "namespaces" </> ID.urlParser)
         , Parser.map NamespaceList (s "namespaces")
+        , Parser.map AdminDashboard (s "admin" </> s "dashboard")
         , Parser.map AdminNamespaces (s "admin" </> s "namespaces")
         , Parser.map AdminUsers (s "admin" </> s "users")
         , Parser.map User (s "users" </> ID.urlParser)
@@ -93,6 +95,9 @@ routeToString page =
 
                 NamespaceList ->
                     [ "namespaces" ]
+
+                AdminDashboard ->
+                    [ "admin", "dashboard" ]
 
                 AdminNamespaces ->
                     [ "admin", "namespaces" ]

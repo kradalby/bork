@@ -30,6 +30,7 @@ type Page
     | Namespace ID
     | NamespaceList
     | NamespaceNew
+    | AdminDashboard
     | AdminNamespaces
     | AdminUsers
 
@@ -81,7 +82,7 @@ viewMenu page maybeUser =
                 username =
                     User.username user
             in
-            [ View.iff (User.isAdmin user) <| linkTo Route.AdminNamespaces [ text "Admin" ]
+            [ View.iff (User.isAdmin user) <| linkTo Route.AdminDashboard [ text "Admin" ]
             , linkTo Route.NamespaceNew [ text "New" ]
             , linkTo Route.NamespaceList [ text "Namespaces" ]
 
@@ -147,7 +148,13 @@ isActive page route =
         ( NamespaceList, Route.NamespaceList ) ->
             True
 
-        ( AdminNamespaces, Route.AdminNamespaces ) ->
+        ( AdminDashboard, Route.AdminDashboard ) ->
+            True
+
+        ( AdminDashboard, Route.AdminNamespaces ) ->
+            True
+
+        ( AdminDashboard, Route.AdminUsers ) ->
             True
 
         _ ->

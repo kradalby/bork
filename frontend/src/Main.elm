@@ -11,6 +11,7 @@ import Http
 import ID exposing (ID)
 import Json.Decode as Decode exposing (Value)
 import Page exposing (Page)
+import Page.Admin.Dashboard as AdminDashboard
 import Page.Admin.Namespaces as AdminNamespaces
 import Page.Admin.Users as AdminUsers
 import Page.Blank as Blank
@@ -46,6 +47,7 @@ type Model
     | Namespace ID Namespace.Model
     | NamespaceList NamespaceList.Model
     | NamespaceNew NamespaceNew.Model
+    | AdminDashboard AdminDashboard.Model
     | AdminNamespaces AdminNamespaces.Model
     | AdminUsers AdminUsers.Model
 
@@ -112,6 +114,9 @@ view model =
         NamespaceNew namespaceNew ->
             viewPage Page.NamespaceNew GotNamespaceNewMsg (NamespaceNew.view namespaceNew)
 
+        AdminDashboard adminNamespaces ->
+            viewPage Page.AdminDashboard GotAdminDashboardMsg (AdminDashboard.view adminNamespaces)
+
         AdminNamespaces adminNamespaces ->
             viewPage Page.AdminNamespaces GotAdminNamespacesMsg (AdminNamespaces.view adminNamespaces)
 
@@ -135,6 +140,7 @@ type Msg
     | GotNamespaceMsg Namespace.Msg
     | GotNamespaceListMsg NamespaceList.Msg
     | GotNamespaceNewMsg NamespaceNew.Msg
+    | GotAdminDashboardMsg AdminDashboard.Msg
     | GotAdminNamespacesMsg AdminNamespaces.Msg
     | GotAdminUsersMsg AdminUsers.Msg
     | GotSession Session
@@ -168,6 +174,9 @@ toSession page =
 
         NamespaceNew namespace ->
             NamespaceNew.toSession namespace
+
+        AdminDashboard namespace ->
+            AdminDashboard.toSession namespace
 
         AdminNamespaces namespace ->
             AdminNamespaces.toSession namespace
@@ -214,6 +223,10 @@ changeRouteTo maybeRoute model =
         Just Route.NamespaceNew ->
             NamespaceNew.init session
                 |> updateWith NamespaceNew GotNamespaceNewMsg model
+
+        Just Route.AdminDashboard ->
+            AdminDashboard.init session
+                |> updateWith AdminDashboard GotAdminDashboardMsg model
 
         Just Route.AdminNamespaces ->
             AdminNamespaces.init session
@@ -297,6 +310,10 @@ update msg model =
             NamespaceNew.update subMsg namespace
                 |> updateWith NamespaceNew GotNamespaceNewMsg model
 
+        ( GotAdminDashboardMsg subMsg, AdminDashboard namespace ) ->
+            AdminDashboard.update subMsg namespace
+                |> updateWith AdminDashboard GotAdminDashboardMsg model
+
         ( GotAdminNamespacesMsg subMsg, AdminNamespaces namespace ) ->
             AdminNamespaces.update subMsg namespace
                 |> updateWith AdminNamespaces GotAdminNamespacesMsg model
@@ -376,6 +393,9 @@ subscriptions model =
 
         NamespaceNew subMsg ->
             Sub.map GotNamespaceNewMsg (NamespaceNew.subscriptions subMsg)
+
+        AdminDashboard subMsg ->
+            Sub.map GotAdminDashboardMsg (AdminDashboard.subscriptions subMsg)
 
         AdminNamespaces subMsg ->
             Sub.map GotAdminNamespacesMsg (AdminNamespaces.subscriptions subMsg)
