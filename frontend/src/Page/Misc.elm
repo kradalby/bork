@@ -1,4 +1,4 @@
-module Page.Misc exposing (httpErrorToUserError, isOwner)
+module Page.Misc exposing (httpErrorToUserError, isAdmin, isOwner)
 
 import Api
 import Api.Error
@@ -6,6 +6,7 @@ import Http exposing (..)
 import ID exposing (ID)
 import Json.Decode as Decode
 import Session exposing (Session)
+import User
 
 
 isOwner : Session -> ID -> Bool
@@ -16,6 +17,16 @@ isOwner session id =
 
         Just loggedInId ->
             loggedInId == id
+
+
+isAdmin : Session -> Bool
+isAdmin session =
+    case Session.user session of
+        Nothing ->
+            False
+
+        Just user ->
+            User.isAdmin user
 
 
 httpErrorToUserError : Http.Error -> String

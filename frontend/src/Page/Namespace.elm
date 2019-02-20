@@ -127,6 +127,12 @@ view model =
 
                         isOwner =
                             Misc.isOwner model.session (User.id user)
+
+                        isAdmin =
+                            Misc.isAdmin model.session
+
+                        canEdit =
+                            isAdmin || isOwner
                     in
                     div []
                         [ div [ class "row" ]
@@ -135,7 +141,7 @@ view model =
                                 ]
                             ]
                         , View.iff model.addOwnerModal (addOwnerModal model.users ns)
-                        , viewOwners model.session ns
+                        , viewOwners canEdit model.session ns
                         , viewCredentials ns
                             model.credentialView
                             model.auth
@@ -146,7 +152,7 @@ view model =
                                 ns
                                 model.deleteNamespace
                             )
-                        , View.iff isOwner viewDangerZone
+                        , View.iff canEdit viewDangerZone
                         ]
 
                 Loading ->
@@ -161,15 +167,8 @@ view model =
     }
 
 
-viewOwners : Session -> Namespace -> Html Msg
-viewOwners session ns =
-    let
-        user =
-            Namespace.owner ns
-
-        isOwner =
-            Misc.isOwner session (User.id user)
-    in
+viewOwners : Bool -> Session -> Namespace -> Html Msg
+viewOwners canEdit session ns =
     div [ class "col-12 px-0" ]
         [ div [ class "row" ]
             [ h3 []
@@ -185,10 +184,10 @@ viewOwners session ns =
                 ]
             ]
         , div [ class "row" ]
-            [ userTable session ns ]
+            [ userTable canEdit session ns ]
         , div [ class "row" ]
             [ div [ class "col-12 px-0" ]
-                [ View.iff isOwner <|
+                [ View.iff canEdit <|
                     button [ class "btn btn-success float-right", onClick ToggleAddOwnerModal ] [ text "Add" ]
                 ]
             ]
@@ -211,8 +210,8 @@ viewDangerZone =
         ]
 
 
-userTable : Session -> Namespace -> Html Msg
-userTable session ns =
+userTable : Bool -> Session -> Namespace -> Html Msg
+userTable canEdit session ns =
     let
         user =
             Namespace.owner ns
@@ -246,9 +245,6 @@ userTable session ns =
                     ]
                 ]
             ]
-
-        isOwner =
-            Misc.isOwner session (User.id user)
     in
     table [ class "table table-striped" ]
         [ thead []
@@ -261,25 +257,25 @@ userTable session ns =
                     [ text "Email" ]
                 ]
             ]
-        , tbody [] <| primary ++ List.map (userTableRowDelete isOwner ns) users
+        , tbody [] <| primary ++ List.map (userTableRowDelete canEdit ns) users
         ]
 
 
 userTableRowDelete : Bool -> Namespace -> User -> Html Msg
-userTableRowDelete isOwner ns user =
+userTableRowDelete canEdit ns user =
     let
         btn =
-            View.iff isOwner <|
+            View.iff canEdit <|
                 button [ class "btn btn-danger btn-sm float-right", onClick (DeleteCoOwner ns user) ] [ text "Remove" ]
     in
     userTableRow btn user
 
 
 userTableRowAdd : Bool -> Namespace -> User -> Html Msg
-userTableRowAdd isOwner ns user =
+userTableRowAdd canEdit ns user =
     let
         btn =
-            View.iff isOwner <|
+            View.iff canEdit <|
                 button [ class "btn btn-success", onClick (AddCoOwner ns user) ] [ text "+" ]
     in
     userTableRow btn user
