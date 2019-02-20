@@ -27,6 +27,15 @@ import (
 // List gets all Users. This function is mapped to the path
 // GET /users
 func UserList(c buffalo.Context) error {
+	user, err := getLoggedInUser(c)
+	if err != nil {
+		return c.Error(403, errors.New("Permission denied"))
+	}
+
+	if !user.IsAdmin {
+		return c.Error(403, errors.New("Permission denied"))
+	}
+
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {

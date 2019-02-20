@@ -69,7 +69,8 @@ view model =
         case model.users of
             Loaded users ->
                 div [ class "profile-page" ]
-                    [ table [ class "table table-striped" ]
+                    [ Page.viewErrors ClickedDismissErrors model.errors
+                    , table [ class "table table-striped" ]
                         [ thead []
                             [ tr []
                                 [ th [ scope "col" ]
@@ -142,7 +143,7 @@ update msg model =
             ( { model | users = Loaded users }, Cmd.none )
 
         CompletedUsersLoad (Err err) ->
-            ( { model | errors = [ Misc.httpErrorToUserError err ] }
+            ( { model | errors = [ Misc.httpErrorToUserError err ], users = Failed }
             , Log.error
             )
 
