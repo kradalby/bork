@@ -10,6 +10,7 @@ import Http
 import ID exposing (ID)
 import Loading
 import Log
+import Namespace exposing (Namespace)
 import Page
 import Page.Misc as Misc
 import Route
@@ -72,6 +73,14 @@ view model =
                 div [ class "admin-dashboard-page" ]
                     [ Page.viewErrors ClickedDismissErrors model.errors
                     , h2 [] [ text "Admin: Dashboard" ]
+                    , div [ class "row pb-3" ]
+                        [ viewCount "Users" (Dashboard.usersCount dashboard)
+                        , viewCount "Namespaces" (Dashboard.namespacesCount dashboard)
+                        ]
+                    , div [ class "row pb-3" ]
+                        [ viewUsers (Dashboard.usersNew dashboard)
+                        , viewNamespaces (Dashboard.namespacesNew dashboard)
+                        ]
                     ]
 
             Loading ->
@@ -83,6 +92,62 @@ view model =
             Failed ->
                 Loading.error "dashboard"
     }
+
+
+viewCount : String -> Int -> Html Msg
+viewCount title count =
+    div [ class "col-6" ]
+        [ div [ class "card" ]
+            [ div [ class "card-header" ]
+                [ text title ]
+            , div [ class "card-body" ]
+                [ h1 [ class "display-2" ]
+                    [ text <| String.fromInt count ]
+                ]
+            ]
+        ]
+
+
+viewUsers : List User -> Html Msg
+viewUsers users =
+    div [ class "col-6" ]
+        [ div [ class "card" ]
+            [ div [ class "card-header" ]
+                [ text "New namespaces" ]
+            , ul [ class "list-group list-group-flush" ] <|
+                List.map viewUser users
+            ]
+        ]
+
+
+viewUser : User -> Html Msg
+viewUser user =
+    li [ class "list-group-item" ]
+        [ a
+            [ Route.href <| Route.User <| User.id user ]
+            [ text (User.name user) ]
+        ]
+
+
+viewNamespaces : List Namespace -> Html Msg
+viewNamespaces users =
+    div [ class "col-6" ]
+        [ div [ class "card" ]
+            [ div [ class "card-header" ]
+                [ text "New users" ]
+            , ul [ class "list-group list-group-flush" ] <|
+                List.map viewNamespace users
+            ]
+        ]
+
+
+viewNamespace : Namespace -> Html Msg
+viewNamespace user =
+    li [ class "list-group-item" ]
+        [ a
+            [ Route.href <| Route.Namespace <| Namespace.id user ]
+            [ text (Namespace.name user) ]
+        ]
 
 
 type Msg
