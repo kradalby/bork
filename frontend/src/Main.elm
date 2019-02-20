@@ -1,34 +1,32 @@
 module Main exposing (main)
 
+-- import Page.UserList as UserList
+-- import Page.Settings as Settings
+
 import Api
 import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Html exposing (..)
+import Http
+import ID exposing (ID)
 import Json.Decode as Decode exposing (Value)
 import Page exposing (Page)
+import Page.Admin.Namespaces as AdminNamespaces
+import Page.Admin.Users as AdminUsers
 import Page.Blank as Blank
-import Page.NotFound as NotFound
 import Page.Home as Home
-import Page.User as User
-import User as U
-import Http
-
-
--- import Page.UserList as UserList
-
-import Page.Namespace.Show as Namespace
 import Page.Namespace.List as NamespaceList
 import Page.Namespace.New as NamespaceNew
-
-
--- import Page.Settings as Settings
-
+import Page.Namespace.Show as Namespace
+import Page.NotFound as NotFound
+import Page.User as User
 import Route exposing (Route)
 import Session exposing (Session)
 import Task
 import Time
 import Url exposing (Url)
-import ID exposing (ID)
+import User as U
+
 
 
 -- NOTE: Based on discussions around how asset management features
@@ -48,6 +46,8 @@ type Model
     | Namespace ID Namespace.Model
     | NamespaceList NamespaceList.Model
     | NamespaceNew NamespaceNew.Model
+    | AdminNamespaces AdminNamespaces.Model
+    | AdminUsers AdminUsers.Model
 
 
 
@@ -67,7 +67,7 @@ init url navKey =
                 |> Http.toTask
                 |> Task.attempt (GetSession url navKey)
     in
-        ( model, Cmd.batch [ session, cmds ] )
+    ( model, Cmd.batch [ session, cmds ] )
 
 
 
@@ -82,35 +82,41 @@ view model =
                 { title, body } =
                     Page.view (Session.user (toSession model)) page config
             in
-                { title = title
-                , body = List.map (Html.map toMsg) body
-                }
+            { title = title
+            , body = List.map (Html.map toMsg) body
+            }
     in
-        case model of
-            Redirect _ ->
-                viewPage Page.Other (\_ -> Ignored) Blank.view
+    case model of
+        Redirect _ ->
+            viewPage Page.Other (\_ -> Ignored) Blank.view
 
-            NotFound _ ->
-                viewPage Page.Other (\_ -> Ignored) NotFound.view
+        NotFound _ ->
+            viewPage Page.Other (\_ -> Ignored) NotFound.view
 
-            --       Settings settings ->
-            --           viewPage Page.Other GotSettingsMsg (Settings.view settings)
-            Home home ->
-                viewPage Page.Home GotHomeMsg (Home.view home)
+        --       Settings settings ->
+        --           viewPage Page.Other GotSettingsMsg (Settings.view settings)
+        Home home ->
+            viewPage Page.Home GotHomeMsg (Home.view home)
 
-            User id user ->
-                viewPage (Page.User id) GotUserMsg (User.view user)
+        User id user ->
+            viewPage (Page.User id) GotUserMsg (User.view user)
 
-            --            UserList id userList ->
-            --                viewPage (Page.UserList) GotUserListMsg (UserList.view userList)
-            Namespace id namespace ->
-                viewPage (Page.Namespace id) GotNamespaceMsg (Namespace.view namespace)
+        --            UserList id userList ->
+        --                viewPage (Page.UserList) GotUserListMsg (UserList.view userList)
+        Namespace id namespace ->
+            viewPage (Page.Namespace id) GotNamespaceMsg (Namespace.view namespace)
 
-            NamespaceList namespaceList ->
-                viewPage (Page.NamespaceList) GotNamespaceListMsg (NamespaceList.view namespaceList)
+        NamespaceList namespaceList ->
+            viewPage Page.NamespaceList GotNamespaceListMsg (NamespaceList.view namespaceList)
 
-            NamespaceNew namespaceNew ->
-                viewPage (Page.NamespaceNew) GotNamespaceNewMsg (NamespaceNew.view namespaceNew)
+        NamespaceNew namespaceNew ->
+            viewPage Page.NamespaceNew GotNamespaceNewMsg (NamespaceNew.view namespaceNew)
+
+        AdminNamespaces adminNamespaces ->
+            viewPage Page.AdminNamespaces GotAdminNamespacesMsg (AdminNamespaces.view adminNamespaces)
+
+        AdminUsers adminNamespaces ->
+            viewPage Page.AdminUsers GotAdminUsersMsg (AdminUsers.view adminNamespaces)
 
 
 
@@ -129,6 +135,8 @@ type Msg
     | GotNamespaceMsg Namespace.Msg
     | GotNamespaceListMsg NamespaceList.Msg
     | GotNamespaceNewMsg NamespaceNew.Msg
+    | GotAdminNamespacesMsg AdminNamespaces.Msg
+    | GotAdminUsersMsg AdminUsers.Msg
     | GotSession Session
     | GetSession Url Nav.Key (Result Http.Error U.User)
 
@@ -161,6 +169,12 @@ toSession page =
         NamespaceNew namespace ->
             NamespaceNew.toSession namespace
 
+        AdminNamespaces namespace ->
+            AdminNamespaces.toSession namespace
+
+        AdminUsers namespace ->
+            AdminUsers.toSession namespace
+
 
 changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
 changeRouteTo maybeRoute model =
@@ -168,38 +182,46 @@ changeRouteTo maybeRoute model =
         session =
             toSession model
     in
-        case maybeRoute of
-            Nothing ->
-                ( NotFound session, Cmd.none )
+    case maybeRoute of
+        Nothing ->
+            ( NotFound session, Cmd.none )
 
-            Just Route.Root ->
-                ( model, Route.replaceUrl (Session.navKey session) Route.Home )
+        Just Route.Root ->
+            ( model, Route.replaceUrl (Session.navKey session) Route.Home )
 
-            --            Just Route.Settings ->
-            --                Settings.init session
-            --                    |> updateWith Settings GotSettingsMsg model
-            Just Route.Home ->
-                Home.init session
-                    |> updateWith Home GotHomeMsg model
+        --            Just Route.Settings ->
+        --                Settings.init session
+        --                    |> updateWith Settings GotSettingsMsg model
+        Just Route.Home ->
+            Home.init session
+                |> updateWith Home GotHomeMsg model
 
-            Just (Route.User id) ->
-                User.init session id
-                    |> updateWith (User id) GotUserMsg model
+        Just (Route.User id) ->
+            User.init session id
+                |> updateWith (User id) GotUserMsg model
 
-            --            Just Route.UserList ->
-            --                UserList.init session id
-            --                    |> updateWith UserList GotUserListMsg model
-            Just (Route.Namespace id) ->
-                Namespace.init session id
-                    |> updateWith (Namespace id) GotNamespaceMsg model
+        --            Just Route.UserList ->
+        --                UserList.init session id
+        --                    |> updateWith UserList GotUserListMsg model
+        Just (Route.Namespace id) ->
+            Namespace.init session id
+                |> updateWith (Namespace id) GotNamespaceMsg model
 
-            Just Route.NamespaceList ->
-                NamespaceList.init session
-                    |> updateWith NamespaceList GotNamespaceListMsg model
+        Just Route.NamespaceList ->
+            NamespaceList.init session
+                |> updateWith NamespaceList GotNamespaceListMsg model
 
-            Just Route.NamespaceNew ->
-                NamespaceNew.init session
-                    |> updateWith NamespaceNew GotNamespaceNewMsg model
+        Just Route.NamespaceNew ->
+            NamespaceNew.init session
+                |> updateWith NamespaceNew GotNamespaceNewMsg model
+
+        Just Route.AdminNamespaces ->
+            AdminNamespaces.init session
+                |> updateWith AdminNamespaces GotAdminNamespacesMsg model
+
+        Just Route.AdminUsers ->
+            AdminUsers.init session
+                |> updateWith AdminUsers GotAdminUsersMsg model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -275,13 +297,21 @@ update msg model =
             NamespaceNew.update subMsg namespace
                 |> updateWith NamespaceNew GotNamespaceNewMsg model
 
+        ( GotAdminNamespacesMsg subMsg, AdminNamespaces namespace ) ->
+            AdminNamespaces.update subMsg namespace
+                |> updateWith AdminNamespaces GotAdminNamespacesMsg model
+
+        ( GotAdminUsersMsg subMsg, AdminUsers namespace ) ->
+            AdminUsers.update subMsg namespace
+                |> updateWith AdminUsers GotAdminUsersMsg model
+
         ( GotSession session, _ ) ->
             ( Redirect session
             , Route.replaceUrl (Session.navKey session) Route.Home
             )
 
         ( GetSession url navKey (Ok user), _ ) ->
-            case (Route.fromUrl url) of
+            case Route.fromUrl url of
                 Nothing ->
                     ( model, Cmd.none )
 
@@ -290,9 +320,9 @@ update msg model =
                         session =
                             Session.fromUser navKey (Just user)
                     in
-                        ( Redirect session
-                        , Route.replaceUrl (Session.navKey session) route
-                        )
+                    ( Redirect session
+                    , Route.replaceUrl (Session.navKey session) route
+                    )
 
         ( GetSession url navKey (Err error), Redirect _ ) ->
             ( model, Cmd.none )
@@ -346,6 +376,12 @@ subscriptions model =
 
         NamespaceNew subMsg ->
             Sub.map GotNamespaceNewMsg (NamespaceNew.subscriptions subMsg)
+
+        AdminNamespaces subMsg ->
+            Sub.map GotAdminNamespacesMsg (AdminNamespaces.subscriptions subMsg)
+
+        AdminUsers subMsg ->
+            Sub.map GotAdminUsersMsg (AdminUsers.subscriptions subMsg)
 
 
 
