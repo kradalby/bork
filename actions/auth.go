@@ -26,7 +26,7 @@ func init() {
 	// scopes := []string{"openid", "email", "profile", "offline_access"}
 	// scopes := []string{"openid", "email", "groups", "profile", "offline_access"}
 
-	scopesString := envy.Getenv("OPENID_CONNECT_SCOPES", "openid")
+	scopesString := envy.Get("OPENID_CONNECT_SCOPES", "openid")
 	scopes := strings.Split(scopesString, " ")
 
 	openidConnect, err := openidConnect.New(

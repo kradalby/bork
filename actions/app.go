@@ -46,6 +46,7 @@ func App(kubeconf string) *buffalo.App {
 		if ENV == PRODUCTION {
 			app.Use(forceSSL())
 			app.Use(csrf.New)
+            setErrorHandler(app)
 		}
 
 		if ENV == DEVELOPMENT {
@@ -71,23 +72,29 @@ func App(kubeconf string) *buffalo.App {
 		apiV1.Use(Authorize)
 		apiV1.Use(SetCurrentUser)
 
+
+        users := apiV1.Group("/users")
 		// apiV1.Resource("/users", UsersResource{})
-		apiV1.GET("/users", UserList)
-		// apiV1.GET("/users/search/{query}", UserSearch)
-		apiV1.GET("/users/{user_id}", UserShow)
-		apiV1.GET("/users/{user_id}/coowned", NamespaceCoOwner)
-		apiV1.GET("/namespaces/prefix/", NamespacePrefix)
-		apiV1.POST("/namespaces/validate/", NamespaceValidateName)
-		apiV1.Resource("/namespaces/", NamespacesResource{})
-		apiV1.POST("/namespaces/{namespace_id}/coowners", NamespaceAddCoOwner)
-		apiV1.DELETE("/namespaces/{namespace_id}/coowners", NamespaceDeleteCoOwner)
-		apiV1.GET("/namespaces/{namespace_id}/available_users", NamespaceAvailableUsers)
-		apiV1.GET("/namespaces/{namespace_id}/token", NamespaceToken)
-		apiV1.GET("/namespaces/{namespace_id}/certificate", NamespaceCertificate)
-		apiV1.GET("/namespaces/{namespace_id}/certificateb64", NamespaceCertificateB64)
-		apiV1.GET("/namespaces/{namespace_id}/endpoint", NamespaceEndpoint)
-		apiV1.GET("/namespaces/{namespace_id}/auth", NamespaceAuth)
-		apiV1.GET("/namespaces/{namespace_id}/config", NamespaceConfig)
+		users.GET("/", UserList)
+		users.GET("/{user_id}", UserShow)
+		users.GET("/{user_id}/coowned", NamespaceCoOwner)
+
+        namespaces := apiV1.Group("/namespaces")
+		namespaces.GET("/prefix/", NamespacePrefix)
+		namespaces.POST("/validate/", NamespaceValidateName)
+		namespaces.Resource("/", NamespacesResource{})
+		namespaces.POST("/{namespace_id}/coowners", NamespaceAddCoOwner)
+		namespaces.DELETE("/{namespace_id}/coowners", NamespaceDeleteCoOwner)
+		namespaces.GET("/{namespace_id}/available_users", NamespaceAvailableUsers)
+		namespaces.GET("/{namespace_id}/token", NamespaceToken)
+		namespaces.GET("/{namespace_id}/certificate", NamespaceCertificate)
+		namespaces.GET("/{namespace_id}/certificateb64", NamespaceCertificateB64)
+		namespaces.GET("/{namespace_id}/endpoint", NamespaceEndpoint)
+		namespaces.GET("/{namespace_id}/auth", NamespaceAuth)
+		namespaces.GET("/{namespace_id}/config", NamespaceConfig)
+
+        admin := apiV1.Group("/admin")
+        admin.GET("/dashboard", Dashboard)
 
 		app.GET("/{path:.+}", HomeHandler)
 		app.GET("/", HomeHandler)

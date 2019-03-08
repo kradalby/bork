@@ -1,20 +1,32 @@
-module Page.Misc exposing (..)
+module Page.Misc exposing (httpErrorToUserError, isAdmin, isOwner)
 
-import Session exposing (Session)
-import ID exposing (ID)
-import Http exposing (..)
+import Api
 import Api.Error
+import Http exposing (..)
+import ID exposing (ID)
 import Json.Decode as Decode
+import Session exposing (Session)
+import User
 
 
 isOwner : Session -> ID -> Bool
 isOwner session id =
-    case (Session.id session) of
+    case Session.id session of
         Nothing ->
             False
 
         Just loggedInId ->
             loggedInId == id
+
+
+isAdmin : Session -> Bool
+isAdmin session =
+    case Session.user session of
+        Nothing ->
+            False
+
+        Just user ->
+            User.isAdmin user
 
 
 httpErrorToUserError : Http.Error -> String
@@ -35,11 +47,11 @@ httpErrorToUserError error =
                     Result.withDefault "Could not decode error."
                         (Result.map .error <|
                             Decode.decodeString
-                                Api.Error.decoder
+                                (Api.traceDecoder "error" Api.Error.decoder)
                                 response.body
                         )
             in
-                decodedError
+            decodedError
 
         BadPayload message response ->
             "BadPayload: " ++ message

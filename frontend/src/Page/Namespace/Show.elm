@@ -1,27 +1,28 @@
-module Page.Namespace exposing (Model, Msg, init, subscriptions, toSession, update, view)
+module Page.Namespace.Show exposing (Model, Msg, init, subscriptions, toSession, update, view)
 
 import Api
 import Api.Endpoint as Endpoint
+import Email
+import File.Download as Download
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Http
+import ID exposing (ID)
 import Loading
 import Log
+import Namespace exposing (Namespace)
 import Page
+import Page.Misc as Misc
+import Page.View as View
 import Route
 import Session exposing (Session)
 import Task exposing (Task)
 import Time
 import Url.Builder
-import ID exposing (ID)
-import Namespace exposing (Namespace)
-import Email
 import User exposing (User)
 import Username
-import Page.View as View
-import File.Download as Download
-import Page.Misc as Misc
+
 
 
 -- MODEL
@@ -114,77 +115,83 @@ view model =
                 _ ->
                     defaultTitle "Loading"
     in
-        { title = title
-        , content =
-            div [ class "namespace-page" ]
-                [ Page.viewErrors ClickedDismissErrors model.errors
-                , div [ class "row" ]
-                    [ h2 []
-                        [ text <| "Namespace"
-                        ]
-                    ]
-                , case model.namespace of
-                    Loaded ns ->
-                        div []
-                            [ View.iff model.addOwnerModal (addOwnerModal model.users ns)
-                            , viewOwners model.session ns
-                            , viewCredentials ns
-                                model.credentialView
-                                model.auth
-                                model.config
-                                model.droneRepositoryField
-                            , View.iff model.deleteNamespaceModal
-                                (deleteNamespaceModal model.deleteNamespaceVerificationField
-                                    ns
-                                    model.deleteNamespace
-                                )
-                            , viewDangerZone
+    { title = title
+    , content =
+        div [ class "namespace-page" ]
+            [ Page.viewErrors ClickedDismissErrors model.errors
+            , case model.namespace of
+                Loaded ns ->
+                    let
+                        user =
+                            Namespace.owner ns
+
+                        isOwner =
+                            Misc.isOwner model.session (User.id user)
+
+                        isAdmin =
+                            Misc.isAdmin model.session
+
+                        canEdit =
+                            isAdmin || isOwner
+                    in
+                    div []
+                        [ div [ class "row" ]
+                            [ h2 []
+                                [ text <| Namespace.name ns
+                                ]
                             ]
-
-                    Loading ->
-                        text ""
-
-                    LoadingSlowly ->
-                        Loading.icon
-
-                    Failed ->
-                        Loading.error "namespace"
-                ]
-        }
-
-
-viewOwners : Session -> Namespace -> Html Msg
-viewOwners session ns =
-    let
-        user =
-            Namespace.owner ns
-
-        isOwner =
-            Misc.isOwner session (User.id user)
-    in
-        div [ class "col-12 px-0" ]
-            [ div [ class "row" ]
-                [ h3 []
-                    [ text "Users"
-                    ]
-                ]
-            , div [ class "row" ]
-                [ div [ class "col-6" ] [ text "Created " ]
-                , div [ class "col-6" ]
-                    [ h5 []
-                        [ text <| Namespace.created ns
+                        , View.iff model.addOwnerModal (addOwnerModal model.users ns)
+                        , viewOwners canEdit model.session ns
+                        , viewCredentials ns
+                            model.credentialView
+                            model.auth
+                            model.config
+                            model.droneRepositoryField
+                        , View.iff model.deleteNamespaceModal
+                            (deleteNamespaceModal model.deleteNamespaceVerificationField
+                                ns
+                                model.deleteNamespace
+                            )
+                        , View.iff canEdit viewDangerZone
                         ]
-                    ]
+
+                Loading ->
+                    text ""
+
+                LoadingSlowly ->
+                    Loading.icon
+
+                Failed ->
+                    Loading.error "namespace"
+            ]
+    }
+
+
+viewOwners : Bool -> Session -> Namespace -> Html Msg
+viewOwners canEdit session ns =
+    div [ class "col-12 px-0" ]
+        [ div [ class "row" ]
+            [ h3 []
+                [ text "Users"
                 ]
-            , div [ class "row" ]
-                [ userTable session ns ]
-            , div [ class "row" ]
-                [ div [ class "col-12 px-0" ]
-                    [ View.iff isOwner <|
-                        button [ class "btn btn-success float-right", onClick ToggleAddOwnerModal ] [ text "Add" ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-6" ] [ text "Created " ]
+            , div [ class "col-6" ]
+                [ h5 []
+                    [ text <| Namespace.created ns
                     ]
                 ]
             ]
+        , div [ class "row" ]
+            [ userTable canEdit session ns ]
+        , div [ class "row" ]
+            [ div [ class "col-12 px-0" ]
+                [ View.iff canEdit <|
+                    button [ class "btn btn-success float-right", onClick ToggleAddOwnerModal ] [ text "Add" ]
+                ]
+            ]
+        ]
 
 
 viewDangerZone : Html Msg
@@ -203,8 +210,8 @@ viewDangerZone =
         ]
 
 
-userTable : Session -> Namespace -> Html Msg
-userTable session ns =
+userTable : Bool -> Session -> Namespace -> Html Msg
+userTable canEdit session ns =
     let
         user =
             Namespace.owner ns
@@ -238,43 +245,40 @@ userTable session ns =
                     ]
                 ]
             ]
-
-        isOwner =
-            Misc.isOwner session (User.id user)
     in
-        table [ class "table table-striped" ]
-            [ thead []
-                [ tr []
-                    [ th [ scope "col" ]
-                        [ text "Name" ]
-                    , th [ scope "col" ]
-                        [ text "Username" ]
-                    , th [ scope "col", colspan 2 ]
-                        [ text "Email" ]
-                    ]
+    table [ class "table table-striped" ]
+        [ thead []
+            [ tr []
+                [ th [ scope "col" ]
+                    [ text "Name" ]
+                , th [ scope "col" ]
+                    [ text "Username" ]
+                , th [ scope "col", colspan 2 ]
+                    [ text "Email" ]
                 ]
-            , tbody [] <| primary ++ List.map (userTableRowDelete isOwner ns) users
             ]
+        , tbody [] <| primary ++ List.map (userTableRowDelete canEdit ns) users
+        ]
 
 
 userTableRowDelete : Bool -> Namespace -> User -> Html Msg
-userTableRowDelete isOwner ns user =
+userTableRowDelete canEdit ns user =
     let
         btn =
-            View.iff isOwner <|
+            View.iff canEdit <|
                 button [ class "btn btn-danger btn-sm float-right", onClick (DeleteCoOwner ns user) ] [ text "Remove" ]
     in
-        userTableRow btn user
+    userTableRow btn user
 
 
 userTableRowAdd : Bool -> Namespace -> User -> Html Msg
-userTableRowAdd isOwner ns user =
+userTableRowAdd canEdit ns user =
     let
         btn =
-            View.iff isOwner <|
+            View.iff canEdit <|
                 button [ class "btn btn-success", onClick (AddCoOwner ns user) ] [ text "+" ]
     in
-        userTableRow btn user
+    userTableRow btn user
 
 
 userTableRow : Html Msg -> User -> Html Msg
@@ -360,40 +364,39 @@ deleteNamespaceModal : String -> Namespace -> Status String -> Html Msg
 deleteNamespaceModal deleteNamespaceVerificationContent ns status =
     let
         disable =
-            (deleteNamespaceVerificationContent
-                /= (Namespace.name ns)
-            )
+            deleteNamespaceVerificationContent
+                /= Namespace.name ns
     in
-        div [ style "display" "block", attribute "aria-hidden" "false", attribute "aria-labelledby" "helpModal", class "modal", id "helpModal", attribute "role" "dialog", attribute "tabindex" "-1" ]
-            [ div [ class "modal-dialog modal-dialog-centered modal-lg", attribute "role" "document" ]
-                [ div [ class "modal-content" ]
-                    [ div [ class "modal-header" ]
-                        [ h5 [ class "modal-title", id "helpModalTitle" ]
-                            [ text <| "Delete: " ++ (Namespace.name ns) ]
-                        , button [ onClick ToggleDeleteNamespaceModal, attribute "aria-label" "Close", class "close", attribute "data-dismiss" "modal", type_ "button" ]
-                            [ span [ attribute "aria-hidden" "true" ]
-                                [ text "×" ]
-                            ]
+    div [ style "display" "block", attribute "aria-hidden" "false", attribute "aria-labelledby" "helpModal", class "modal", id "helpModal", attribute "role" "dialog", attribute "tabindex" "-1" ]
+        [ div [ class "modal-dialog modal-dialog-centered modal-lg", attribute "role" "document" ]
+            [ div [ class "modal-content" ]
+                [ div [ class "modal-header" ]
+                    [ h5 [ class "modal-title", id "helpModalTitle" ]
+                        [ text <| "Delete: " ++ Namespace.name ns ]
+                    , button [ onClick ToggleDeleteNamespaceModal, attribute "aria-label" "Close", class "close", attribute "data-dismiss" "modal", type_ "button" ]
+                        [ span [ attribute "aria-hidden" "true" ]
+                            [ text "×" ]
                         ]
-                    , div [ class "modal-body" ]
-                        [ p []
-                            [ text "This action cannot be undone. This will permanently delete the "
-                            , b [] [ text (Namespace.name ns) ]
-                            , text " namespace, all resources, content and remove all collaborator associations."
-                            ]
-                        , p [] [ text "Please type in the name of the repository to confirm." ]
-                        , div [ class "input-group input-group-lg" ]
-                            [ input [ onInput OnChangeDeleteNamespaceVerificationField, attribute "aria-describedby" "inputGroup-sizing-sm", attribute "aria-label" "Large", class "form-control", type_ "text" ]
-                                []
-                            ]
+                    ]
+                , div [ class "modal-body" ]
+                    [ p []
+                        [ text "This action cannot be undone. This will permanently delete the "
+                        , b [] [ text (Namespace.name ns) ]
+                        , text " namespace, all resources, content and remove all collaborator associations."
                         ]
-                    , div [ class "modal-footer" ]
-                        [ button [ onClick (DeleteNamespace ns), class "btn btn-danger btn-block", attribute "data-dismiss" "modal", type_ "button", disabled disable ]
-                            [ text "Delete" ]
+                    , p [] [ text "Please type in the name of the repository to confirm." ]
+                    , div [ class "input-group input-group-lg" ]
+                        [ input [ onInput OnChangeDeleteNamespaceVerificationField, attribute "aria-describedby" "inputGroup-sizing-sm", attribute "aria-label" "Large", class "form-control", type_ "text" ]
+                            []
                         ]
+                    ]
+                , div [ class "modal-footer" ]
+                    [ button [ onClick (DeleteNamespace ns), class "btn btn-danger btn-block", attribute "data-dismiss" "modal", type_ "button", disabled disable ]
+                        [ text "Delete" ]
                     ]
                 ]
             ]
+        ]
 
 
 viewCredentials : Namespace -> Credentials -> Status Namespace.Auth -> Status String -> String -> Html Msg
@@ -404,37 +407,38 @@ viewCredentials ns credentialView auth config repo =
                 active =
                     if credentialView == credential then
                         "nav-link mb-0 active"
+
                     else
                         "nav-link mb-0"
             in
-                li [ class "nav-item", onClick (SetCredentialView credential) ]
-                    [ p [ class active ]
-                        [ text name ]
-                    ]
-    in
-        div [ class "col-12 px-0" ]
-            [ div
-                [ class "row" ]
-                [ div [ class "col-12 px-0" ]
-                    [ ul [ class "nav nav-tabs" ]
-                        [ tab "Configuration" Configuration
-                        , tab "GitLab" GitLab
-                        , tab "Drone" Drone
-                        ]
-                    ]
+            li [ class "nav-item", onClick (SetCredentialView credential) ]
+                [ p [ class active ]
+                    [ text name ]
                 ]
-            , div [ class "row" ]
-                [ case credentialView of
-                    Configuration ->
-                        viewConfig config
-
-                    GitLab ->
-                        viewGitLab ns auth
-
-                    Drone ->
-                        viewDrone auth repo
+    in
+    div [ class "col-12 px-0" ]
+        [ div
+            [ class "row" ]
+            [ div [ class "col-12 px-0" ]
+                [ ul [ class "nav nav-tabs" ]
+                    [ tab "Configuration" Configuration
+                    , tab "GitLab" GitLab
+                    , tab "Drone" Drone
+                    ]
                 ]
             ]
+        , div [ class "row" ]
+            [ case credentialView of
+                Configuration ->
+                    viewConfig config
+
+                GitLab ->
+                    viewGitLab ns auth
+
+                Drone ->
+                    viewDrone auth repo
+            ]
+        ]
 
 
 viewConfig : Status String -> Html Msg
@@ -592,36 +596,37 @@ viewDrone auth repo =
                 commands =
                     if repo == "" then
                         "Please enter a repository"
+
                     else
                         String.join "\n"
                             [ endpoint, cert, token ]
             in
-                div [ class "col-12" ]
-                    [ div [ class "row mt-3" ]
-                        [ p [] [ text "To add the credential to a Drone build server, enter the repository registered in Drone and execute the commands below." ]
-                        , p []
-                            [ text "Credentials can be added via the web interface by using the value after "
-                            , span [ class "text-monospace" ] [ text "--name=" ]
-                            , text " and "
-                            , span [ class "text-monospace" ] [ text "--value=" ]
-                            , text " in the form for adding secrets."
-                            ]
-                        ]
-                    , div [ class "row mt-1" ] [ h5 [] [ text "Drone repository" ] ]
-                    , div [ class "row" ]
-                        [ div [ class "input-group" ] [ input [ class "form-control", value repo, onInput OnChangeDroneRepositoryField ] [] ]
-                        ]
-                    , div [ class "row mt-3" ] [ h5 [] [ text "Commands" ] ]
-                    , div [ class "row" ]
-                        [ textarea
-                            [ class "form-control"
-                            , attribute "rows" "25"
-                            , value commands
-                            , readonly True
-                            ]
-                            []
+            div [ class "col-12" ]
+                [ div [ class "row mt-3" ]
+                    [ p [] [ text "To add the credential to a Drone build server, enter the repository registered in Drone and execute the commands below." ]
+                    , p []
+                        [ text "Credentials can be added via the web interface by using the value after "
+                        , span [ class "text-monospace" ] [ text "--name=" ]
+                        , text " and "
+                        , span [ class "text-monospace" ] [ text "--value=" ]
+                        , text " in the form for adding secrets."
                         ]
                     ]
+                , div [ class "row mt-1" ] [ h5 [] [ text "Drone repository" ] ]
+                , div [ class "row" ]
+                    [ div [ class "input-group" ] [ input [ class "form-control", value repo, onInput OnChangeDroneRepositoryField ] [] ]
+                    ]
+                , div [ class "row mt-3" ] [ h5 [] [ text "Commands" ] ]
+                , div [ class "row" ]
+                    [ textarea
+                        [ class "form-control"
+                        , attribute "rows" "25"
+                        , value commands
+                        , readonly True
+                        ]
+                        []
+                    ]
+                ]
 
         Loading ->
             text ""
@@ -722,14 +727,14 @@ update msg model =
                 id =
                     Namespace.id ns
             in
-                ( model
-                , Cmd.batch
-                    [ Namespace.addCoOwner id user
-                        |> Http.toTask
-                        |> Task.mapError (Tuple.pair id)
-                        |> Task.attempt CompletedAddCoOwner
-                    ]
-                )
+            ( model
+            , Cmd.batch
+                [ Namespace.addCoOwner id user
+                    |> Http.toTask
+                    |> Task.mapError (Tuple.pair id)
+                    |> Task.attempt CompletedAddCoOwner
+                ]
+            )
 
         CompletedAddCoOwner (Ok ns) ->
             ( { model | namespace = Loaded ns }
@@ -750,14 +755,14 @@ update msg model =
                 id =
                     Namespace.id ns
             in
-                ( model
-                , Cmd.batch
-                    [ Namespace.deleteCoOwner id user
-                        |> Http.toTask
-                        |> Task.mapError (Tuple.pair id)
-                        |> Task.attempt CompletedDeleteCoOwner
-                    ]
-                )
+            ( model
+            , Cmd.batch
+                [ Namespace.deleteCoOwner id user
+                    |> Http.toTask
+                    |> Task.mapError (Tuple.pair id)
+                    |> Task.attempt CompletedDeleteCoOwner
+                ]
+            )
 
         CompletedDeleteCoOwner (Ok ns) ->
             ( { model | namespace = Loaded ns }, Cmd.none )

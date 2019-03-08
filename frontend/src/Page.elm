@@ -1,16 +1,17 @@
 module Page exposing (Page(..), view, viewErrors)
 
+import Alert
 import Api
 import Browser exposing (Document)
 import Html exposing (Html, a, button, div, footer, header, i, img, li, main_, nav, p, span, text, ul)
 import Html.Attributes exposing (class, classList, href, style)
 import Html.Events exposing (onClick)
+import ID exposing (ID)
+import Page.View as View
 import Route exposing (Route)
 import Session exposing (Session)
-import ID exposing (ID)
 import User exposing (User)
 import Username
-import Alert
 
 
 {-| Determines which navbar link (if any) will be rendered as active.
@@ -29,6 +30,9 @@ type Page
     | Namespace ID
     | NamespaceList
     | NamespaceNew
+    | AdminDashboard
+    | AdminNamespaces
+    | AdminUsers
 
 
 {-| Take a page's Html and frames it with a header and footer.
@@ -43,7 +47,7 @@ in the header. (This comes up during slow page transitions.)
 view : Maybe User -> Page -> { title : String, content : Html msg } -> Document msg
 view maybeUser page { title, content } =
     { title = title ++ " - bork"
-    , body = viewHeader page maybeUser :: (viewMain content) :: [ viewFooter ]
+    , body = viewHeader page maybeUser :: viewMain content :: [ viewFooter ]
     }
 
 
@@ -69,32 +73,33 @@ viewMenu page maybeUser =
         linkTo =
             navbarLink page
     in
-        case maybeUser of
-            Just user ->
-                let
-                    id =
-                        User.id user
+    case maybeUser of
+        Just user ->
+            let
+                id =
+                    User.id user
 
-                    username =
-                        User.username user
-                in
-                    [ linkTo Route.NamespaceNew [ text "New" ]
-                    , linkTo Route.NamespaceList [ text "Namespaces" ]
+                username =
+                    User.username user
+            in
+            [ View.iff (User.isAdmin user) <| linkTo Route.AdminDashboard [ text "Admin" ]
+            , linkTo Route.NamespaceNew [ text "New" ]
+            , linkTo Route.NamespaceList [ text "Namespaces" ]
 
-                    --                   , linkTo Route.UserList [ text "Users " ]
-                    --                   , linkTo Route.Settings [ text "Settings" ]
-                    , linkTo
-                        (Route.User id)
-                        [ Username.toHtml username
-                        ]
-
-                    -- , linkTo Route.Logout [ text "Sign out" ]
-                    ]
-
-            Nothing ->
-                [ li [ classList [ ( "nav-item", True ), ( "active", True ) ] ]
-                    [ a [ class "nav-link", href "/auth/openid-connect" ] [ text "Sign in" ] ]
+            --                   , linkTo Route.UserList [ text "Users " ]
+            --                   , linkTo Route.Settings [ text "Settings" ]
+            , linkTo
+                (Route.User id)
+                [ Username.toHtml username
                 ]
+
+            -- , linkTo Route.Logout [ text "Sign out" ]
+            ]
+
+        Nothing ->
+            [ li [ classList [ ( "nav-item", True ), ( "active", True ) ] ]
+                [ a [ class "nav-link", href "/auth/openid-connect" ] [ text "Sign in" ] ]
+            ]
 
 
 viewMain : Html msg -> Html msg
@@ -143,6 +148,15 @@ isActive page route =
         ( NamespaceList, Route.NamespaceList ) ->
             True
 
+        ( AdminDashboard, Route.AdminDashboard ) ->
+            True
+
+        ( AdminDashboard, Route.AdminNamespaces ) ->
+            True
+
+        ( AdminDashboard, Route.AdminUsers ) ->
+            True
+
         _ ->
             False
 
@@ -153,5 +167,6 @@ viewErrors : msg -> List String -> Html msg
 viewErrors dismissErrors errors =
     if List.isEmpty errors then
         Html.text ""
+
     else
         Alert.view (Alert.error dismissErrors errors)

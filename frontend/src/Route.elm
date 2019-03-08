@@ -3,9 +3,10 @@ module Route exposing (Route(..), fromUrl, href, replaceUrl)
 import Browser.Navigation as Nav
 import Html exposing (Attribute)
 import Html.Attributes as Attr
+import ID exposing (ID)
 import Url exposing (Url)
 import Url.Parser as Parser exposing ((</>), Parser, oneOf, s, string)
-import ID exposing (ID)
+
 
 
 -- ROUTING
@@ -18,6 +19,9 @@ type Route
     | Namespace ID
     | NamespaceNew
     | NamespaceList
+    | AdminDashboard
+    | AdminNamespaces
+    | AdminUsers
     | User ID
 
 
@@ -34,6 +38,9 @@ parser =
         , Parser.map NamespaceNew (s "namespaces" </> s "new")
         , Parser.map Namespace (s "namespaces" </> ID.urlParser)
         , Parser.map NamespaceList (s "namespaces")
+        , Parser.map AdminDashboard (s "admin" </> s "dashboard")
+        , Parser.map AdminNamespaces (s "admin" </> s "namespaces")
+        , Parser.map AdminUsers (s "admin" </> s "users")
         , Parser.map User (s "users" </> ID.urlParser)
 
         -- , Parser.map UserList (s "users")
@@ -89,10 +96,19 @@ routeToString page =
                 NamespaceList ->
                     [ "namespaces" ]
 
+                AdminDashboard ->
+                    [ "admin", "dashboard" ]
+
+                AdminNamespaces ->
+                    [ "admin", "namespaces" ]
+
+                AdminUsers ->
+                    [ "admin", "users" ]
+
                 User id ->
                     [ "users", ID.toString id ]
 
         --                UserList ->
         --                    [ "users" ]
     in
-        "#/" ++ String.join "/" pieces
+    "#/" ++ String.join "/" pieces

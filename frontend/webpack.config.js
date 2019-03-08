@@ -26,7 +26,7 @@ var common = {
   plugins: [
     new HTMLWebpackPlugin({
       // Use this template to get basic responsive meta tags
-      template: '!!prerender-loader?string!src/index.html',
+      template: MODE === 'production' ? '!!prerender-loader?string!src/index.html' : 'src/index.html',
       // inject details of output file at end of body
       inject: 'body',
       meta: {
