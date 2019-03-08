@@ -113,7 +113,7 @@ viewUsers users =
     div [ class "col-6" ]
         [ div [ class "card" ]
             [ div [ class "card-header" ]
-                [ text "New namespaces" ]
+                [ text "New users" ]
             , ul [ class "list-group list-group-flush" ] <|
                 List.map viewUser users
             ]
@@ -134,7 +134,7 @@ viewNamespaces users =
     div [ class "col-6" ]
         [ div [ class "card" ]
             [ div [ class "card-header" ]
-                [ text "New users" ]
+                [ text "New namespaces" ]
             , ul [ class "list-group list-group-flush" ] <|
                 List.map viewNamespace users
             ]
