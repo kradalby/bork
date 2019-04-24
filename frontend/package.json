@@ -49,5 +49,11 @@
     "prettier": {
         "tabWidth": 4
     },
-    "private": true
+    "private": true,
+    "dependencies": {
+        "elm-analyse": "^0.16.3",
+        "prettier": "^1.17.0",
+        "stylelint": "^10.0.1",
+        "stylelint-config-prettier": "^5.1.0"
+    }
 }

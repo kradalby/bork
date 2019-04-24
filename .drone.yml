@@ -2,10 +2,18 @@ workspace:
   base: /go/src/github.com/kradalby/bork
 
 pipeline:
-    # lint:
-    #   image: golangci/golangci-lint 
-    #   commands:
-    #       - golangci-lint run
+  lint:
+    image: golangci/golangci-lint 
+    commands:
+        - golangci-lint run
+
+  lint-frontend:
+    image: node:10
+    commands:
+        - cd frontend
+        - yarn
+        - npx elm-analyse
+        - npx stylelint src/*.scss
 
   build:
     image: plugins/docker
