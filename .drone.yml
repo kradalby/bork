@@ -2,10 +2,13 @@
 #   base: /go/src/github.com/kradalby/bork
 
 pipeline:
-    # lint:
-    # liimage: golangci/golangci-lint 
-    # licommands:
-    # li    - golangci-lint run
+  lint:
+    image: golangci/golangci-lint:latest
+    commands:
+          - ls
+          - pwd
+          - golangci-lint --version
+          - golangci-lint run
 
   lint-frontend:
     image: node:10
