@@ -1,5 +1,5 @@
-workspace:
-  base: /go/src/github.com/kradalby/bork
+# workspace:
+#   base: /go/src/github.com/kradalby/bork
 
 pipeline:
   lint:
