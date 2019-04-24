@@ -9,6 +9,8 @@ pipeline:
           - go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
           - golangci-lint --version
           - golangci-lint run
+    environment:
+        GO111MODULE=on
 
   lint-frontend:
     image: node:10
