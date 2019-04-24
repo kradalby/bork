@@ -4,7 +4,6 @@ require (
 	github.com/gobuffalo/buffalo v0.13.13
 	github.com/gobuffalo/buffalo-pop v1.6.0
 	github.com/gobuffalo/envy v1.6.12
-	github.com/gobuffalo/mw-contenttype v0.0.0-20190129203934-2554e742333b
 	github.com/gobuffalo/mw-csrf v0.0.0-20190129204204-25460a055517
 	github.com/gobuffalo/mw-forcessl v0.0.0-20180802152810-73921ae7a130
 	github.com/gobuffalo/mw-paramlogger v0.0.0-20190129202837-395da1998525

@@ -2,12 +2,12 @@ package actions
 
 import (
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/mw-csrf"
+	csrf "github.com/gobuffalo/mw-csrf"
 
 	"github.com/gobuffalo/buffalo-pop/pop/popmw"
 	// "github.com/gobuffalo/mw-contenttype"
-	"github.com/gobuffalo/mw-forcessl"
-	"github.com/gobuffalo/mw-paramlogger"
+	forcessl "github.com/gobuffalo/mw-forcessl"
+	paramlogger "github.com/gobuffalo/mw-paramlogger"
 
 	"github.com/gobuffalo/envy"
 	"github.com/unrolled/secure"
@@ -46,7 +46,7 @@ func App(kubeconf string) *buffalo.App {
 		if ENV == PRODUCTION {
 			app.Use(forceSSL())
 			app.Use(csrf.New)
-            setErrorHandler(app)
+			setErrorHandler(app)
 		}
 
 		if ENV == DEVELOPMENT {
@@ -72,14 +72,13 @@ func App(kubeconf string) *buffalo.App {
 		apiV1.Use(Authorize)
 		apiV1.Use(SetCurrentUser)
 
-
-        users := apiV1.Group("/users")
+		users := apiV1.Group("/users")
 		// apiV1.Resource("/users", UsersResource{})
 		users.GET("/", UserList)
 		users.GET("/{user_id}", UserShow)
 		users.GET("/{user_id}/coowned", NamespaceCoOwner)
 
-        namespaces := apiV1.Group("/namespaces")
+		namespaces := apiV1.Group("/namespaces")
 		namespaces.GET("/prefix/", NamespacePrefix)
 		namespaces.POST("/validate/", NamespaceValidateName)
 		namespaces.Resource("/", NamespacesResource{})
@@ -93,8 +92,8 @@ func App(kubeconf string) *buffalo.App {
 		namespaces.GET("/{namespace_id}/auth", NamespaceAuth)
 		namespaces.GET("/{namespace_id}/config", NamespaceConfig)
 
-        admin := apiV1.Group("/admin")
-        admin.GET("/dashboard", Dashboard)
+		admin := apiV1.Group("/admin")
+		admin.GET("/dashboard", Dashboard)
 
 		app.GET("/{path:.+}", HomeHandler)
 		app.GET("/", HomeHandler)

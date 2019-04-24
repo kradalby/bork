@@ -1,11 +1,12 @@
 package actions
 
 import (
+	"regexp"
+
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
 	"github.com/kradalby/bork/models"
 	"github.com/pkg/errors"
-	"regexp"
 )
 
 func getLoggedInUser(c buffalo.Context) (*models.User, error) {

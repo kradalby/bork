@@ -7,7 +7,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-
 // List gets all Users. This function is mapped to the path
 // GET /admin/dashboard
 func Dashboard(c buffalo.Context) error {
@@ -27,10 +26,10 @@ func Dashboard(c buffalo.Context) error {
 	}
 
 	users := &models.Users{}
-    namespaces := &models.Namespaces{}
+	namespaces := &models.Namespaces{}
 
 	// Retrieve all Users from the DB
-    if err := tx.Eager().Order("created_at desc").Limit(5).All(users); err != nil {
+	if err := tx.Eager().Order("created_at desc").Limit(5).All(users); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -49,12 +48,11 @@ func Dashboard(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
-
-    dashboard := map[string]interface{}{
-        "users_count": users_count,
-        "users_new": users,
-        "namespaces_count": namespaces_count,
-        "namespaces_new": *namespaces,
-    }
+	dashboard := map[string]interface{}{
+		"users_count":      users_count,
+		"users_new":        users,
+		"namespaces_count": namespaces_count,
+		"namespaces_new":   *namespaces,
+	}
 	return c.Render(200, r.JSON(dashboard))
 }

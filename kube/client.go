@@ -257,12 +257,12 @@ func (c *Client) createRole(namespace string) error {
 			// Labels:    getLabels(),
 		},
 		Rules: []rbacv1.PolicyRule{
-			rbacv1.PolicyRule{
+			{
 				APIGroups: []string{"", "extensions", "apps"},
 				Resources: []string{"*"},
 				Verbs:     []string{"*"},
 			},
-			rbacv1.PolicyRule{
+			{
 				APIGroups: []string{"batch"},
 				Resources: []string{"jobs", "cronjobs"},
 				Verbs:     []string{"*"},

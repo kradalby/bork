@@ -1,11 +1,10 @@
 package actions
 
-
 import (
-	"github.com/gobuffalo/buffalo"
-	"fmt"
 	"encoding/json"
-    //"github.com/davecgh/go-spew/spew"
+	"fmt"
+	"github.com/gobuffalo/buffalo"
+	//"github.com/davecgh/go-spew/spew"
 )
 
 func setErrorHandler(app *buffalo.App) {
@@ -21,11 +20,11 @@ func customErrorHandler() buffalo.ErrorHandler {
 		c.Logger().Error(err)
 		c.Response().WriteHeader(status)
 
-        response := json.NewEncoder(c.Response()).Encode(map[string]interface{}{
-				"error": fmt.Sprintf("%s", err),
-				"code":  status,
-	          })
+		response := json.NewEncoder(c.Response()).Encode(map[string]interface{}{
+			"error": fmt.Sprintf("%s", err),
+			"code":  status,
+		})
 
-        return response
-    }
+		return response
+	}
 }
