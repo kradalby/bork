@@ -10,7 +10,7 @@ pipeline:
           - golangci-lint --version
           - golangci-lint run
     environment:
-        GO111MODULE=on
+        - GO111MODULE=on
 
   lint-frontend:
     image: node:10
