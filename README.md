@@ -10,6 +10,12 @@ It is very early development.
 * Simple namespace creation
 * Namespaces are created with restricted access
 * Namespaces can be shared with multiple co-owners
+* Per namespace CI setup instruction (GitLab, Drone)
 
 
 ## WIP screenshots
+![Home](./screenshots/home.png)
+![Create](./screenshots/create.png)
+![Namespaces](./screenshots/namespaces.png)
+![Namespace](./screenshots/namespace.png)
+![Profile](./screenshots/profile.png)
